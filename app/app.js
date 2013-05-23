@@ -1,15 +1,18 @@
 var map;
 var pois = [];
-var markerlayer = L.layerGroup();
+var markerlayer;
 var myLocation = null;
 var OSM_URL = "http://overpass.osm.rambler.ru/cgi/interpreter?data=%5Bout:json%5D;";
-var berlin = new L.LatLng(52.5213616409873, 13.4101340342265); 
+var berlin;
 
 
 
 
 
 function initMap() {
+	markerlayer = L.layerGroup();
+	berlin = new L.LatLng(52.5213616409873, 13.4101340342265); 
+
 	map = new L.Map('map', {
 		center: berlin,
 		zoom: 13
@@ -96,6 +99,7 @@ function onLocationError(e) {
 
 
 window.onload = function() {
+
 
 	initMap();
 
