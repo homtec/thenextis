@@ -1,0 +1,9 @@
+INSTALLATION
+=======================================
+install flask
+sudo pip install flask
+
+
+Start
+=======================================
+python init.py
