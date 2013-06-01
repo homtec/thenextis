@@ -78,7 +78,7 @@ function loadPOI(tag) {
 
 		//zoom map
 		//map.panTo(nearest.getLatLng());
-		map.panInsideBounds(new L.LatLngBounds([nearest.getLatLng(),myLocation, myLocation])); 
+		map.fitBounds(new L.LatLngBounds([myLocation, nearest.getLatLng(), myLocation])); 
 
 	});
 }
