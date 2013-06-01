@@ -121,6 +121,15 @@ window.onload = function() {
 		case 'Tabletennis':
 		  tag="sport=table_tennis";
 		  break;
+		case 'ATM':
+		  tag="amenity=atm";
+		  break;
+		case 'Taxi':
+		  tag="amenity=taxi";
+		  break;
+		case 'Fuel':
+		  tag="amenity=fuel";
+		  break;
 		case 'Postbox':
 		  tag="amenity=post_box";
 		  break;
