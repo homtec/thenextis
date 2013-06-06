@@ -39,7 +39,9 @@ function loadPOI(tag) {
 	var northeast = map.getBounds().getNorthEast();
 
 	//build URL
-	var OSM_PARAMS = "node["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");out;";
+//	var OSM_PARAMS = "node["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");out;";
+	var OSM_PARAMS = "node["+tag+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");out;";
+
 	console.log(OSM_PARAMS);
 	var URL = OSM_URL + encodeURIComponent(OSM_PARAMS);
 
