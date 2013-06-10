@@ -1,23 +1,25 @@
-body {
-    padding: 0;
-    margin: 0;
-}
-html, body, #map {
-    height: 100%;
+body{
+	padding:0;
+	margin:0
 }
 
-#inputarea {
-  position:absolute;
-  #height: 50px;
-  left: 100px;
-  top: 100px;
-  padding:20px;
-  z-index : 10;
-  background-color: white;
-  font-size: 30pt;
-  font-family: 'Roboto Slab', serif;
-  border: 3px solid #B4CDCD;
-  border-radius: 20px;
-  #opacity: 0.5;
+html,body,#map{
+	height:100%
 }
 
+#inputarea{
+	position:absolute;
+	#height:50px;
+	left:-7px;
+	top:200px;
+	padding:20px;
+	z-index:10;
+	background-color:#000;
+	font-size:30px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 400;
+	color: #fff;
+	border:2px solid #000;
+	border-radius:3px;
+	opacity:.85
+}
