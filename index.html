@@ -6,14 +6,32 @@
 	<link rel="stylesheet" href="app/app.css" />
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.5.1/leaflet.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+	<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
 	<script src="app/app.js"></script>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41786342-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
 	<title>The next is here</title>
 </head>
 <body>
 <div id="inputarea">
-	THE<br>
-	NEXT<br> 
+	<p>THE</p>
+	<p>NEXT</p>
 
 
 	<select id="mydropdown" default="test">
@@ -23,11 +41,28 @@
 	<option value="ATM">ATM</option>
 	<option value="Taxi">cabstand</option>
 	<option value="Fuel">Gas station</option>
+	<option value="Telephone">Telephone</option>
+	<option value="Water">Drinking water</option>
+	<option value="Charging">EV charging station</option>
 	</select>
-<br>
-IS
+
+<p>IS</p>
+<span id="loading" hidden="true"><i class="icon-spinner icon-spin icon-large"></i> searching for you...</span>
 </div>
 
 <div id="map" style="height: 100%"></div>
+
+<div id="modal_no_pois" class="modal hide fade">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3><i class="icon-frown"></i> No result</h3>
+  </div>
+  <div class="modal-body">
+    <p>There is no in 1 km range. </p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn btn-primary">Close</a>
+  </div>
+</div>
 </body>
 </html>

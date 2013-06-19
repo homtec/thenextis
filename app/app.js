@@ -46,12 +46,25 @@ function loadPOI(tag) {
 	var URL = OSM_URL + encodeURIComponent(OSM_PARAMS);
 
 
-	//load POIs from OSM
+	//show loading indicator
+	$("#loading").show();
+
+	//load POIs from OSM	
 	var markers = [];
-	$.getJSON(URL, function(data) {
-		
+	$.getJSON(URL)
+	.done( function(data) {
+
+		//remove loading indicator
+		$("#loading").hide()		
+
 		//build markers
 		pois = data['elements'];
+
+		if(pois.length == 0) {
+			$('#modal_no_pois').modal();
+			return;
+		};
+		
 		$.each(pois, function(index, poi) {
 			lat = poi['lat'];
 			lon = poi['lon'];
@@ -78,11 +91,15 @@ function loadPOI(tag) {
 				distance = marker.getLatLng().distanceTo(myLocation);
 				nearest = marker;
 			}
-		});
+		})
 
 		//zoom map
 		map.fitBounds(new L.LatLngBounds([myLocation, nearest.getLatLng(), myLocation])); 
 
+	})
+	.fail( function(jqxhr, textStatus, error ) {
+		var err = textStatus + ', ' + error;
+		console.log( "Request Failed: " + err);
 	});
 }
 
@@ -135,6 +152,15 @@ window.onload = function() {
 		  break;
 		case 'Postbox':
 		  tag="amenity=post_box";
+		  break;
+		case 'Telephone':
+		  tag="amenity=telephone";
+		  break;
+		case 'Water':
+		  tag="amenity=drinking_water";
+		  break;
+		case 'Charging':
+		  tag="amenity=charging_station";
 		  break;
 		default:
 		  tag='';
