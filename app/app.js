@@ -23,7 +23,7 @@ function initMap() {
 	var osmAttr = '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
 	var attribution = 'Map data ' + osmAttr + ', Imagery &copy; <a href="http://cloudmade.com">CloudMade</a>';
 
-	cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: attribution});
+	cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: attribution, detectRetina: true});
 	map.addLayer(cloudmade);
 	map.addLayer(markerlayer); 
 }
