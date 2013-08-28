@@ -5,7 +5,7 @@ var myLocation = null;
 var OSM_URL = "http://overpass.osm.rambler.ru/cgi/interpreter?data=%5Bout:json%5D;";
 var berlin;
 var icon_user;
-
+var mapDragged = false;
 
 
 
@@ -41,22 +41,38 @@ function initMap() {
 }
 	
 
-function loadPOI(tag) {
+function loadPOIs(manualRefresh) {
+	console.log("loadPOIs called");
+	var tag = getTag();
+	if ( tag == '') return;
 
-	//remove old markers
-	markerlayer.clearLayers();
-	
 	//get map bounds from current window
 	var southwest = map.getBounds().getSouthWest();
 	var northeast = map.getBounds().getNorthEast();
 
 	//build URL
-//	var OSM_PARAMS = "node["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");out;";
-	var OSM_PARAMS = "node["+tag+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");out;";
+	//search around only if map not dragged, otherwise search in map window
+	//but only with appropriate zoom level
+
+	if(!manualRefresh)
+	{
+		//search around user position
+		var OSM_PARAMS = "node["+tag+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");out;";
+	} else {
+		//don't search in big areas
+		if(map.getZoom() < 13) {
+			alert("Please zoom in");		
+			return;
+		}
+		//search in current map window
+		var OSM_PARAMS = "node["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");out;";
+	}
 
 	console.log(OSM_PARAMS);
 	var URL = OSM_URL + encodeURIComponent(OSM_PARAMS);
 
+	//remove old markers
+	markerlayer.clearLayers();
 
 	//show loading indicator
 	$("#loading").show();
@@ -106,7 +122,9 @@ function loadPOI(tag) {
 		})
 
 		//zoom map
-		map.fitBounds(new L.LatLngBounds([myLocation, nearest.getLatLng(), myLocation])); 
+		if(!manualRefresh) {
+			map.fitBounds(new L.LatLngBounds([myLocation, nearest.getLatLng(), myLocation])); 
+		}
 
 	})
 	.fail( function(jqxhr, textStatus, error ) {
@@ -129,8 +147,65 @@ function onLocationError(e) {
     alert(e.message);
 }
 
+function onMapDragged(){
+	mapDragged = true;
+}
 
-window.onload = function() {
+function getTag() {
+
+	  var tag = "";
+	var selection = $('#mydropdown').val();
+
+	  switch(selection)
+	{
+	case 'Playground':
+	  tag="leisure=playground";
+	  break;
+	case 'Tabletennis':
+	  tag="sport=table_tennis";
+	  break;
+	case 'ATM':
+	  tag="amenity=atm";
+	  break;
+	case 'Pharmacy':
+	  tag="amenity=pharmacy";
+	  break;
+	case 'Taxi':
+	  tag="amenity=taxi";
+	  break;
+	case 'Fuel':
+	  tag="amenity=fuel";
+	  break;
+	case 'Postbox':
+	  tag="amenity=post_box";
+	  break;
+	case 'Telephone':
+	  tag="amenity=telephone";
+	  break;
+	case 'Water':
+	  tag="amenity=drinking_water";
+	  break;
+	case 'Charging':
+	  tag="amenity=charging_station";
+	  break;
+	default:
+	  tag='';
+	  break;
+	}
+	
+	return tag;
+}
+
+function reloadCurrentMapWindow() {
+	//get current zoom level and check
+    //get current map coordinates
+
+	//get current tag
+	//go
+}	
+
+
+$(function() {
 
 
 	initMap();
@@ -138,59 +213,18 @@ window.onload = function() {
 	// setup geolocation
 	map.on('locationfound', onLocationFound);
 	map.on('locationerror', onLocationError);
+	map.on('dragend', onMapDragged);
 	map.locate({setView: true, maxZoom: 16});
 
 
 	//setup dropdown listener
 	$('#mydropdown').change(function() 
 		{
-		  var tag = "";
-		  switch($(this).val())
-		{
-		case 'Playground':
-		  tag="leisure=playground";
-		  break;
-		case 'Tabletennis':
-		  tag="sport=table_tennis";
-		  break;
-		case 'ATM':
-		  tag="amenity=atm";
-		  break;
-		case 'Pharmacy':
-		  tag="amenity=pharmacy";
-		  break;
-		case 'Taxi':
-		  tag="amenity=taxi";
-		  break;
-		case 'Fuel':
-		  tag="amenity=fuel";
-		  break;
-		case 'Postbox':
-		  tag="amenity=post_box";
-		  break;
-		case 'Telephone':
-		  tag="amenity=telephone";
-		  break;
-		case 'Water':
-		  tag="amenity=drinking_water";
-		  break;
-		case 'Charging':
-		  tag="amenity=charging_station";
-		  break;
-		default:
-		  tag='';
-		  break;
-		}
-		
-		//load POIs into map
-		loadPOI(tag);
-	});
+		loadPOIs();
+	});   
 
-	function reloadCurrentMapWindow() {
-		//get current zoom level and check
-	    //get current map coordinates
+	//set onClick for refresh button
+	$('#redo_link').click(function(){loadPOIs(true);});
+});
 
-		//get current tag
-		//go
-	}	   
-};
+
