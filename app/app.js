@@ -4,7 +4,7 @@ var markerlayer;
 var myLocation = null;
 var OSM_URL = "http://overpass.osm.rambler.ru/cgi/interpreter?data=%5Bout:json%5D;";
 var berlin;
-
+var icon_user;
 
 
 
@@ -12,6 +12,18 @@ var berlin;
 function initMap() {
 	markerlayer = L.layerGroup();
 	berlin = new L.LatLng(52.5213616409873, 13.4101340342265); 
+
+	icon_user = L.icon({
+	    iconUrl: 'app/images/user.svg',
+	    iconRetinaUrl: 'app/images/user.png',
+	    iconSize: [40, 40],
+	    iconAnchor: [20, 20],
+	    popupAnchor: [10, -20],
+	 //   shadowUrl: 'my-icon-shadow.png',
+	 //   shadowRetinaUrl: 'my-icon-shadow@2x.png',
+	    shadowSize: [68, 95],
+	    shadowAnchor: [22, 94]
+	});
 
 	map = new L.Map('map', {
 		center: berlin,
@@ -107,7 +119,7 @@ function loadPOI(tag) {
 function onLocationFound(e) {
     var radius = e.accuracy / 2;
 
-    L.marker(e.latlng).addTo(map).bindPopup("You are within " + radius + " meters from this point").openPopup();
+    L.marker(e.latlng, {icon: icon_user}).addTo(map).bindPopup("You are somewhere here").openPopup();
 
     L.circle(e.latlng, radius).addTo(map);
 	myLocation = e.latlng;
@@ -144,6 +156,9 @@ window.onload = function() {
 		case 'ATM':
 		  tag="amenity=atm";
 		  break;
+		case 'Pharmacy':
+		  tag="amenity=pharmacy";
+		  break;
 		case 'Taxi':
 		  tag="amenity=taxi";
 		  break;
@@ -170,5 +185,12 @@ window.onload = function() {
 		//load POIs into map
 		loadPOI(tag);
 	});
-	   
+
+	function reloadCurrentMapWindow() {
+		//get current zoom level and check
+	    //get current map coordinates
+
+		//get current tag
+		//go
+	}	   
 };
