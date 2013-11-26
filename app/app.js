@@ -54,7 +54,7 @@ function loadPOIs(manualRefresh) {
 	//search around only if map not dragged, otherwise search in map window
 	//but only with appropriate zoom level
 
-	if(!manualRefresh)
+	if(!manualRefresh && !mapDragged)
 	{
 		//search around user position
 		var OSM_PARAMS = "node["+tag+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");out;";
@@ -122,7 +122,7 @@ function loadPOIs(manualRefresh) {
 		})
 
 		//zoom map
-		if(!manualRefresh) {
+		if(!manualRefresh && !mapDragged) {
 			map.fitBounds(new L.LatLngBounds([myLocation, nearest.getLatLng(), myLocation])); 
 		}
 
