@@ -206,6 +206,9 @@ function getTag() {
 	case 'Charging':
 	  tag="amenity=charging_station";
 	  break;
+        case 'Bus station':
+	  tag="highway=bus_stop";
+	  break;
 	default:
 	  tag='';
 	  break;
