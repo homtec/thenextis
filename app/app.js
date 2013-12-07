@@ -54,7 +54,7 @@ function loadPOIs(manualRefresh) {
 	//search around only if map not dragged, otherwise search in map window
 	//but only with appropriate zoom level
 
-	if(!manualRefresh)
+	if(!manualRefresh && !mapDragged)
 	{
 		//search around user position
 		var OSM_PARAMS = "node["+tag+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");out;";
@@ -96,7 +96,20 @@ function loadPOIs(manualRefresh) {
 		$.each(pois, function(index, poi) {
 			lat = poi['lat'];
 			lon = poi['lon'];
-	    	markers.push(new L.Marker([lat, lon]));
+                        popuptext = "";
+                        if(typeof poi['tags']['name'] != 'undefined')
+                                popuptext += poi['tags']['name'] + "</br>";
+                        if(typeof poi['tags']['operator'] != 'undefined')
+                                popuptext += poi['tags']['operator'] + "</br>";
+                        if(typeof poi['tags']['collection_times'] != 'undefined')
+                                popuptext += poi['tags']['collection_times'] + "</br>";
+                        if(typeof poi['tags']['opening_hours'] != 'undefined')
+                                popuptext += poi['tags']['opening_hours'] + "</br>";
+                        if(typeof poi['tags']['phone'] != 'undefined')
+                                popuptext += poi['tags']['phone'] + "</br>";
+                        if(typeof poi['tags']['website'] != 'undefined')
+                                popuptext += '<a href="' + poi['tags']['website'] + '" target="_blank" rel="nofollow">' + poi['tags']['website'] + '</a></br>';
+                        markers.push(new L.Marker([lat, lon]).bindPopup(getTagName() + "</br>" + popuptext));
 	  	});	
 
 	  	//add markers to map	
@@ -122,7 +135,7 @@ function loadPOIs(manualRefresh) {
 		})
 
 		//zoom map
-		if(!manualRefresh) {
+		if(!manualRefresh && !mapDragged) {
 			map.fitBounds(new L.LatLngBounds([myLocation, nearest.getLatLng(), myLocation])); 
 		}
 
@@ -151,9 +164,14 @@ function onMapDragged(){
 	mapDragged = true;
 }
 
-function getTag() {
+function getTagName(){
+	var tagName = "";
+	tagName = $('#mydropdown :selected').text();
+        return tagName;
+}
 
-	  var tag = "";
+function getTag() {
+        var tag = "";
 	var selection = $('#mydropdown').val();
 
 	  switch(selection)
@@ -187,6 +205,9 @@ function getTag() {
 	  break;
 	case 'Charging':
 	  tag="amenity=charging_station";
+	  break;
+        case 'Bus station':
+	  tag="highway=bus_stop";
 	  break;
 	default:
 	  tag='';
