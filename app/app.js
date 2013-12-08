@@ -89,7 +89,10 @@ function loadPOIs(manualRefresh) {
 		pois = data['elements'];
 
 		if(pois.length == 0) {
-			$('#modal_no_pois').modal();
+			//$('#modal_no_pois').modal();
+			
+			// show a no POI alert - ToDo: remove alert, show short notice on site  
+			alert("Sorry, no POI in this area. Zoom out or pan the map.");
 			return;
 		};
 		
