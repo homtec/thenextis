@@ -24,7 +24,7 @@ html,body,#map{
 	opacity:.80
 }
 
-#redo{
+#redo, #locateMe{
 	font-size:15px;
 }
 #add{

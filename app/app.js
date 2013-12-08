@@ -249,6 +249,13 @@ $(function() {
 
 	//set onClick for refresh button
 	$('#redo_link').click(function(){loadPOIs(true);});
+    $('#locateMe_link').click(function(){locateMe();});
+    
 });
+
+function locateMe() {
+	map.locate({setView: true, maxZoom: 16});
+    mapDragged = false;
+}	
 
 
