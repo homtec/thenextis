@@ -65,7 +65,7 @@ function loadPOIs(manualRefresh) {
 			return;
 		}
 		//search in current map window
-		var OSM_PARAMS = "node["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");out;";
+		var OSM_PARAMS = "(way["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");>;" + "node["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +"););out;";
 	}
 
 	console.log(OSM_PARAMS);
