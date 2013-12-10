@@ -250,6 +250,7 @@ $(function() {
 	//set onClick for refresh button
 	$('#redo_link').click(function(){loadPOIs(true);});
     $('#locateMe_link').click(function(){locateMe();});
+    $('#editOSM_link').click(function(){editOSM();});
     
 });
 
@@ -258,4 +259,9 @@ function locateMe() {
     mapDragged = false;
 }	
 
-
+function editOSM() {
+        var center = map.getCenter();
+        var z = map.getZoom();
+        window.open('http://www.openstreetmap.org/edit?' + 'zoom=' + z +
+            '&editor=id' + '&lat=' + center.lat + '&lon=' + center.lng);
+    }
