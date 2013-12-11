@@ -1,16 +1,19 @@
 var map;
 var pois = [];
 var markerlayer;
+var waylayer;
 var myLocation = null;
 var OSM_URL = "http://overpass.osm.rambler.ru/cgi/interpreter?data=%5Bout:json%5D;";
 var berlin;
 var icon_user;
 var mapDragged = false;
+var way;
 
 
 
 function initMap() {
 	markerlayer = L.layerGroup();
+        waylayer = L.layerGroup();
 	berlin = new L.LatLng(52.5213616409873, 13.4101340342265); 
 
 	icon_user = L.icon({
@@ -37,7 +40,8 @@ function initMap() {
 
 	cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: attribution, detectRetina: true});
 	map.addLayer(cloudmade);
-	map.addLayer(markerlayer); 
+	map.addLayer(markerlayer);
+        map.addLayer(waylayer);
 }
 	
 
@@ -57,7 +61,7 @@ function loadPOIs(manualRefresh) {
 	if(!manualRefresh && !mapDragged)
 	{
 		//search around user position
-		var OSM_PARAMS = "node["+tag+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");out;";
+		var OSM_PARAMS = "(way["+tag+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");>;" +"node["+tag+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ "););out;";
 	} else {
 		//don't search in big areas
 		if(map.getZoom() < 13) {
@@ -65,7 +69,7 @@ function loadPOIs(manualRefresh) {
 			return;
 		}
 		//search in current map window
-		var OSM_PARAMS = "node["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");out;";
+		var OSM_PARAMS = "(way["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");>;" + "node["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +"););out;";
 	}
 
 	console.log(OSM_PARAMS);
@@ -73,12 +77,14 @@ function loadPOIs(manualRefresh) {
 
 	//remove old markers
 	markerlayer.clearLayers();
+        waylayer.clearLayers();
 
 	//show loading indicator
 	$("#loading").show();
 
 	//load POIs from OSM	
 	var markers = [];
+        var ways = [];
 	$.getJSON(URL)
 	.done( function(data) {
 
@@ -97,28 +103,41 @@ function loadPOIs(manualRefresh) {
 		};
 		
 		$.each(pois, function(index, poi) {
-			lat = poi['lat'];
-			lon = poi['lon'];
                         popuptext = "";
-                        if(typeof poi['tags']['name'] != 'undefined')
-                                popuptext += poi['tags']['name'] + "</br>";
-                        if(typeof poi['tags']['operator'] != 'undefined')
-                                popuptext += poi['tags']['operator'] + "</br>";
-                        if(typeof poi['tags']['collection_times'] != 'undefined')
-                                popuptext += poi['tags']['collection_times'] + "</br>";
-                        if(typeof poi['tags']['opening_hours'] != 'undefined')
-                                popuptext += poi['tags']['opening_hours'] + "</br>";
-                        if(typeof poi['tags']['phone'] != 'undefined')
-                                popuptext += poi['tags']['phone'] + "</br>";
-                        if(typeof poi['tags']['website'] != 'undefined')
-                                popuptext += '<a href="' + poi['tags']['website'] + '" target="_blank" rel="nofollow">' + poi['tags']['website'] + '</a></br>';
-                        markers.push(new L.Marker([lat, lon]).bindPopup(getTagName() + "</br>" + popuptext));
+                        if(poi['type'] == 'node' && typeof poi['tags'] != 'undefined'){
+                                lat = poi['lat'];
+                                lon = poi['lon'];
+                                popuptext = getPopupText(poi);
+                                markers.push(new L.Marker([lat, lon]).bindPopup(getTagName() + "</br>" + popuptext));
+                        }
+                        if(poi['type'] == 'way' && typeof poi['tags'] != 'undefined'){
+                                way = new L.polygon({color: 'blue'});
+                                $.each(poi['nodes'], function(index, poinode) {
+                                        $.each(pois, function(index, waynode) {
+                                                if (waynode['id'] == poinode){
+                                                        //console.log(waynode);
+                                                        way.addLatLng(new L.latLng(waynode['lat'], waynode['lon']));
+                                                        //console.log(way);
+                                                }
+                                        });
+                                });
+                                popuptext = getPopupText(poi);
+                                
+                                //add polygon to map
+                                ways.push(way.bindPopup(getTagName() + "</br>" + popuptext));
+                                
+                                //add aditional marker at polygons bbox center
+                                markers.push(new L.Marker(way.getBounds().getCenter()).bindPopup(getTagName() + "</br>" + popuptext));
+                        }
 	  	});	
 
-	  	//add markers to map	
-		console.log(markers);
+	  	//add markers to map
 		newmarkers = L.layerGroup(markers);
 		markerlayer.addLayer(newmarkers);    
+                
+                //add polygons to map
+                newways = L.layerGroup(ways);
+		waylayer.addLayer(newways);
 
 		//if no geolocation, finish here
 		if(myLocation === null){
@@ -130,16 +149,24 @@ function loadPOIs(manualRefresh) {
 		var nearest = null;
 		$.each(markers, function(i, marker) {
 			temp = marker.getLatLng();
-			dist = temp.distanceTo(myLocation);
-			if(marker.getLatLng().distanceTo(myLocation) < distance) {
-				distance = marker.getLatLng().distanceTo(myLocation);
-				nearest = marker;
+			if(temp.distanceTo(myLocation) < distance) {
+				distance = temp.distanceTo(myLocation);
+				nearest = temp;
+			}
+		})
+                
+                //find nearest polygon 
+		$.each(ways, function(i, polygon) {
+			temp = polygon.getBounds().getCenter();
+			if(temp.distanceTo(myLocation) < distance) {
+				distance =temp.distanceTo(myLocation);
+				nearest = temp;
 			}
 		})
 
 		//zoom map
 		if(!manualRefresh && !mapDragged) {
-			map.fitBounds(new L.LatLngBounds([myLocation, nearest.getLatLng(), myLocation])); 
+			map.fitBounds(new L.LatLngBounds([myLocation, nearest], {padding:[10,10]})); 
 		}
 
 	})
@@ -169,7 +196,7 @@ function onMapDragged(){
 
 function getTagName(){
 	var tagName = "";
-	tagName = $('#mydropdown :selected').text();
+	tagName = $('#mydropdown').val();
         return tagName;
 }
 
@@ -260,6 +287,7 @@ $(function() {
 	//set onClick for refresh button
 	$('#redo_link').click(function(){loadPOIs(true);});
     $('#locateMe_link').click(function(){locateMe();});
+    $('#editOSM_link').click(function(){editOSM();});
     
 });
 
@@ -268,6 +296,31 @@ function locateMe() {
     mapDragged = false;
 }	
 
+
+function editOSM() {
+        var center = map.getCenter();
+        var z = map.getZoom();
+        window.open('http://www.openstreetmap.org/edit?' + 'zoom=' + z +
+            '&editor=id' + '&lat=' + center.lat + '&lon=' + center.lng);
+    }
+
+function getPopupText(poi) {
+        if(typeof poi['tags']['name'] != 'undefined')
+                popuptext += poi['tags']['name'] + "</br>";
+        if(typeof poi['tags']['operator'] != 'undefined')
+                popuptext += poi['tags']['operator'] + "</br>";
+        if(typeof poi['tags']['collection_times'] != 'undefined')
+                popuptext += poi['tags']['collection_times'] + "</br>";
+        if(typeof poi['tags']['opening_hours'] != 'undefined')
+                popuptext += poi['tags']['opening_hours'] + "</br>";
+        if(typeof poi['tags']['phone'] != 'undefined')
+                popuptext += poi['tags']['phone'] + "</br>";
+        if(typeof poi['tags']['website'] != 'undefined')
+                popuptext += '<a href="' + poi['tags']['website'] + '" target="_blank" rel="nofollow">' + poi['tags']['website'] + '</a></br>';
+        return popuptext;
+        }
+
 function isMobile() {
 	return window.location.pathname.indexOf('mobile') > -1;
 }
+
