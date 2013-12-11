@@ -196,54 +196,57 @@ function onMapDragged(){
 
 function getTagName(){
 	var tagName = "";
-	tagName = $('#mydropdown :selected').text();
+	tagName = $('#mydropdown').val();
         return tagName;
 }
 
 function getTag() {
-        var tag = "";
-	var selection = $('#mydropdown').val();
+	if (isMobile()) {
+		var tag = "";
+		var selection = $('#mydropdown').val();
 
-	  switch(selection)
-	{
-	case 'Playground':
-	  tag="leisure=playground";
-	  break;
-	case 'Tabletennis':
-	  tag="sport=table_tennis";
-	  break;
-	case 'ATM':
-	  tag="amenity=atm";
-	  break;
-	case 'Pharmacy':
-	  tag="amenity=pharmacy";
-	  break;
-	case 'Taxi':
-	  tag="amenity=taxi";
-	  break;
-	case 'Fuel':
-	  tag="amenity=fuel";
-	  break;
-	case 'Postbox':
-	  tag="amenity=post_box";
-	  break;
-	case 'Telephone':
-	  tag="amenity=telephone";
-	  break;
-	case 'Water':
-	  tag="amenity=drinking_water";
-	  break;
-	case 'Charging':
-	  tag="amenity=charging_station";
-	  break;
-        case 'Bus station':
-	  tag="highway=bus_stop";
-	  break;
-	default:
-	  tag='';
-	  break;
+		  switch(selection)
+		{
+		case 'Playground':
+		  tag="leisure=playground";
+		  break;
+		case 'Tabletennis':
+		  tag="sport=table_tennis";
+		  break;
+		case 'ATM':
+		  tag="amenity=atm";
+		  break;
+		case 'Pharmacy':
+		  tag="amenity=pharmacy";
+		  break;
+		case 'Taxi':
+		  tag="amenity=taxi";
+		  break;
+		case 'Fuel':
+		  tag="amenity=fuel";
+		  break;
+		case 'Postbox':
+		  tag="amenity=post_box";
+		  break;
+		case 'Telephone':
+		  tag="amenity=telephone";
+		  break;
+		case 'Water':
+		  tag="amenity=drinking_water";
+		  break;
+		case 'Charging':
+		  tag="amenity=charging_station";
+		  break;
+	        case 'Bus station':
+		  tag="highway=bus_stop";
+		  break;
+		default:
+		  tag='';
+		  break;
+		}
+	} else {
+		tag = $('#tag_name').val();
 	}
-	
 	return tag;
 }
 
@@ -268,11 +271,18 @@ $(function() {
 	map.locate({setView: true, maxZoom: 16});
 
 
+	if (isMobile())
 	//setup dropdown listener
-	$('#mydropdown').change(function() 
-		{
+		$('#mydropdown').change(function() 
+			{
+			loadPOIs();
+		});   
+	else {
+		$('#tag_name').change(function() 
+			{
 		loadPOIs();
-	});   
+		});  
+	}
 
 	//set onClick for refresh button
 	$('#redo_link').click(function(){loadPOIs(true);});
@@ -285,6 +295,7 @@ function locateMe() {
 	map.locate({setView: true, maxZoom: 16});
     mapDragged = false;
 }	
+
 
 function editOSM() {
         var center = map.getCenter();
@@ -308,3 +319,8 @@ function getPopupText(poi) {
                 popuptext += '<a href="' + poi['tags']['website'] + '" target="_blank" rel="nofollow">' + poi['tags']['website'] + '</a></br>';
         return popuptext;
         }
+
+function isMobile() {
+	return window.location.pathname.indexOf('mobile') > -1;
+}
+
