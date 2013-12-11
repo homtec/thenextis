@@ -8,11 +8,13 @@
 	<title>TheNextIs.com - find your place</title>
 	<script src="app/detectmobilebrowser.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+	<script src="app/jquery.autocomplete.min.js"></script>
 	
 	<link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
 	<script src="//cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
 	<link rel="stylesheet" href="app/app.css" />
 	<script src="app/app.js"></script>
+	<script src="app/autocomplete.js"></script>
 
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
 
@@ -53,21 +55,8 @@
 	<p>THE</p>
 	<p>NEXT</p>
 
-
-	<select id="mydropdown" default="test">
-	<option value="" disabled selected>choose...</option>
-	<option value="Postbox">Postbox</option>
-	<option value="Playground">Playground</option>
-	<option value="Tabletennis">Tabletennis</option>
-	<option value="Pharmacy">Pharmacy</option>
-	<option value="ATM">ATM</option>
-	<option value="Taxi">Cabstand</option>
-	<option value="Fuel">Gas station</option>
-	<option value="Telephone">Telephone</option>
-	<option value="Water">Drinking water</option>
-	<option value="Charging">EV charging</option>
-  <option value="Bus station">Bus station</option>
-	</select>
+	<input id="mydropdown" class="ui-autocomplete-input" autocomplete="off">
+    <input id="tag_name" hidden="true">
 
 <p>IS</p>
 <span id="loading" hidden="true"><i class="fa fa-spinner fa-spin fa-large"></i> searching for you...</span><br/>

@@ -174,49 +174,52 @@ function getTagName(){
 }
 
 function getTag() {
-        var tag = "";
-	var selection = $('#mydropdown').val();
+	if (isMobile()) {
+		var tag = "";
+		var selection = $('#mydropdown').val();
 
-	  switch(selection)
-	{
-	case 'Playground':
-	  tag="leisure=playground";
-	  break;
-	case 'Tabletennis':
-	  tag="sport=table_tennis";
-	  break;
-	case 'ATM':
-	  tag="amenity=atm";
-	  break;
-	case 'Pharmacy':
-	  tag="amenity=pharmacy";
-	  break;
-	case 'Taxi':
-	  tag="amenity=taxi";
-	  break;
-	case 'Fuel':
-	  tag="amenity=fuel";
-	  break;
-	case 'Postbox':
-	  tag="amenity=post_box";
-	  break;
-	case 'Telephone':
-	  tag="amenity=telephone";
-	  break;
-	case 'Water':
-	  tag="amenity=drinking_water";
-	  break;
-	case 'Charging':
-	  tag="amenity=charging_station";
-	  break;
-        case 'Bus station':
-	  tag="highway=bus_stop";
-	  break;
-	default:
-	  tag='';
-	  break;
+		  switch(selection)
+		{
+		case 'Playground':
+		  tag="leisure=playground";
+		  break;
+		case 'Tabletennis':
+		  tag="sport=table_tennis";
+		  break;
+		case 'ATM':
+		  tag="amenity=atm";
+		  break;
+		case 'Pharmacy':
+		  tag="amenity=pharmacy";
+		  break;
+		case 'Taxi':
+		  tag="amenity=taxi";
+		  break;
+		case 'Fuel':
+		  tag="amenity=fuel";
+		  break;
+		case 'Postbox':
+		  tag="amenity=post_box";
+		  break;
+		case 'Telephone':
+		  tag="amenity=telephone";
+		  break;
+		case 'Water':
+		  tag="amenity=drinking_water";
+		  break;
+		case 'Charging':
+		  tag="amenity=charging_station";
+		  break;
+	        case 'Bus station':
+		  tag="highway=bus_stop";
+		  break;
+		default:
+		  tag='';
+		  break;
+		}
+	} else {
+		tag = $('#tag_name').val();
 	}
-	
 	return tag;
 }
 
@@ -241,11 +244,18 @@ $(function() {
 	map.locate({setView: true, maxZoom: 16});
 
 
+	if (isMobile())
 	//setup dropdown listener
-	$('#mydropdown').change(function() 
-		{
+		$('#mydropdown').change(function() 
+			{
+			loadPOIs();
+		});   
+	else {
+		$('#tag_name').change(function() 
+			{
 		loadPOIs();
-	});   
+		});  
+	}
 
 	//set onClick for refresh button
 	$('#redo_link').click(function(){loadPOIs(true);});
@@ -258,4 +268,6 @@ function locateMe() {
     mapDragged = false;
 }	
 
-
+function isMobile() {
+	return window.location.pathname.indexOf('mobile') > -1;
+}
