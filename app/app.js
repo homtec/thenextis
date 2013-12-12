@@ -215,8 +215,9 @@ function getTag() {
 	if (isMobile()) {
 		var tag = "";
 		var selection = $('#mydropdown').val();
-
-		  switch(selection)
+		
+		// OSM-Tag preset for mobile
+		switch(selection)
 		{
 		case 'Playground':
 		  tag="leisure=playground";
@@ -225,7 +226,7 @@ function getTag() {
 		  tag="sport=table_tennis";
 		  break;
 		case 'ATM':
-		  tag="amenity=atm";
+		  tag="amenity=atm;atm=yes";
 		  break;
 		case 'Pharmacy':
 		  tag="amenity=pharmacy";
