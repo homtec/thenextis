@@ -35,6 +35,7 @@ $(function() {
             $('#tag_name').val(suggestion.data);
             loadPOIs();
         },
-        triggerSelectOnValidInput: false
+        triggerSelectOnValidInput: false,
+        autoSelectFirst: true
     });
   });
