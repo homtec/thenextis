@@ -47,8 +47,11 @@ function initMap() {
 
 function loadPOIs(manualRefresh) {
 	console.log("loadPOIs called");
-	var tag = getTag();
-	if ( tag == '') return;
+	var tags = getTag();
+	if ( tags == '') return;
+	
+	var OSM_PARAMS = "";
+	tag = tags.split(";");
 
 	//get map bounds from current window
 	var southwest = map.getBounds().getSouthWest();
@@ -61,7 +64,11 @@ function loadPOIs(manualRefresh) {
 	if(!manualRefresh && !mapDragged)
 	{
 		//search around user position
-		var OSM_PARAMS = "(way["+tag+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");>;" +"node["+tag+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ "););out;";
+		for (var i in tag) {
+			OSM_PARAMS += "way["+tag[i]+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");>;" +"node["+tag[i]+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");";
+		}
+		OSM_PARAMS = "(" + OSM_PARAMS + ");out;";
+	
 	} else {
 		//don't search in big areas
 		if(map.getZoom() < 13) {
@@ -69,7 +76,11 @@ function loadPOIs(manualRefresh) {
 			return;
 		}
 		//search in current map window
-		var OSM_PARAMS = "(way["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");>;" + "node["+tag+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +"););out;";
+		for (var i in tag) {
+			OSM_PARAMS += "way["+tag[i]+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");>;" + "node["+tag[i]+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");";
+		}
+		OSM_PARAMS = "(" + OSM_PARAMS + ");out;";
+	
 	}
 
 	console.log(OSM_PARAMS);
