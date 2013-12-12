@@ -38,4 +38,8 @@ $(function() {
         triggerSelectOnValidInput: false,
         autoSelectFirst: true
     });
+
+    $("#mydropdown").on("click", function () {
+       $(this).select();
+    });
   });
