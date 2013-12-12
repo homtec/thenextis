@@ -18,7 +18,7 @@ $(function() {
         {value: "Laundry", data: "shop=laundry"},
         {value: "Supermarket", data: "shop=supermarket"},
         {value: "Fast Food", data: "amenity=fast_food"},
-        {value: "Recycling facilitiy", data:"amenity=recycling"},
+        {value: "Recycling facility", data:"amenity=recycling"},
         {value: "Public toilet", data:"amenity=toilets"},
         {value: "Pub", data:"amenity=pub"},
         {value: "Café", data:"amenity=cafe"},
