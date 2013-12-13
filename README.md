@@ -22,8 +22,8 @@ python -m SimpleHTTPServer
 5. Create new Pull Request
 
 ## Software used
-leaflet
-OSM
-Cloudmade
-jQuery
+leaflet,
+OSM,
+Cloudmade,
+jQuery,
 Fontawesome
