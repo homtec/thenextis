@@ -1,0 +1,56 @@
+body{
+	padding:0;
+	margin:0
+}
+
+html,body{
+	height:100%
+}
+
+#map{
+
+    top:100px;
+}
+
+#inputarea{
+	position:absolute;
+	height:100px;
+    width:100%;
+	top:0px;
+	padding:20px;
+	z-index:10;
+	background-color:#000;
+	font-size:25px;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 400;
+	color: #fff;
+	border:2px solid #000;
+}
+
+#redo, #locateMe{
+	font-size:15px;
+}
+#add{
+	font-size:15px;
+}
+
+.autocomplete-suggestions { 
+	border: 1px solid #999; 
+	background: #fff; 
+	cursor: default; 
+	overflow: auto; 
+}
+.autocomplete-suggestion { 
+	padding: 5px 5px; 
+	font-size: 1.2em; 
+	white-space: nowrap; 
+	overflow: hidden; 
+}
+
+.autocomplete-selected { 
+	background: #f0f0f0; 
+}
+.autocomplete-suggestions strong { 
+	font-weight: normal; 
+	color: #428bca; 
+}
