@@ -22,6 +22,11 @@ $(function() {
         {value: "Public toilet", data:"amenity=toilets"},
         {value: "Pub", data:"amenity=pub;amenity=bar;amenity=biergarten"},
         {value: "Café", data:"amenity=cafe"},
+        {value: "Restaurant", data:"amenity=restaurant"},
+        {value: "Cinema", data:"amenity=cinema"},
+        {value: "Hotel", data:"tourism=hotel"},
+        {value: "Hostel", data:"amenity=hostel"},
+        {value: "Sports field", data:"leisure=pitch"},
     ];
 
     availableTags.sort(function(a,b) {
