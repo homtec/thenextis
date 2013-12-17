@@ -110,9 +110,10 @@ function loadPOIs(manualRefresh) {
 			
 			// show a no POI alert - ToDo: remove alert, show short notice on site  
 			alert("Sorry, no POI in this area. Zoom out or pan the map.");
+            
 			return;
 		};
-		
+		_paq.push(['trackPageView', 'POIFound']);
 		$.each(pois, function(index, poi) {
                         popuptext = "";
                         if(poi['type'] == 'node' && typeof poi['tags'] != 'undefined'){
