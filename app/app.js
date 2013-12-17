@@ -114,6 +114,7 @@ function loadPOIs(manualRefresh) {
 			return;
 		};
 		_paq.push(['trackPageView', 'POIFound']);
+        _paq.push(['trackGoal', 1]);
 		$.each(pois, function(index, poi) {
                         popuptext = "";
                         if(poi['type'] == 'node' && typeof poi['tags'] != 'undefined'){
