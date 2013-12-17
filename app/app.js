@@ -14,7 +14,7 @@ var way;
 function initMap() {
 	markerlayer = L.layerGroup();
         waylayer = L.layerGroup();
-	berlin = new L.LatLng(52.5213616409873, 13.4101340342265); 
+	berlin = new L.LatLng(52.5213616409873, 13.4101340342265);
 
 	icon_user = L.icon({
 	    iconUrl: 'app/images/user.svg',
@@ -195,9 +195,11 @@ function onLocationFound(e) {
 
     L.circle(e.latlng, radius).addTo(map);
 	myLocation = e.latlng;
+    _paq.push(['trackPageView', 'LocationFound']);
 }
 
 function onLocationError(e) {
+    _paq.push(['trackPageView', 'LocationError']);
     alert(e.message);
 }
 
@@ -259,7 +261,8 @@ function getTag() {
 	} else {
 		tag = $('#tag_name').val();
 	}
-	return tag;
+    _paq.push(['trackPageView', 'Selection/' + tag]);
+    return tag;
 }
 
 function reloadCurrentMapWindow() {
@@ -280,7 +283,7 @@ $(function() {
 	map.on('locationfound', onLocationFound);
 	map.on('locationerror', onLocationError);
 	map.on('dragend', onMapDragged);
-	map.locate({setView: true, maxZoom: 16});
+	locateMe();
 
 
 	if (isMobile())
