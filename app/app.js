@@ -197,6 +197,7 @@ function onLocationFound(e) {
 
     L.circle(e.latlng, radius).addTo(map);
 	myLocation = e.latlng;
+    updateHashURL();
     _paq.push(['trackPageView', 'LocationFound']);
 }
 
@@ -207,6 +208,11 @@ function onLocationError(e) {
 
 function onMapDragged(){
 	mapDragged = true;
+    updateHashURL();
+}
+
+function onMapZoomed() {
+    updateHashURL();
 }
 
 function getTagName(){
@@ -277,6 +283,15 @@ function reloadCurrentMapWindow() {
 
 
 $(function() {
+    
+    //detect if url parameter existing
+    var hash = window.location.hash;
+    if (hash.length > 0) {
+        hash.replace('#', '');
+        
+    }
+    
+    
 
 
 	initMap();
@@ -285,6 +300,7 @@ $(function() {
 	map.on('locationfound', onLocationFound);
 	map.on('locationerror', onLocationError);
 	map.on('dragend', onMapDragged);
+    map.on('zoomend', onMapZoomed);
 	locateMe();
 
 
@@ -339,5 +355,11 @@ function getPopupText(poi) {
 
 function isMobile() {
 	return window.location.pathname.indexOf('mobile') > -1;
+}
+
+function updateHashURL() {
+    
+    var urlhash_location = "map=" + map.getZoom() + '/' + map.getCenter().lat + '/' + map.getCenter().lng;
+    window.location.hash = urlhash_location;
 }
 
