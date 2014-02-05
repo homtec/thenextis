@@ -4,18 +4,22 @@ var markerlayer;
 var waylayer;
 var myLocation = null;
 var OSM_URL = "http://overpass.osm.rambler.ru/cgi/interpreter?data=%5Bout:json%5D;";
-var berlin;
+var berlin = new L.LatLng(52.5213616409873, 13.4101340342265);
 var icon_user;
 var mapDragged = false;
 var way;
 
 
 
-function initMap() {
-	markerlayer = L.layerGroup();
-        waylayer = L.layerGroup();
-	berlin = new L.LatLng(52.5213616409873, 13.4101340342265);
+function initMap(loc, zoom) {
+	
 
+    
+    markerlayer = L.layerGroup();
+    waylayer = L.layerGroup();
+
+    
+    
 	icon_user = L.icon({
 	    iconUrl: 'app/images/user.svg',
 	    iconRetinaUrl: 'app/images/user.png',
@@ -28,9 +32,10 @@ function initMap() {
 	    shadowAnchor: [22, 94]
 	});
 
+    
 	map = new L.Map('map', {
-		center: berlin,
-		zoom: 13
+		center: loc,
+		zoom: zoom
 	});
 
 	// create a CloudMade tile layer
@@ -286,22 +291,56 @@ $(function() {
     
     //detect if url parameter existing
     var hash = window.location.hash;
+    var type = null;
+    var url_location = null;
+    
+    var startloc = berlin;
+    var startzoom = 13;
+    
     if (hash.length > 0) {
-        hash.replace('#', '');
+        hash = hash.replace('#', '');
+        var params = hash.split('&');
         
+        $.each(params, function(i, param) {
+            var setting = param.split('=');
+            switch(setting[0]) 
+            {
+                case "map" : url_location = setting[1];
+                case "type" : type = setting[1];
+            }
+        
+        });
+
+
     }
     
+    if(url_location) {
+        //new location and zoom to
+        var loc_array = url_location.split('/');
+        startloc = new L.LatLng(loc_array[1], loc_array[2]);
+        startzoom = loc_array[0];
+    }
     
 
-
-	initMap();
+    initMap(startloc, startzoom);
 
 	// setup geolocation
 	map.on('locationfound', onLocationFound);
 	map.on('locationerror', onLocationError);
 	map.on('dragend', onMapDragged);
     map.on('zoomend', onMapZoomed);
-	locateMe();
+
+    
+    
+    if(!url_location) {
+        locateMe();    
+    }
+    
+    
+    if(type) {
+        //search for POI
+    }
+
 
 
 	if (isMobile())
@@ -359,7 +398,7 @@ function isMobile() {
 
 function updateHashURL() {
     
-    var urlhash_location = "map=" + map.getZoom() + '/' + map.getCenter().lat + '/' + map.getCenter().lng;
+    var urlhash_location = "map=" + map.getZoom() + '/' + map.getCenter().lat.toFixed(5) + '/' + map.getCenter().lng.toFixed(5);
     window.location.hash = urlhash_location;
 }
 
