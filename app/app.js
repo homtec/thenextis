@@ -389,6 +389,16 @@ function getPopupText(poi) {
                 popuptext += poi['tags']['phone'] + "</br>";
         if(typeof poi['tags']['website'] != 'undefined')
                 popuptext += '<a href="' + poi['tags']['website'] + '" target="_blank" rel="nofollow">' + poi['tags']['website'] + '</a></br>';
+    
+        if( poi['tags']['recycling:clothes'] == 'yes')
+                popuptext += "Clothes" + "</br>";
+        if( poi['tags']['recycling:paper'] == 'yes')
+                popuptext += "Paper" + "</br>";
+        if( poi['tags']['recycling:glass'] == 'yes')
+                popuptext += "Glass" + "</br>";
+        if( poi['tags']['recycling:garden_waste'] == 'yes')
+                popuptext += "Garden waste" + "</br>";
+    
         return popuptext;
         }
 
