@@ -386,7 +386,7 @@ function getPopupText(poi) {
         if(typeof poi['tags']['opening_hours'] != 'undefined')
                 popuptext += poi['tags']['opening_hours'] + "</br>";
         if(typeof poi['tags']['phone'] != 'undefined')
-                popuptext += poi['tags']['phone'] + "</br>";
+                popuptext += '<a href="tel:' + poi['tags']['phone'] + '">' + poi['tags']['phone'] + '</a></br>';
         if(typeof poi['tags']['website'] != 'undefined')
                 popuptext += '<a href="' + poi['tags']['website'] + '" target="_blank" rel="nofollow">' + poi['tags']['website'] + '</a></br>';
     
