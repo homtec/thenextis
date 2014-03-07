@@ -349,7 +349,7 @@ $(function() {
     map.on('zoomend', onMapZoomed);
 
     
-    
+    //start location detection if no location preset
     if(!url_location) {
         locateMe();    
     }
@@ -375,9 +375,9 @@ $(function() {
 	}
 
 	//set onClick for refresh button
-	$('#redo_link').click(function(){loadPOIs(true);});
-    $('#locateMe_link').click(function(){locateMe();});
-    $('#editOSM_link').click(function(){editOSM();});
+	$('#redo').click(function(){loadPOIs(true);});
+    $('#locateMe').click(function(){locateMe();});
+    $('#editOSM').click(function(){editOSM();});
     
 });
 

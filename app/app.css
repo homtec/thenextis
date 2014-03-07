@@ -24,11 +24,13 @@ html,body,#map{
 	opacity:.80
 }
 
-#redo, #locateMe{
+#redo, #locateMe, #editOSM{
 	font-size:15px;
+    cursor:pointer;
 }
-#add{
-	font-size:15px;
+
+#redo:hover, #locateMe:hover, #editOSM:hover{
+	color: grey;
 }
 
 .autocomplete-suggestions { 
