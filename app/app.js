@@ -424,6 +424,6 @@ function isMobile() {
 function updateHashURL() {
     
     var urlhash_location = "map=" + map.getZoom() + '/' + map.getCenter().lat.toFixed(5) + '/' + map.getCenter().lng.toFixed(5);
-    history.replaceState(null, null, window.location.origin + window.location.pathname + "#" + urlhash_location);
+    history.replaceState(null, null, window.location.origin + "/#" + urlhash_location);
 }
 
