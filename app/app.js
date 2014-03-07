@@ -8,6 +8,8 @@ var berlin = new L.LatLng(52.5213616409873, 13.4101340342265);
 var icon_user;
 var mapDragged = false;
 var way;
+var myLocationMarker = null;
+var myLocationCircle = null;
 
 
 
@@ -197,12 +199,25 @@ function loadPOIs(manualRefresh) {
 
 function onLocationFound(e) {
     var radius = e.accuracy / 2;
+    
+    //opt: remove old marker
+    if(myLocationMarker != null) {
+        map.removeLayer(myLocationMarker);
+        map.removeLayer(myLocationCircle);
+    }
 
-    L.marker(e.latlng, {icon: icon_user}).addTo(map).bindPopup("You are somewhere here").openPopup();
-
-    L.circle(e.latlng, radius).addTo(map);
-	myLocation = e.latlng;
+    //draw stuff
+    myLocationMarker = L.marker(e.latlng, {icon: icon_user});
+    myLocationMarker.addTo(map).bindPopup("You are somewhere here").openPopup();
+    myLocationCircle = L.circle(e.latlng, radius);
+    myLocationCircle.addTo(map);
+	
+    //save current location
+    myLocation = e.latlng;
+    
+    //update browser URL
     updateHashURL();
+    
     _paq.push(['trackPageView', 'LocationFound']);
 }
 
