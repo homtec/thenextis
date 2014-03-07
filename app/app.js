@@ -10,6 +10,7 @@ var mapDragged = false;
 var way;
 var myLocationMarker = null;
 var myLocationCircle = null;
+var isMobile = false;
 
 
 
@@ -242,7 +243,7 @@ function getTagName(){
 }
 
 function getTag() {
-	if (isMobile()) {
+	if (isMobile) {
 		var tag = "";
 		var selection = $('#mydropdown').val();
 		
@@ -304,6 +305,11 @@ function reloadCurrentMapWindow() {
 
 $(function() {
     
+    //detect if mobile
+    if(window.location.pathname.indexOf('mobile') > -1) {
+        isMobile = true;
+    }
+    
     //detect if url parameter existing
     var hash = window.location.hash;
     var type = null;
@@ -361,7 +367,7 @@ $(function() {
 
 
 
-	if (isMobile())
+	if (isMobile)
 	//setup dropdown listener
 		$('#mydropdown').change(function() 
 			{
@@ -418,11 +424,8 @@ function getPopupText(poi) {
                 popuptext += "Garden waste" + "</br>";
     
         return popuptext;
-        }
-
-function isMobile() {
-	return window.location.pathname.indexOf('mobile') > -1;
 }
+
 
 function updateHashURL() {
     
