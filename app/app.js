@@ -334,6 +334,9 @@ $(function() {
         var loc_array = url_location.split('/');
         startloc = new L.LatLng(loc_array[1], loc_array[2]);
         startzoom = loc_array[0];
+        
+        // set dragged -> search in current map
+        mapDragged = true;
     }
     
 
