@@ -59,14 +59,6 @@ html,body{
     left: calc(100% - 50px);
 }
 
-
-#redo, #locateMe{
-	font-size:15px;
-}
-#add{
-	font-size:15px;
-}
-
 .autocomplete-suggestions { 
 	border: 1px solid #999; 
 	background: #fff; 
