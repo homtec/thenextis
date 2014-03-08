@@ -28,6 +28,38 @@ html,body{
 	color: #fff;
 }
 
+.buttons {
+    color: white;
+    font-size: 35px;
+    text-align: center;
+    cursor: pointer;
+}
+.buttons:hover {
+    color: grey;
+}
+
+#reload-button {
+    height: 50px;
+    top: 200px;
+    width: 50px;
+    background: black;
+    z-index: 1;
+    position: absolute;
+    left: calc(100% - 50px);
+
+}
+
+#locateMe-button {
+    height: 50px;
+    top: 251px;
+    width: 50px;
+    background: black;
+    z-index: 1;
+    position: absolute;
+    left: calc(100% - 50px);
+}
+
+
 #redo, #locateMe{
 	font-size:15px;
 }
