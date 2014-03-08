@@ -24,12 +24,12 @@ html,body,#map{
 	opacity:.80
 }
 
-#redo, #locateMe, #editOSM{
+#reload-button, #locateMe-button, #editOSM-button{
 	font-size:15px;
     cursor:pointer;
 }
 
-#redo:hover, #locateMe:hover, #editOSM:hover{
+#reload-button:hover, #locateMe-button:hover, #editOSM-button:hover{
 	color: grey;
 }
 

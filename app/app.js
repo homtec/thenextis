@@ -381,9 +381,9 @@ $(function() {
 	}
 
 	//set onClick for refresh button
-	$('#redo').click(function(){loadPOIs(true);});
-    $('#locateMe').click(function(){locateMe();});
-    $('#editOSM').click(function(){editOSM();});
+	$('#reload-button').click(function(){loadPOIs(true);});
+    $('#locateMe-button').click(function(){locateMe();});
+    $('#editOSM-button').click(function(){editOSM();});
     
 });
 
