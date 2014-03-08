@@ -33,6 +33,7 @@ html,body{
     font-size: 35px;
     text-align: center;
     cursor: pointer;
+    z-index: 2;
 }
 .buttons:hover {
     color: grey;
@@ -43,10 +44,8 @@ html,body{
     top: 200px;
     width: 50px;
     background: black;
-    z-index: 1;
     position: absolute;
     left: calc(100% - 50px);
-
 }
 
 #locateMe-button {
@@ -54,9 +53,35 @@ html,body{
     top: 251px;
     width: 50px;
     background: black;
-    z-index: 1;
     position: absolute;
     left: calc(100% - 50px);
+}
+
+
+#search-button {
+    height: 1000px;
+    top: calc(100% - 100px);
+    width: 100px;
+    background: black;
+    position: absolute;
+    left: calc(50% - 50px);
+    font-size: 50px;
+}
+
+#loading {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    top:0px;
+    left: 0px;
+    z-index: 10;
+    background: black;
+    opacity: 0.8;
+    color: white;
+    visibility: hidden;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 50px;
 }
 
 .autocomplete-suggestions { 

@@ -99,16 +99,26 @@ function loadPOIs(manualRefresh) {
         waylayer.clearLayers();
 
 	//show loading indicator
-	$("#loading").show();
-
+    if(isMobile) {
+        $("#loading").css("visibility", "visible");
+    }
+    else{
+        $("#loading").show();
+    }
 	//load POIs from OSM	
 	var markers = [];
         var ways = [];
 	$.getJSON(URL)
 	.done( function(data) {
 
-		//remove loading indicator
-		$("#loading").hide()		
+		
+        //remove loading indicator
+        if(isMobile) {
+        $("#loading").css("visibility", "hidden");
+        }
+        else{
+            $("#loading").hide();
+        }
 
 		//build markers
 		pois = data['elements'];
