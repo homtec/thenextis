@@ -66,6 +66,7 @@ html,body{
     position: absolute;
     left: calc(50% - 50px);
     font-size: 50px;
+    visibility: hidden;
 }
 
 #loading {
