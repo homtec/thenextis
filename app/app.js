@@ -42,12 +42,12 @@ function initMap(loc, zoom) {
 	});
 
 	// create a CloudMade tile layer
-	var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/97b13b2de7f543d784fbc30129b14ae0/1714@2x/256/{z}/{x}/{y}.png';
-	var osmAttr = '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
-	var attribution = 'Map data ' + osmAttr + ', Imagery &copy; <a href="http://cloudmade.com">CloudMade</a>';
+	var tileURL = 'http://api.tiles.mapbox.com/v3/thenextis.hl2jok4l/{z}/{x}/{y}.png';
+	var osmAttr = '&copy; <a href="http://openstreetmap.org" target="_blank">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/" target="_blank">CC-BY-SA</a>';
+	var attribution = 'Map data ' + osmAttr + ', Imagery &copy; <a href="http://mapbox.com" target="_blank">Mapbox</a>';
 
-	cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: attribution, detectRetina: true});
-	map.addLayer(cloudmade);
+	tiles = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution, detectRetina: true});
+	map.addLayer(tiles);
 	map.addLayer(markerlayer);
         map.addLayer(waylayer);
 }
