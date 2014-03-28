@@ -35,9 +35,7 @@ html,body{
     cursor: pointer;
     z-index: 2;
 }
-.buttons:hover {
-    color: grey;
-}
+
 
 #reload-button {
     height: 50px;
