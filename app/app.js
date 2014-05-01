@@ -260,7 +260,10 @@ function getTag() {
 		// OSM-Tag preset for mobile
 		switch(selection)
 		{
-		case 'Playground':
+		case 'Cafe':
+		  tag="amenity=cafe";
+		  break;
+        case 'Playground':
 		  tag="leisure=playground";
 		  break;
 		case 'Tabletennis':
