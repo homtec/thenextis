@@ -436,6 +436,13 @@ function getPopupText(poi) {
         if( poi['tags']['recycling:garden_waste'] == 'yes')
                 popuptext += "Garden waste" + "</br>";
     
+    
+        //add share button
+        
+        shareurl = window.location.origin + "/#id=" +poi.id;
+        popuptext += '<br><a href="' + shareurl + '">share</a></br>';
+    
+    
         return popuptext;
 }
 
