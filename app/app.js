@@ -327,6 +327,7 @@ $(function() {
     var hash = window.location.hash;
     var type = null;
     var url_location = null;
+    var search_for_id = null;
     
     var startloc = berlin;
     var startzoom = 13;
@@ -339,14 +340,26 @@ $(function() {
             var setting = param.split('=');
             switch(setting[0]) 
             {
-                case "map" : url_location = setting[1];
-                case "type" : type = setting[1];
+                case "map" : url_location = setting[1];break;
+                case "type" : type = setting[1];break;
+                case "id" : search_for_id = setting[1];break;
             }
         
         });
 
 
     }
+    
+    //if page load via POI share
+    if(search_for_id) {
+        console.log("search for id: " + search_for_id);
+        //search api for id
+        //get location and details
+        //center map around marker, print marker
+        //no other search, no geolocation
+        //getPOIFromId(search_for_id);
+    }
+        
     
     if(url_location) {
         //new location and zoom to
@@ -452,4 +465,86 @@ function updateHashURL() {
     var urlhash_location = "map=" + map.getZoom() + '/' + map.getCenter().lat.toFixed(5) + '/' + map.getCenter().lng.toFixed(5);
     history.replaceState(null, null, window.location.origin + "/#" + urlhash_location);
 }
+
+function getPOIFromId(searchid) {
+
+    var OSM_PARAMS = "node(" + searchid + ");out;";
+    var URL = OSM_URL + encodeURIComponent(OSM_PARAMS);
+    
+    //load POIs from OSM	
+	var markers = [];
+    var ways = [];
+    var poi = null;
+	$.getJSON(URL)
+	.done( function(data) {
+
+		
+        //remove loading indicator
+        if(isMobile) {
+        $("#loading").css("visibility", "hidden");
+        }
+        else{
+            $("#loading").hide();
+        }
+
+		//there should only be one POI
+
+		poi = data['elements'][0];
+
+		if(!poi) {
+			//$('#modal_no_pois').modal();
+			
+			// show a no POI alert - ToDo: remove alert, show short notice on site  
+			alert("Invalid ID");
+            
+			return;
+		};
+		_paq.push(['trackPageView', 'Shared POI Found']);
+        _paq.push(['trackGoal', 1]);
+        
+        
+        popuptext = "";
+        if(poi['type'] == 'node' && typeof poi['tags'] != 'undefined'){
+                lat = poi['lat'];
+                lon = poi['lon'];
+                popuptext = getPopupText(poi);
+                markers.push(new L.Marker([lat, lon]).bindPopup(getTagName() + "</br>" + popuptext));
+        }
+        if(poi['type'] == 'way' && typeof poi['tags'] != 'undefined'){
+                way = new L.polygon({color: 'blue'});
+                $.each(poi['nodes'], function(index, poinode) {
+                        $.each(pois, function(index, waynode) {
+                                if (waynode['id'] == poinode){
+                                        //console.log(waynode);
+                                        way.addLatLng(new L.latLng(waynode['lat'], waynode['lon']));
+                                        //console.log(way);
+                                }
+                        });
+                });
+                popuptext = getPopupText(poi);
+
+                //add polygon to map
+                ways.push(way.bindPopup(getTagName() + "</br>" + popuptext));
+
+                //add aditional marker at polygons bbox center
+                markers.push(new L.Marker(way.getBounds().getCenter()).bindPopup(getTagName() + "</br>" + popuptext));
+        }    
+        
+        //add markers to map
+		newmarkers = L.layerGroup(markers);
+		markerlayer.addLayer(newmarkers);    
+                
+        //add polygons to map
+        newways = L.layerGroup(ways);
+		waylayer.addLayer(newways);
+
+        //open popup
+        markers[0].openPopup();
+        
+        //fit map
+        map.setView(markers[0].getLatLng(), 15);
+        
+        
+    
+})};
 
