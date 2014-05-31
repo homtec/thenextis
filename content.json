@@ -1,0 +1,31 @@
+{
+    "playground" : {
+                    "id":"playground",
+                    "osm" : "amenity=playground",
+                    "lang-de":"Spielplatz",
+                    "lang-en":"Playground"
+                    },
+    "postbox" : {
+                    "id":"postbox",
+                    "osm" : "amenity=playground",
+                    "lang-de":"Spielplatz",
+                    "lang-en":"Playground"
+                    },
+
+    "atm" : {
+                    "id":"atm",
+                    "osm" : "amenity=playground",
+                    "lang-de":"Spielplatz",
+                    "lang-en":"Playground"
+                    },
+
+    "recycling" : {
+                    "id":"recycling",
+                    "osm" : "amenity=playground",
+                    "lang-de":"Spielplatz",
+                    "lang-en":"Playground"
+                    }
+
+
+
+}

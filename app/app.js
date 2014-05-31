@@ -11,6 +11,7 @@ var way;
 var myLocationMarker = null;
 var myLocationCircle = null;
 var isMobile = false;
+var poiData = null;
 
 
 
@@ -316,6 +317,7 @@ function reloadCurrentMapWindow() {
 }	
 
 
+//init function
 $(function() {
     
     //detect if mobile
@@ -380,12 +382,17 @@ $(function() {
 
 
 
-	if (isMobile)
+	if (isMobile) {
+        
+        //load dropdown OSM data
+        loadPOIdataFromFile();
+        
 	//setup dropdown listener
 		$('#mydropdown').change(function() 
 			{
 			loadPOIs();
-		});   
+		});  
+    }
 	else {
 		$('#tag_name').change(function() 
 			{
@@ -446,3 +453,27 @@ function updateHashURL() {
     history.replaceState(null, null, window.location.origin + "/#" + urlhash_location);
 }
 
+function loadPOIdataFromFile() {
+
+    $.getJSON("content.json", function(data){
+            console.log(data);
+            
+            //save to global var
+            poiData = data;
+            fillMobileSelectionBox(poiData);
+    });
+}
+
+function fillMobileSelectionBox(data) {
+            //fill list
+            $.each(data, function(i, poi) {
+                console.log(poi["lang-en"]);
+                var text = poi["lang-en"];
+                var val = poi["id"];
+                
+                //add entry to drop down list
+                $('#mydropdown').append( new Option(text,val) );
+                //    $('#mySelect').append( new Option(text,val,defaultSelected,nowSelected) );
+
+            })
+}
