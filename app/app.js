@@ -259,48 +259,12 @@ function getTag() {
 		var selection = $('#mydropdown').val();
 		
 		// OSM-Tag preset for mobile
-		switch(selection)
-		{
-		case 'Cafe':
-		  tag="amenity=cafe";
-		  break;
-        case 'Playground':
-		  tag="leisure=playground";
-		  break;
-		case 'Tabletennis':
-		  tag="sport=table_tennis";
-		  break;
-		case 'ATM':
-		  tag="amenity=atm;atm=yes";
-		  break;
-		case 'Pharmacy':
-		  tag="amenity=pharmacy";
-		  break;
-		case 'Taxi':
-		  tag="amenity=taxi";
-		  break;
-		case 'Fuel':
-		  tag="amenity=fuel";
-		  break;
-		case 'Postbox':
-		  tag="amenity=post_box";
-		  break;
-		case 'Telephone':
-		  tag="amenity=telephone";
-		  break;
-		case 'Water':
-		  tag="amenity=drinking_water";
-		  break;
-		case 'Charging':
-		  tag="amenity=charging_station";
-		  break;
-	        case 'Bus station':
-		  tag="highway=bus_stop";
-		  break;
-		default:
-		  tag='';
-		  break;
-		}
+        //search tag in object
+        console.log(poiData);
+        var tagdata = poiData[selection].osm;
+        if(tagdata)
+            tag = tagdata;
+		
 	} else {
 		tag = $('#tag_name').val();
 	}
@@ -319,6 +283,8 @@ function reloadCurrentMapWindow() {
 
 //init function
 $(function() {
+    //disable cache for ajax
+    $.ajaxSetup({ cache: false });
     
     //detect if mobile
     if(window.location.pathname.indexOf('mobile') > -1) {

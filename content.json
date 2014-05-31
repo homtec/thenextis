@@ -1,29 +1,29 @@
 {
     "playground" : {
                     "id":"playground",
-                    "osm" : "amenity=playground",
+                    "osm" : "leisure=playground",
                     "lang-de":"Spielplatz",
                     "lang-en":"Playground"
                     },
     "postbox" : {
                     "id":"postbox",
-                    "osm" : "amenity=playground",
-                    "lang-de":"Spielplatz",
-                    "lang-en":"Playground"
+                    "osm" : "amenity=post_box",
+                    "lang-de":"Briefkasten",
+                    "lang-en":"Postbox"
                     },
 
     "atm" : {
                     "id":"atm",
-                    "osm" : "amenity=playground",
-                    "lang-de":"Spielplatz",
-                    "lang-en":"Playground"
+                    "osm" : "amenity=atm;atm=yes",
+                    "lang-de":"Geldautomat",
+                    "lang-en":"ATM"
                     },
 
-    "recycling" : {
-                    "id":"recycling",
-                    "osm" : "amenity=playground",
-                    "lang-de":"Spielplatz",
-                    "lang-en":"Playground"
+    "telephone" : {
+                    "id":"telephone",
+                    "osm" : "amenity=telephone",
+                    "lang-de":"Telefon",
+                    "lang-en":"Telephone"
                     }
 
 
