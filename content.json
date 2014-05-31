@@ -1,0 +1,70 @@
+{
+    "playground" : {
+                    "osm" : "leisure=playground",
+                    "lang-de":"Spielplatz",
+                    "lang-en":"playground"
+                    },
+    "postbox" : {
+                    "osm" : "amenity=post_box",
+                    "lang-de":"Briefkasten",
+                    "lang-en":"postbox"
+                    },
+
+    "atm" : {
+                    "osm" : "amenity=atm;atm=yes",
+                    "lang-de":"Geldautomat",
+                    "lang-en":"ATM"
+                    },
+
+    "telephone" : {
+                    "osm" : "amenity=telephone",
+                    "lang-de":"Telefon",
+                    "lang-en":"telephone"
+                    },
+    
+    "cafe" : {
+                    "osm" : "amenity=cafe",
+                    "lang-de":"Café",
+                    "lang-en":"café"
+                    },
+
+    "pharmacy" : {
+                    "osm" : "amenity=pharmacy",
+                    "lang-de":"Apotheke",
+                    "lang-en":"pharmacy"
+                    },
+
+    "taxi" : {
+                    "osm" : "amenity=taxi",
+                    "lang-de":"Taxi",
+                    "lang-en":"taxi"
+                    },
+
+    "fuel" : {
+                    "osm" : "amenity=fuel",
+                    "lang-de":"Tankstelle",
+                    "lang-en":"gas station"
+                    },
+
+    "water" : {
+                    "osm" : "amenity=drinking_water",
+                    "lang-de":"Trinkwasser",
+                    "lang-en":"drinking water"
+                    },
+
+    "charging" : {
+                    "osm" : "amenity=charging_station",
+                    "lang-de":"Ladesäule",
+                    "lang-en":"charging station"
+                    },
+
+    "busstop" : {
+                    "osm" : "highway=bus_stop ",
+                    "lang-de":"Bushaltestelle",
+                    "lang-en":"bus stop"
+                    }
+
+
+
+
+}
