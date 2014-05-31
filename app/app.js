@@ -432,10 +432,10 @@ function loadPOIdataFromFile() {
 
 function fillMobileSelectionBox(data) {
             //fill list
-            $.each(data, function(i, poi) {
+            $.each(data, function(key, poi) {
                 console.log(poi["lang-en"]);
                 var text = poi["lang-en"];
-                var val = poi["id"];
+                var val = key;
                 
                 //add entry to drop down list
                 $('#mydropdown').append( new Option(text,val) );

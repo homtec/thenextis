@@ -1,26 +1,22 @@
 {
     "playground" : {
-                    "id":"playground",
                     "osm" : "leisure=playground",
                     "lang-de":"Spielplatz",
                     "lang-en":"Playground"
                     },
     "postbox" : {
-                    "id":"postbox",
                     "osm" : "amenity=post_box",
                     "lang-de":"Briefkasten",
                     "lang-en":"Postbox"
                     },
 
     "atm" : {
-                    "id":"atm",
                     "osm" : "amenity=atm;atm=yes",
                     "lang-de":"Geldautomat",
                     "lang-en":"ATM"
                     },
 
     "telephone" : {
-                    "id":"telephone",
                     "osm" : "amenity=telephone",
                     "lang-de":"Telefon",
                     "lang-en":"Telephone"
