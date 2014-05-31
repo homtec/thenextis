@@ -86,7 +86,8 @@ function loadPOIs(manualRefresh) {
 		}
 		//search in current map window
 		for (var i in tag) {
-			OSM_PARAMS += "way["+tag[i]+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");>;" + "node["+tag[i]+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");";
+			OSM_PARAMS += "way["+tag[i]+ "](" +southwest.lat+  ","  +southwest.lng
+			+  ","  +northeast.lat+ "," +northeast.lng +");>;" + "node["+tag[i]+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");";
 		}
 		OSM_PARAMS = "(" + OSM_PARAMS + ");out;";
 
