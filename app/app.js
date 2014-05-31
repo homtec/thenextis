@@ -249,7 +249,12 @@ function onMapZoomed() {
 
 function getTagName(){
 	var tagName = "";
-	tagName = $('#mydropdown').val();
+    if(isMobile) {
+        tagName = poiData[$('#mydropdown').val()]["lang-en"];
+    }
+    else {
+	   tagName = $('#mydropdown').val();
+    }
         return tagName;
 }
 
