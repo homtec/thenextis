@@ -357,7 +357,7 @@ $(function() {
         //get location and details
         //center map around marker, print marker
         //no other search, no geolocation
-        //getPOIFromId(search_for_id);
+        getPOIFromId(search_for_id);
     }
         
     
@@ -382,7 +382,7 @@ $(function() {
 
     
     //start location detection if no location preset
-    if(!url_location) {
+    if(!url_location && !search_for_id) {
         locateMe();    
     }
     
