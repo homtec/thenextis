@@ -62,8 +62,12 @@
                     "osm" : "highway=bus_stop ",
                     "lang-de":"Bushaltestelle",
                     "lang-en":"bus stop"
+                    },
+    "wifi" : {
+                    "osm" : "internet_access=wlan",
+                    "lang-de":"Wifi",
+                    "lang-en":"wifi"
                     }
-
 
 
 
