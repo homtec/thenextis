@@ -8,18 +8,18 @@ html,body{
 }
 
 #map{
-    height: -webkit-calc(100% - 100px);
-    height: -moz-calc(100% - 100px);
-    height: calc(100% - 100px);
-    top:100px;
+    height: -webkit-calc(100% - 60px);
+    height: -moz-calc(100% - 60px);
+    height: calc(100% - 60px);
+    top:60px;
 }
 
 #inputarea{
 	position:absolute;
-	height:100px;
-    width:100%;
+	height:60px;
+  width:100%;
 	top:0px;
-	padding:5px;
+	padding:15px 10px;
 	z-index:10;
 	background-color:#000;
 	font-size:25px;
