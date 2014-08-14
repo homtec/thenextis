@@ -13,8 +13,6 @@ var myLocationCircle = null;
 var isMobile = false;
 var poiData = null;
 
-
-
 function initMap(loc, zoom) {
 	
 
@@ -447,4 +445,29 @@ function fillMobileSelectionBox(data) {
                 //    $('#mySelect').append( new Option(text,val,defaultSelected,nowSelected) );
 
             })
+
+  // Now that the selection box is filled, adjust font-size of the whole
+  // inputarea content so that it fits one line
+  $('#inputarea').textFontAdjust($('#inputarea-content'));
+}
+
+// A small jQuery plugin for scaling down the font-size of an element until the
+// parent container isn't higher than allowed
+$.fn.textFontAdjust = function(subElem, options) {
+  var config = $.extend({
+    maxFontPerc : 100,
+    minFontPerc : 25,
+    additionalWidthToDecrease: 0
+  },options);
+  var fontSizePerc = config.maxFontPerc,
+      textElem = $(subElem),
+      maxHeight = '40',
+      maxWidth = $(this).width()-config.additionalWidthToDecrease;
+  var textHeight, textWidth;
+  do {
+    textElem.css('font-size', fontSizePerc + '%');
+    fontSizePerc = fontSizePerc - 1;
+  } while ((textElem.height() > maxHeight || textElem.width() > maxWidth) && fontSizePerc > config.minFontPerc) {
+    return this;
+  }
 }
