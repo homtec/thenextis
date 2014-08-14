@@ -27,6 +27,7 @@ $(function() {
         {value: "Hotel", data:"tourism=hotel"},
         {value: "Hostel", data:"amenity=hostel"},
         {value: "Sports field", data:"leisure=pitch"},
+        {value: "Wifi", data:"internet_access=wlan"},
     ];
 
     availableTags.sort(function(a,b) {
