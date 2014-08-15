@@ -2,12 +2,12 @@
     "playground" : {
                     "osm" : "leisure=playground",
                     "lang-de":"Spielplatz",
-                    "lang-en":"playground"
+                    "lang-en":"Playground"
                     },
     "postbox" : {
                     "osm" : "amenity=post_box",
                     "lang-de":"Briefkasten",
-                    "lang-en":"postbox"
+                    "lang-en":"Postbox"
                     },
 
     "atm" : {
@@ -19,54 +19,54 @@
     "telephone" : {
                     "osm" : "amenity=telephone",
                     "lang-de":"Telefon",
-                    "lang-en":"telephone"
+                    "lang-en":"Telephone"
                     },
     
     "cafe" : {
                     "osm" : "amenity=cafe",
                     "lang-de":"Café",
-                    "lang-en":"café"
+                    "lang-en":"Café"
                     },
 
     "pharmacy" : {
                     "osm" : "amenity=pharmacy",
                     "lang-de":"Apotheke",
-                    "lang-en":"pharmacy"
+                    "lang-en":"Pharmacy"
                     },
 
     "taxi" : {
                     "osm" : "amenity=taxi",
                     "lang-de":"Taxi",
-                    "lang-en":"taxi"
+                    "lang-en":"Taxi"
                     },
 
     "fuel" : {
                     "osm" : "amenity=fuel",
                     "lang-de":"Tankstelle",
-                    "lang-en":"gas station"
+                    "lang-en":"Gas Station"
                     },
 
     "water" : {
                     "osm" : "amenity=drinking_water",
                     "lang-de":"Trinkwasser",
-                    "lang-en":"drinking water"
+                    "lang-en":"Drinking Water"
                     },
 
     "charging" : {
                     "osm" : "amenity=charging_station",
                     "lang-de":"Ladesäule",
-                    "lang-en":"charging station"
+                    "lang-en":"Charging Station"
                     },
 
     "busstop" : {
                     "osm" : "highway=bus_stop ",
                     "lang-de":"Bushaltestelle",
-                    "lang-en":"bus stop"
+                    "lang-en":"Bus Stop"
                     },
     "wifi" : {
                     "osm" : "internet_access=wlan",
                     "lang-de":"Wifi",
-                    "lang-en":"wifi"
+                    "lang-en":"Wifi"
                     }
 
 
