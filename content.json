@@ -63,12 +63,16 @@
                     "lang-de":"Bushaltestelle",
                     "lang-en":"Bus Stop"
                     },
+
     "wifi" : {
                     "osm" : "internet_access=wlan",
                     "lang-de":"Wifi",
                     "lang-en":"Wifi"
+                    },
+
+    "tablesoccer" : {
+                    "osm" : "sport=table_soccer",
+                    "lang-de":"Tischfußball",
+                    "lang-en":"Table Football"
                     }
-
-
-
 }

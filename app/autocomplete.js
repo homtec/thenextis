@@ -2,6 +2,7 @@ $(function() {
     var availableTags = [
         {value: "Playground", data: "leisure=playground"}, 
         {value: "Tabletennis", data: "sport=table_tennis"}, 
+        {value: "Table football", data: "sport=table_soccer"},
         {value: "ATM", data: "amenity=atm;atm=yes"}, 
         {value: "Pharmacy", data: "amenity=pharmacy"}, 
         {value: "Cab stand", data: "amenity=taxi"}, 
