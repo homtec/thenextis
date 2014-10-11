@@ -21,7 +21,7 @@
                     "lang-de":"Telefon",
                     "lang-en":"Telephone"
                     },
-    
+
     "cafe" : {
                     "osm" : "amenity=cafe",
                     "lang-de":"Café",
@@ -74,5 +74,18 @@
                     "osm" : "sport=table_soccer",
                     "lang-de":"Tischfußball",
                     "lang-en":"Table Football"
+                  },
+
+    "bakery" : {
+                    "osm" : "shop=bakery",
+                    "lang-de":"Bäckerei",
+                    "lang-en":"Bakery"
+                  },
+
+    "butcher" : {
+                    "osm" : "shop=butcher",
+                    "lang-de":"Metzgerei",
+                    "lang-en":"Butcher"
                     }
+
 }
