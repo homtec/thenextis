@@ -76,6 +76,12 @@
                     "lang-en":"Table Football"
                   },
 
+    "tabletennis" : {
+                    "osm" : "sport=table_tennis",
+                    "lang-de":"Tischtennis",
+                    "lang-en":"Table Tennis"
+                  },
+
     "bakery" : {
                     "osm" : "shop=bakery",
                     "lang-de":"Bäckerei",
