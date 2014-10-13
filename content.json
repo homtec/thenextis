@@ -1,31 +1,56 @@
 {
-    "playground" : {
-                    "osm" : "leisure=playground",
-                    "lang-de":"Spielplatz",
-                    "lang-en":"Playground"
-                    },
-    "postbox" : {
-                    "osm" : "amenity=post_box",
-                    "lang-de":"Briefkasten",
-                    "lang-en":"Postbox"
-                    },
-
     "atm" : {
                     "osm" : "amenity=atm;atm=yes",
                     "lang-de":"Geldautomat",
                     "lang-en":"ATM"
                     },
 
-    "telephone" : {
-                    "osm" : "amenity=telephone",
-                    "lang-de":"Telefon",
-                    "lang-en":"Telephone"
+    "wifi" : {
+                    "osm" : "internet_access=wlan",
+                    "lang-de":"Wifi",
+                    "lang-en":"Wifi"
+                    },
+
+    "water" : {
+                    "osm" : "amenity=drinking_water",
+                    "lang-de":"Trinkwasser",
+                    "lang-en":"Drinking Water"
                     },
 
     "cafe" : {
                     "osm" : "amenity=cafe",
                     "lang-de":"Café",
                     "lang-en":"Café"
+                    },
+
+    "toilet" : {
+                    "osm" : "amenity=toilets",
+                    "lang-de":"Öffentliche Toilette",
+                    "lang-en":"Public Toilet"
+                    },
+
+    "busstop" : {
+                    "osm" : "highway=bus_stop ",
+                    "lang-de":"Bushaltestelle",
+                    "lang-en":"Bus Stop"
+                    },
+
+    "playground" : {
+                    "osm" : "leisure=playground",
+                    "lang-de":"Spielplatz",
+                    "lang-en":"Playground"
+                    },
+
+    "postbox" : {
+                    "osm" : "amenity=post_box",
+                    "lang-de":"Briefkasten",
+                    "lang-en":"Postbox"
+                    },
+
+    "telephone" : {
+                    "osm" : "amenity=telephone",
+                    "lang-de":"Telefon",
+                    "lang-en":"Telephone"
                     },
 
     "pharmacy" : {
@@ -46,34 +71,22 @@
                     "lang-en":"Gas Station"
                     },
 
-    "water" : {
-                    "osm" : "amenity=drinking_water",
-                    "lang-de":"Trinkwasser",
-                    "lang-en":"Drinking Water"
-                    },
-
     "charging" : {
                     "osm" : "amenity=charging_station",
                     "lang-de":"Ladesäule",
                     "lang-en":"Charging Station"
                     },
 
-    "busstop" : {
-                    "osm" : "highway=bus_stop ",
-                    "lang-de":"Bushaltestelle",
-                    "lang-en":"Bus Stop"
-                    },
-
-    "wifi" : {
-                    "osm" : "internet_access=wlan",
-                    "lang-de":"Wifi",
-                    "lang-en":"Wifi"
-                    },
-
     "tablesoccer" : {
                     "osm" : "sport=table_soccer",
                     "lang-de":"Tischfußball",
                     "lang-en":"Table Football"
+                  },
+
+    "tabletennis" : {
+                    "osm" : "sport=table_tennis",
+                    "lang-de":"Tischtennis",
+                    "lang-en":"Table Tennis"
                   },
 
     "bakery" : {
