@@ -1,3 +1,6 @@
+/*global $, jQuery, L*/
+
+
 var map;
 var pois = [];
 var markerlayer;
@@ -14,14 +17,13 @@ var isMobile = false;
 var poiData = null;
 
 function initMap(loc, zoom) {
-	
 
-    
+
     markerlayer = L.layerGroup();
     waylayer = L.layerGroup();
 
-    
-    
+
+
 	icon_user = L.icon({
 	    iconUrl: 'app/images/user.svg',
 	    iconRetinaUrl: 'app/images/user.png',
@@ -34,7 +36,7 @@ function initMap(loc, zoom) {
 	    shadowAnchor: [22, 94]
 	});
 
-    
+
 	map = new L.Map('map', {
 		center: loc,
 		zoom: zoom
@@ -50,15 +52,16 @@ function initMap(loc, zoom) {
 	map.addLayer(markerlayer);
         map.addLayer(waylayer);
 }
-	
+
 
 function loadPOIs(manualRefresh) {
+  var i;
 	console.log("loadPOIs called");
 	var tags = getTag();
-	if ( tags == '') return;
-	
+	if ( tags === '') return;
+
 	var OSM_PARAMS = "";
-	tag = tags.split(";");
+	var tag = tags.split(";");
 
 	//get map bounds from current window
 	var southwest = map.getBounds().getSouthWest();
@@ -71,23 +74,25 @@ function loadPOIs(manualRefresh) {
 	if(!manualRefresh && !mapDragged)
 	{
 		//search around user position
-		for (var i in tag) {
-			OSM_PARAMS += "way["+tag[i]+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");>;" +"node["+tag[i]+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");";
+		for ( i in tag) {
+			OSM_PARAMS += "way["+tag[i]+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");>;" +
+			"node["+tag[i]+ "](around:2000," +myLocation.lat+  ","  +myLocation.lng+ ");";
 		}
 		OSM_PARAMS = "(" + OSM_PARAMS + ");out;";
-	
+
 	} else {
 		//don't search in big areas
 		if(map.getZoom() < 13) {
-			alert("Please zoom in");		
+			alert("Please zoom in");
 			return;
 		}
 		//search in current map window
-		for (var i in tag) {
-			OSM_PARAMS += "way["+tag[i]+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");>;" + "node["+tag[i]+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");";
+		for ( i in tag) {
+			OSM_PARAMS += "way["+tag[i]+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +
+			northeast.lat+ "," +northeast.lng +");>;" + "node["+tag[i]+ "](" +southwest.lat+  ","  +southwest.lng+  ","  +northeast.lat+ "," +northeast.lng +");";
 		}
 		OSM_PARAMS = "(" + OSM_PARAMS + ");out;";
-	
+
 	}
 
 	console.log(OSM_PARAMS);
@@ -104,13 +109,13 @@ function loadPOIs(manualRefresh) {
     else{
         $("#loading").show();
     }
-	//load POIs from OSM	
+	//load POIs from OSM
 	var markers = [];
         var ways = [];
 	$.getJSON(URL)
 	.done( function(data) {
 
-		
+
         //remove loading indicator
         if(isMobile) {
         $("#loading").css("visibility", "hidden");
@@ -120,51 +125,51 @@ function loadPOIs(manualRefresh) {
         }
 
 		//build markers
-		pois = data['elements'];
+		pois = data.elements;
 
-		if(pois.length == 0) {
+		if(pois.length === 0) {
 			//$('#modal_no_pois').modal();
-			
-			// show a no POI alert - ToDo: remove alert, show short notice on site  
+
+			// show a no POI alert - ToDo: remove alert, show short notice on site
 			alert("Sorry, no POI in this area. Zoom out or pan the map.");
-            
+
 			return;
-		};
+		}
 		_paq.push(['trackPageView', 'POIFound']);
         _paq.push(['trackGoal', 1]);
 		$.each(pois, function(index, poi) {
-                        popuptext = "";
-                        if(poi['type'] == 'node' && typeof poi['tags'] != 'undefined'){
-                                lat = poi['lat'];
-                                lon = poi['lon'];
+                        var popuptext = "";
+                        if(poi.type == 'node' && typeof poi.tags != 'undefined'){
+                                lat = poi.lat;
+                                lon = poi.lon;
                                 popuptext = getPopupText(poi);
                                 markers.push(new L.Marker([lat, lon]).bindPopup(getTagName() + "</br>" + popuptext));
                         }
-                        if(poi['type'] == 'way' && typeof poi['tags'] != 'undefined'){
+                        if(poi.type == 'way' && typeof poi.tags != 'undefined'){
                                 way = new L.polygon({color: 'blue'});
-                                $.each(poi['nodes'], function(index, poinode) {
+                                $.each(poi.nodes, function(index, poinode) {
                                         $.each(pois, function(index, waynode) {
-                                                if (waynode['id'] == poinode){
+                                                if (waynode.id == poinode){
                                                         //console.log(waynode);
-                                                        way.addLatLng(new L.latLng(waynode['lat'], waynode['lon']));
+                                                        way.addLatLng(new L.latLng(waynode.lat, waynode.lon));
                                                         //console.log(way);
                                                 }
                                         });
                                 });
                                 popuptext = getPopupText(poi);
-                                
+
                                 //add polygon to map
                                 ways.push(way.bindPopup(getTagName() + "</br>" + popuptext));
-                                
+
                                 //add aditional marker at polygons bbox center
                                 markers.push(new L.Marker(way.getBounds().getCenter()).bindPopup(getTagName() + "</br>" + popuptext));
                         }
-	  	});	
+	  	});
 
 	  	//add markers to map
 		newmarkers = L.layerGroup(markers);
-		markerlayer.addLayer(newmarkers);    
-                
+		markerlayer.addLayer(newmarkers);
+
                 //add polygons to map
                 newways = L.layerGroup(ways);
 		waylayer.addLayer(newways);
@@ -177,26 +182,27 @@ function loadPOIs(manualRefresh) {
 		//find nearest marker
 		var distance = Number.MAX_VALUE;
 		var nearest = null;
+    var temp;
 		$.each(markers, function(i, marker) {
 			temp = marker.getLatLng();
 			if(temp.distanceTo(myLocation) < distance) {
 				distance = temp.distanceTo(myLocation);
 				nearest = temp;
 			}
-		})
-                
-                //find nearest polygon 
+		});
+
+                //find nearest polygon
 		$.each(ways, function(i, polygon) {
 			temp = polygon.getBounds().getCenter();
 			if(temp.distanceTo(myLocation) < distance) {
 				distance =temp.distanceTo(myLocation);
 				nearest = temp;
 			}
-		})
+		});
 
 		//zoom map
 		if(!manualRefresh && !mapDragged) {
-			map.fitBounds(new L.LatLngBounds([myLocation, nearest], {padding:[10,10]})); 
+			map.fitBounds(new L.LatLngBounds([myLocation, nearest], {padding:[10,10]}));
 		}
 
 	})
@@ -209,9 +215,9 @@ function loadPOIs(manualRefresh) {
 
 function onLocationFound(e) {
     var radius = e.accuracy / 2;
-    
+
     //opt: remove old marker
-    if(myLocationMarker != null) {
+    if(myLocationMarker !== null) {
         map.removeLayer(myLocationMarker);
         map.removeLayer(myLocationCircle);
     }
@@ -221,13 +227,13 @@ function onLocationFound(e) {
     myLocationMarker.addTo(map).bindPopup("You are somewhere here").openPopup();
     myLocationCircle = L.circle(e.latlng, radius);
     myLocationCircle.addTo(map);
-	
+
     //save current location
     myLocation = e.latlng;
-    
+
     //update browser URL
     updateHashURL();
-    
+
     _paq.push(['trackPageView', 'LocationFound']);
 }
 
@@ -257,17 +263,17 @@ function getTagName(){
 }
 
 function getTag() {
-	if (isMobile) {
-		var tag = "";
+	var tag = "";
+  if (isMobile) {
 		var selection = $('#mydropdown').val();
-		
+
 		// OSM-Tag preset for mobile
         //search tag in object
         console.log(poiData);
         var tagdata = poiData[selection].osm;
         if(tagdata)
             tag = tagdata;
-		
+
 	} else {
 		tag = $('#tag_name').val();
 	}
@@ -281,54 +287,58 @@ function reloadCurrentMapWindow() {
 
 	//get current tag
 	//go
-}	
+}
 
 
 //init function
 $(function() {
     //disable cache for ajax
     $.ajaxSetup({ cache: false });
-    
+
     //detect if mobile
     if(window.location.pathname.indexOf('mobile') > -1) {
         isMobile = true;
     }
-    
+
     //detect if url parameter existing
     var hash = window.location.hash;
     var type = null;
     var url_location = null;
-    
+
     var startloc = berlin;
     var startzoom = 13;
-    
+
     if (hash.length > 0) {
         hash = hash.replace('#', '');
         var params = hash.split('&');
-        
+
         $.each(params, function(i, param) {
             var setting = param.split('=');
-            switch(setting[0]) 
+            switch(setting[0])
             {
-                case "map" : url_location = setting[1];
-                case "type" : type = setting[1];
+                case "map" :
+                  url_location = setting[1];
+                  break;
+                case "type" :
+                  type = setting[1];
+                  break;
             }
-        
+
         });
 
 
     }
-    
+
     if(url_location) {
         //new location and zoom to
         var loc_array = url_location.split('/');
         startloc = new L.LatLng(loc_array[1], loc_array[2]);
         startzoom = loc_array[0];
-        
+
         // set dragged -> search in current map
         mapDragged = true;
     }
-    
+
 
     initMap(startloc, startzoom);
 
@@ -338,13 +348,13 @@ $(function() {
 	map.on('dragend', onMapDragged);
     map.on('zoomend', onMapZoomed);
 
-    
+
     //start location detection if no location preset
     if(!url_location) {
-        locateMe();    
+        locateMe();
     }
-    
-    
+
+
     if(type) {
         //search for POI
     }
@@ -352,34 +362,34 @@ $(function() {
 
 
 	if (isMobile) {
-        
+
         //load dropdown OSM data
         loadPOIdataFromFile();
-        
+
 	//setup dropdown listener
-		$('#mydropdown').change(function() 
+		$('#mydropdown').change(function()
 			{
 			loadPOIs();
-		});  
+		});
     }
 	else {
-		$('#tag_name').change(function() 
+		$('#tag_name').change(function()
 			{
 		loadPOIs();
-		});  
+		});
 	}
 
 	//set onClick for refresh button
 	$('#reload-button').click(function(){loadPOIs(true);});
     $('#locateMe-button').click(function(){locateMe();});
     $('#editOSM-button').click(function(){editOSM();});
-    
+
 });
 
 function locateMe() {
 	map.locate({setView: true, maxZoom: 16});
     mapDragged = false;
-}	
+}
 
 
 function editOSM() {
@@ -390,34 +400,35 @@ function editOSM() {
     }
 
 function getPopupText(poi) {
-        if(typeof poi['tags']['name'] != 'undefined')
-                popuptext += poi['tags']['name'] + "</br>";
-        if(typeof poi['tags']['operator'] != 'undefined')
-                popuptext += poi['tags']['operator'] + "</br>";
-        if(typeof poi['tags']['collection_times'] != 'undefined')
-                popuptext += poi['tags']['collection_times'] + "</br>";
-        if(typeof poi['tags']['opening_hours'] != 'undefined')
-                popuptext += poi['tags']['opening_hours'] + "</br>";
-        if(typeof poi['tags']['phone'] != 'undefined')
-                popuptext += '<a href="tel:' + poi['tags']['phone'] + '">' + poi['tags']['phone'] + '</a></br>';
-        if(typeof poi['tags']['website'] != 'undefined')
-                popuptext += '<a href="' + poi['tags']['website'] + '" target="_blank" rel="nofollow">' + poi['tags']['website'] + '</a></br>';
-    
-        if( poi['tags']['recycling:clothes'] == 'yes')
+  var popuptext = "";
+        if(typeof poi.tags.name != 'undefined')
+                popuptext += poi.tags.name + "</br>";
+        if(typeof poi.tags.operator != 'undefined')
+                popuptext += poi.tags.operator + "</br>";
+        if(typeof poi.tags.collection_times != 'undefined')
+                popuptext += poi.tags.collection_times + "</br>";
+        if(typeof poi.tags.opening_hours != 'undefined')
+                popuptext += poi.tags.opening_hours + "</br>";
+        if(typeof poi.tags.phone != 'undefined')
+                popuptext += '<a href="tel:' + poi.tags.phone + '">' + poi.tags.phone + '</a></br>';
+        if(typeof poi.tags.website != 'undefined')
+                popuptext += '<a href="' + poi.tags.website + '" target="_blank" rel="nofollow">' + poi.tags.website + '</a></br>';
+
+        if( poi.tags['recycling:clothes'] == 'yes')
                 popuptext += "Clothes" + "</br>";
-        if( poi['tags']['recycling:paper'] == 'yes')
+        if( poi.tags['recycling:paper'] == 'yes')
                 popuptext += "Paper" + "</br>";
-        if( poi['tags']['recycling:glass'] == 'yes')
+        if( poi.tags['recycling:glass'] == 'yes')
                 popuptext += "Glass" + "</br>";
-        if( poi['tags']['recycling:garden_waste'] == 'yes')
+        if( poi.tags['recycling:garden_waste'] == 'yes')
                 popuptext += "Garden waste" + "</br>";
-    
+
         return popuptext;
 }
 
 
 function updateHashURL() {
-    
+
     var urlhash_location = "map=" + map.getZoom() + '/' + map.getCenter().lat.toFixed(5) + '/' + map.getCenter().lng.toFixed(5);
     history.replaceState(null, null, window.location.origin + "/#" + urlhash_location);
 }
@@ -426,7 +437,7 @@ function loadPOIdataFromFile() {
 
     $.getJSON("content.json", function(data){
             console.log(data);
-            
+
             //save to global var
             poiData = data;
             fillMobileSelectionBox(poiData);
@@ -439,12 +450,12 @@ function fillMobileSelectionBox(data) {
                 console.log(poi["lang-en"]);
                 var text = poi["lang-en"];
                 var val = key;
-                
+
                 //add entry to drop down list
                 $('#mydropdown').append( new Option(text,val) );
                 //    $('#mySelect').append( new Option(text,val,defaultSelected,nowSelected) );
 
-            })
+            });
 
   // Now that the selection box is filled, adjust font-size of the whole
   // inputarea content so that it fits one line
@@ -467,7 +478,6 @@ $.fn.textFontAdjust = function(subElem, options) {
   do {
     textElem.css('font-size', fontSizePerc + '%');
     fontSizePerc = fontSizePerc - 1;
-  } while ((textElem.height() > maxHeight || textElem.width() > maxWidth) && fontSizePerc > config.minFontPerc) {
+  } while ((textElem.height() > maxHeight || textElem.width() > maxWidth) && fontSizePerc > config.minFontPerc);
     return this;
-  }
-}
+};
