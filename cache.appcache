@@ -1,4 +1,9 @@
 CACHE MANIFEST
+
+#version 2
+
+
+CACHE:
 /index.html
 /index_mobile.html
 /content.json
