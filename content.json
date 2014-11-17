@@ -99,6 +99,11 @@
                     "osm" : "shop=butcher",
                     "lang-de":"Metzgerei",
                     "lang-en":"Butcher"
-                    }
+                  },
 
+    "cigarettes" : {
+                    "osm" : "amenity=vending_machine;vending=cigarettes",
+                    "lang-de":"Zigarettenautomat",
+                    "lang-en":"Cigarette automat"
+                    }
 }
