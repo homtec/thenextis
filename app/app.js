@@ -135,8 +135,7 @@ function loadPOIs(manualRefresh) {
 
 			return;
 		}
-		_paq.push(['trackPageView', 'POIFound']);
-        _paq.push(['trackGoal', 1]);
+    ga('send', 'event', 'poisearch', 'got_results', pois.length);
 		$.each(pois, function(index, poi) {
                         var popuptext = "";
                         if(poi.type == 'node' && typeof poi.tags != 'undefined'){
@@ -234,11 +233,11 @@ function onLocationFound(e) {
     //update browser URL
     updateHashURL();
 
-    _paq.push(['trackPageView', 'LocationFound']);
+    ga('send', 'event', 'geolocation', 'found');
 }
 
 function onLocationError(e) {
-    _paq.push(['trackPageView', 'LocationError']);
+    ga('send', 'event', 'geolocation', 'LocationError');
     alert(e.message);
 }
 
@@ -277,7 +276,7 @@ function getTag() {
 	} else {
 		tag = $('#tag_name').val();
 	}
-    _paq.push(['trackPageView', 'Selection/' + tag]);
+    ga('send', 'event', 'poisearch', 'search_for', tag);
     return tag;
 }
 
