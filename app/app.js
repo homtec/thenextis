@@ -404,6 +404,11 @@ $(function() {
     $('#info-button').click(function(){showInfo();});
     $('#editOSM-button').click(function(){editOSM();});
 
+    $('#info_overlay').click(function(){
+      hideInfo();
+    });
+
+
 });
 
 function locateMe() {
@@ -414,7 +419,11 @@ function locateMe() {
 function showInfo() {
   console.log("info pressed");
   $("#info_overlay").css("visibility", "visible");
+}
 
+function hideInfo() {
+  console.log("info pressed");
+  $("#info_overlay").css("visibility", "hidden");
 }
 
 
