@@ -55,6 +55,14 @@ html,body{
     left: calc(100% - 50px);
 }
 
+#info-button {
+	height: 50px;
+	top: 302px;
+	width: 50px;
+	background: black;
+	position: absolute;
+	left: calc(100% - 50px);
+}
 
 #search-button {
     height: 1000px;
@@ -73,7 +81,7 @@ html,body{
     width: 100%;
     top:0px;
     left: 0px;
-    z-index: 10;
+    z-index: 1001;
     background: black;
     opacity: 0.8;
     color: white;
@@ -83,23 +91,39 @@ html,body{
     font-size: 50px;
 }
 
-.autocomplete-suggestions { 
-	border: 1px solid #999; 
-	background: #fff; 
-	cursor: default; 
-	overflow: auto; 
-}
-.autocomplete-suggestion { 
-	padding: 5px 5px; 
-	font-size: 1.2em; 
-	white-space: nowrap; 
-	overflow: hidden; 
+#info_overlay {
+	position: fixed;
+	height: 100%;
+	width: 100%;
+	top:0px;
+	left: 0px;
+	z-index: 1001;
+	background: black;
+	opacity: 0.8;
+	color: white;
+	visibility: hidden;
+	text-align: center;
+	vertical-align: middle;
+	font-size: 50px;
 }
 
-.autocomplete-selected { 
-	background: #f0f0f0; 
+.autocomplete-suggestions {
+	border: 1px solid #999;
+	background: #fff;
+	cursor: default;
+	overflow: auto;
 }
-.autocomplete-suggestions strong { 
-	font-weight: normal; 
-	color: #428bca; 
+.autocomplete-suggestion {
+	padding: 5px 5px;
+	font-size: 1.2em;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.autocomplete-selected {
+	background: #f0f0f0;
+}
+.autocomplete-suggestions strong {
+	font-weight: normal;
+	color: #428bca;
 }

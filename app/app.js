@@ -401,6 +401,7 @@ $(function() {
 	//set onClick for refresh button
 	$('#reload-button').click(function(){loadPOIs(true);});
     $('#locateMe-button').click(function(){locateMe();});
+    $('#info-button').click(function(){showInfo();});
     $('#editOSM-button').click(function(){editOSM();});
 
 });
@@ -408,6 +409,12 @@ $(function() {
 function locateMe() {
 	map.locate({setView: true, maxZoom: 16});
     mapDragged = false;
+}
+
+function showInfo() {
+  console.log("info pressed");
+  $("#info_overlay").css("visibility", "visible");
+
 }
 
 
