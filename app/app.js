@@ -13,7 +13,6 @@ var mapDragged = false;
 var way;
 var myLocationMarker = null;
 var myLocationCircle = null;
-var isMobile = false;
 var poiData = null;
 
 function initMap(loc, zoom) {
@@ -100,15 +99,11 @@ function loadPOIs(manualRefresh) {
 
 	//remove old markers
 	markerlayer.clearLayers();
-        waylayer.clearLayers();
+  waylayer.clearLayers();
 
 	//show loading indicator
-    if(isMobile) {
-        $("#loading").css("visibility", "visible");
-    }
-    else{
-        $("#loading").show();
-    }
+  $("#loading").css("visibility", "visible");
+
 	//load POIs from OSM
 	var markers = [];
         var ways = [];
@@ -117,12 +112,8 @@ function loadPOIs(manualRefresh) {
 
 
         //remove loading indicator
-        if(isMobile) {
         $("#loading").css("visibility", "hidden");
-        }
-        else{
-            $("#loading").hide();
-        }
+
 
 		//build markers
 		pois = data.elements;
@@ -252,32 +243,24 @@ function onMapZoomed() {
 
 function getTagName(){
 	var tagName = "";
-    if(isMobile) {
-        tagName = poiData[$('#mydropdown').val()]["lang-en"];
-    }
-    else {
-	   tagName = $('#mydropdown').val();
-    }
-        return tagName;
+  tagName = poiData[$('#mydropdown').val()]["lang-en"];
+  return tagName;
 }
 
 function getTag() {
 	var tag = "";
-  if (isMobile) {
-		var selection = $('#mydropdown').val();
+	var selection = $('#mydropdown').val();
 
-		// OSM-Tag preset for mobile
-        //search tag in object
-        console.log(poiData);
-        var tagdata = poiData[selection].osm;
-        if(tagdata)
-            tag = tagdata;
+	// OSM-Tag preset for mobile
+  //search tag in object
+  console.log(poiData);
+  var tagdata = poiData[selection].osm;
+  if(tagdata)
+  tag = tagdata;
 
-	} else {
-		tag = $('#tag_name').val();
-	}
-    ga('send', 'event', 'poisearch', 'search_for', tag);
-    return tag;
+
+  ga('send', 'event', 'poisearch', 'search_for', tag);
+  return tag;
 }
 
 function reloadCurrentMapWindow() {
@@ -313,11 +296,6 @@ $(function() {
 
     //disable cache for ajax
     $.ajaxSetup({ cache: false });
-
-    //detect if mobile
-    if(window.location.pathname.indexOf('mobile') > -1) {
-        isMobile = true;
-    }
 
     //detect if url parameter existing
     var hash = window.location.hash;
@@ -380,23 +358,18 @@ $(function() {
 
 
 
-	if (isMobile) {
 
-        //load dropdown OSM data
-        loadPOIdataFromFile();
 
-	//setup dropdown listener
+    //load dropdown OSM data
+    loadPOIdataFromFile();
+
+	  //setup dropdown listener
 		$('#mydropdown').change(function()
 			{
 			loadPOIs();
 		});
-    }
-	else {
-		$('#tag_name').change(function()
-			{
-		loadPOIs();
-		});
-	}
+
+
 
 	//set onClick for refresh button
 	$('#reload-button').click(function(){loadPOIs(true);});
@@ -417,12 +390,10 @@ function locateMe() {
 }
 
 function showInfo() {
-  console.log("info pressed");
   $("#info_overlay").css("visibility", "visible");
 }
 
 function hideInfo() {
-  console.log("info pressed");
   $("#info_overlay").css("visibility", "hidden");
 }
 
