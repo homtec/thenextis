@@ -292,8 +292,6 @@ $(function() {
     }, false);
 
 
-
-
     //disable cache for ajax
     $.ajaxSetup({ cache: false });
 

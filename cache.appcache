@@ -1,18 +1,13 @@
 CACHE MANIFEST
 
-#version 15
+#version 19+++
 
 
 CACHE:
 /index.html
-/index_mobile.html
 /content.json
 /app/app.css
 /app/app.js
-/app/app_mobile.css
-/app/autocomplete.js
-/app/detectmobilebrowser.js
-/app/jquery.autocomplete.min.js
 
 NETWORK:
 *
