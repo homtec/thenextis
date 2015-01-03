@@ -284,7 +284,8 @@ $(function() {
         // Swap it in and reload the page to get the new hotness.
         window.applicationCache.swapCache();
         if (confirm('A new version is available. Load it?')) {
-          window.location.reload();
+          //window.location.reload();
+          window.location.reload("http://thenextis.com");
         }
       } else {
         // Manifest didn't changed. Nothing new to server.
