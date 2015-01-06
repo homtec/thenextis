@@ -2,194 +2,226 @@
     "atm" : {
                     "osm" : "amenity=atm;atm=yes",
                     "lang-de":"Geldautomat",
-                    "lang-en":"ATM"
+                    "lang-en":"ATM",
+                    "lang-fr":"DAB"
                     },
 
     "wifi" : {
                     "osm" : "internet_access=wlan",
                     "lang-de":"Wifi",
-                    "lang-en":"Wifi"
+                    "lang-en":"Wifi",
+                    "lang-fr":"Wifi"
                     },
 
     "water" : {
                     "osm" : "amenity=drinking_water",
                     "lang-de":"Trinkwasser",
-                    "lang-en":"Drinking Water"
+                    "lang-en":"Drinking Water",
+                    "lang-fr":"Eau potable"
                     },
 
     "cafe" : {
                     "osm" : "amenity=cafe",
                     "lang-de":"Café",
-                    "lang-en":"Café"
+                    "lang-en":"Café",
+                    "lang-fr":"Café"
                     },
 
     "toilet" : {
                     "osm" : "amenity=toilets",
                     "lang-de":"Öffentliche Toilette",
-                    "lang-en":"Public Toilet"
+                    "lang-en":"Public Toilet",
+                    "lang-fr":"Toilettes publiques"
                     },
 
     "busstop" : {
                     "osm" : "highway=bus_stop ",
                     "lang-de":"Bushaltestelle",
-                    "lang-en":"Bus Stop"
+                    "lang-en":"Bus Stop",
+                    "lang-fr":"Arrêt de bus"
                     },
 
     "playground" : {
                     "osm" : "leisure=playground",
                     "lang-de":"Spielplatz",
-                    "lang-en":"Playground"
+                    "lang-en":"Playground",
+                    "lang-fr":"Aire de jeux"
                     },
 
     "postbox" : {
                     "osm" : "amenity=post_box",
                     "lang-de":"Briefkasten",
-                    "lang-en":"Postbox"
+                    "lang-en":"Postbox",
+                    "lang-fr":"Boîte aux lettres"
                     },
 
     "telephone" : {
                     "osm" : "amenity=telephone",
                     "lang-de":"Telefon",
-                    "lang-en":"Telephone"
+                    "lang-en":"Telephone",
+                    "lang-fr":"Téléphone"
                     },
 
     "pharmacy" : {
                     "osm" : "amenity=pharmacy",
                     "lang-de":"Apotheke",
-                    "lang-en":"Pharmacy"
+                    "lang-en":"Pharmacy",
+                    "lang-fr":"Pharmacie"
                     },
 
     "taxi" : {
                     "osm" : "amenity=taxi",
                     "lang-de":"Taxi",
-                    "lang-en":"Taxi"
+                    "lang-en":"Taxi",
+                    "lang-fr":"Taxi"
                     },
 
     "fuel" : {
                     "osm" : "amenity=fuel",
                     "lang-de":"Tankstelle",
-                    "lang-en":"Gas Station"
+                    "lang-en":"Gas Station",
+                    "lang-fr":"Station-service"
                     },
 
     "charging" : {
                     "osm" : "amenity=charging_station",
                     "lang-de":"Ladesäule",
-                    "lang-en":"Charging Station"
+                    "lang-en":"Charging Station",
+                    "lang-fr":"Station de recharge"
                     },
 
     "tablesoccer" : {
                     "osm" : "sport=table_soccer",
                     "lang-de":"Tischfußball",
-                    "lang-en":"Table Football"
+                    "lang-en":"Table Football",
+                    "lang-fr":"Baby-foot"
                   },
 
     "tabletennis" : {
                     "osm" : "sport=table_tennis",
                     "lang-de":"Tischtennis",
-                    "lang-en":"Table Tennis"
+                    "lang-en":"Table Tennis",
+                    "lang-fr":"Ping-pong"
                   },
 
     "bakery" : {
                     "osm" : "shop=bakery",
                     "lang-de":"Bäckerei",
-                    "lang-en":"Bakery"
+                    "lang-en":"Bakery",
+                    "lang-fr":"Boulangerie"
                   },
 
     "butcher" : {
                     "osm" : "shop=butcher",
                     "lang-de":"Metzgerei",
-                    "lang-en":"Butcher"
+                    "lang-en":"Butcher",
+                    "lang-fr":"Boucherie"
                   },
 
     "cigarettes" : {
                     "osm" : "amenity=vending_machine;vending=cigarettes",
                     "lang-de":"Zigarettenautomat",
-                    "lang-en":"Cigarette automat"
+                    "lang-en":"Cigarette automat",
+                    "lang-fr":"Distributeur automatique de cigarettes"
                   },
 
     "shelter" : {
                     "osm" : "amenity=shelter",
                     "lang-de":"Schutzhütte",
-                    "lang-en":"Shelter"
+                    "lang-en":"Shelter",
+                    "lang-fr":"Abris"
                   },
 
     "publictransport" : {
                     "osm" : "highway=bus_stop;public_transport=platform;public_transport=stop_position;railway=station",
                     "lang-de":"Haltestelle",
-                    "lang-en":"Public transport station"
+                    "lang-en":"Public transport station",
+                    "lang-fr":"Transport public"
                   },
 
     "library" : {
                     "osm" : "amenity=library",
                     "lang-de":"Bibliothek",
-                    "lang-en":"Library"
+                    "lang-en":"Library",
+                    "lang-fr":"Bibliothèque"
                   },
 
     "swimmingpool" : {
                     "osm" : "amenity=swimming_pool",
                     "lang-de":"Schwimmbad",
-                    "lang-en":"Swimming Pool"
+                    "lang-en":"Swimming Pool",
+                    "lang-fr":"Piscine"
                   },
 
     "laundry" : {
                     "osm" : "shop=laundry",
                     "lang-de":"Wäscherei",
-                    "lang-en":"Laundry"
+                    "lang-en":"Laundry",
+                    "lang-fr":"Laverie"
                   },
 
     "supermarket" : {
                     "osm" : "shop=supermarket;shop=convenience",
                     "lang-de":"Supermarkt",
-                    "lang-en":"Supermarket"
+                    "lang-en":"Supermarket",
+                    "lang-fr":"Supermarché"
                     }  ,
 
     "fastfood" : {
                     "osm" : "amenity=fast_food",
                     "lang-de":"Fastfood",
-                    "lang-en":"Fastfood"
+                    "lang-en":"Fastfood",
+                    "lang-fr":"Fastfood"
                     } ,
     "recycling" : {
                     "osm" : "amenity=recycling",
                     "lang-de":"Recycling",
-                    "lang-en":"Recycling facility"
+                    "lang-en":"Recycling facility",
+                    "lang-fr":"Point de recyclage"
                     } ,
 
     "pub" : {
                     "osm" : "amenity=pub;amenity=bar;amenity=biergarten",
                     "lang-de":"Kneipe / Bar",
-                    "lang-en":"Pub"
+                    "lang-en":"Pub",
+                    "lang-fr":"Pub / bar"
                   },
 
 
     "restaurant" : {
                     "osm" : "amenity=restaurant",
                     "lang-de":"Restaurant",
-                    "lang-en":"Restaurant"
+                    "lang-en":"Restaurant",
+                    "lang-fr":"Restaurant"
                   },
 
     "cinema" : {
                     "osm" : "amenity=cinema",
                     "lang-de":"Kino",
-                    "lang-en":"Cinema"
+                    "lang-en":"Cinema",
+                    "lang-fr":"Cinéma"
                   },
 
 
     "hotel" : {
                     "osm" : "tourism=hotel",
                     "lang-de":"Hotel",
-                    "lang-en":"Hotel"
+                    "lang-en":"Hotel",
+                    "lang-fr":"Hôtel"
                   },
 
     "hostel" : {
                     "osm" : "amenity=hostel",
                     "lang-de":"Hostel",
-                    "lang-en":"Hostel"
+                    "lang-en":"Hostel",
+                    "lang-fr":"Auberge de jeunesse"
                   },
 
     "sportsfield" : {
                     "osm" : "leisure=pitch",
                     "lang-de":"Sportplatz",
-                    "lang-en":"Sports field"
+                    "lang-en":"Sports field",
+                    "lang-fr":"Terrain de sport"
                   }
 
 
