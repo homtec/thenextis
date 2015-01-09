@@ -3,188 +3,215 @@
                     "osm" : "amenity=atm;atm=yes",
                     "lang-de":"Geldautomat",
                     "lang-en":"ATM",
-                    "lang-fr":"DAB"
+                    "lang-fr":"DAB",
+                    "lang-ru":"Банкомат"
                     },
 
     "wifi" : {
                     "osm" : "internet_access=wlan",
                     "lang-de":"Wifi",
                     "lang-en":"Wifi",
-                    "lang-fr":"Wifi"
+                    "lang-fr":"Wifi",
+                    "lang-ru":"Wifi"
                     },
 
     "water" : {
                     "osm" : "amenity=drinking_water",
                     "lang-de":"Trinkwasser",
                     "lang-en":"Drinking Water",
-                    "lang-fr":"Eau potable"
+                    "lang-fr":"Eau potable",
+                    "lang-ru":"Питьевая Вода"
                     },
 
     "cafe" : {
                     "osm" : "amenity=cafe",
                     "lang-de":"Café",
                     "lang-en":"Café",
-                    "lang-fr":"Café"
+                    "lang-fr":"Café",
+                    "lang-ru":"Кафе"
                     },
 
     "toilet" : {
                     "osm" : "amenity=toilets",
                     "lang-de":"Öffentliche Toilette",
                     "lang-en":"Public Toilet",
-                    "lang-fr":"Toilettes publiques"
+                    "lang-fr":"Toilettes publiques",
+                    "lang-ru":"Общественный Туалет"
                     },
 
     "busstop" : {
                     "osm" : "highway=bus_stop ",
                     "lang-de":"Bushaltestelle",
                     "lang-en":"Bus Stop",
-                    "lang-fr":"Arrêt de bus"
+                    "lang-fr":"Arrêt de bus",
+                    "lang-ru":"Автобусная Остановка"
                     },
 
     "playground" : {
                     "osm" : "leisure=playground",
                     "lang-de":"Spielplatz",
                     "lang-en":"Playground",
-                    "lang-fr":"Aire de jeux"
+                    "lang-fr":"Aire de jeux",
+                    "lang-ru":"Детская Площадка"
                     },
 
     "postbox" : {
                     "osm" : "amenity=post_box",
                     "lang-de":"Briefkasten",
                     "lang-en":"Postbox",
-                    "lang-fr":"Boîte aux lettres"
+                    "lang-fr":"Boîte aux lettres",
+                    "lang-ru":"Почтовый Ящик"
                     },
 
     "telephone" : {
                     "osm" : "amenity=telephone",
                     "lang-de":"Telefon",
                     "lang-en":"Telephone",
-                    "lang-fr":"Téléphone"
+                    "lang-fr":"Téléphone",
+                    "lang-ru":"Телефон"
                     },
 
     "pharmacy" : {
                     "osm" : "amenity=pharmacy",
                     "lang-de":"Apotheke",
                     "lang-en":"Pharmacy",
-                    "lang-fr":"Pharmacie"
+                    "lang-fr":"Pharmacie",
+                    "lang-ru":"Аптека"
                     },
 
     "taxi" : {
                     "osm" : "amenity=taxi",
                     "lang-de":"Taxi",
                     "lang-en":"Taxi",
-                    "lang-fr":"Taxi"
+                    "lang-fr":"Taxi",
+                    "lang-ru":"Такси"
                     },
 
     "fuel" : {
                     "osm" : "amenity=fuel",
                     "lang-de":"Tankstelle",
                     "lang-en":"Gas Station",
-                    "lang-fr":"Station-service"
+                    "lang-fr":"Station-service",
+                    "lang-ru":"Заправочная Станция"
                     },
 
     "charging" : {
                     "osm" : "amenity=charging_station",
                     "lang-de":"Ladesäule",
                     "lang-en":"Charging Station",
-                    "lang-fr":"Station de recharge"
+                    "lang-fr":"Station de recharge",
+                    "lang-ru":"Станция Электрозаряда"
                     },
 
     "tablesoccer" : {
                     "osm" : "sport=table_soccer",
                     "lang-de":"Tischfußball",
                     "lang-en":"Table Football",
-                    "lang-fr":"Baby-foot"
+                    "lang-fr":"Baby-foot",
+                    "lang-ru":"Настольный Футбол"
                   },
 
     "tabletennis" : {
                     "osm" : "sport=table_tennis",
                     "lang-de":"Tischtennis",
                     "lang-en":"Table Tennis",
-                    "lang-fr":"Ping-pong"
+                    "lang-fr":"Ping-pong",
+                    "lang-ru":"Настольный Теннис"
                   },
 
     "bakery" : {
                     "osm" : "shop=bakery",
                     "lang-de":"Bäckerei",
                     "lang-en":"Bakery",
-                    "lang-fr":"Boulangerie"
+                    "lang-fr":"Boulangerie",
+                    "lang-ru":"Пекарня"
                   },
 
     "butcher" : {
                     "osm" : "shop=butcher",
                     "lang-de":"Metzgerei",
                     "lang-en":"Butcher",
-                    "lang-fr":"Boucherie"
+                    "lang-fr":"Boucherie",
+                    "lang-ru":"Мясной Магазин"
                   },
 
     "cigarettes" : {
                     "osm" : "amenity=vending_machine;vending=cigarettes",
                     "lang-de":"Zigarettenautomat",
                     "lang-en":"Cigarette automat",
-                    "lang-fr":"Distributeur automatique de cigarettes"
+                    "lang-fr":"Distributeur automatique de cigarettes",
+                    "lang-ru":"Сигаретный Автомат"
                   },
 
     "shelter" : {
                     "osm" : "amenity=shelter",
                     "lang-de":"Schutzhütte",
                     "lang-en":"Shelter",
-                    "lang-fr":"Abris"
+                    "lang-fr":"Abris",
+                    "lang-ru":"Убежище"
                   },
 
     "publictransport" : {
                     "osm" : "highway=bus_stop;public_transport=platform;public_transport=stop_position;railway=station",
                     "lang-de":"Haltestelle",
                     "lang-en":"Public transport station",
-                    "lang-fr":"Transport public"
+                    "lang-fr":"Transport public",
+                    "lang-ru":"Остановка"
                   },
 
     "library" : {
                     "osm" : "amenity=library",
                     "lang-de":"Bibliothek",
                     "lang-en":"Library",
-                    "lang-fr":"Bibliothèque"
+                    "lang-fr":"Bibliothèque",
+                    "lang-ru":"Библиотека"
                   },
 
     "swimmingpool" : {
                     "osm" : "amenity=swimming_pool",
                     "lang-de":"Schwimmbad",
                     "lang-en":"Swimming Pool",
-                    "lang-fr":"Piscine"
+                    "lang-fr":"Piscine",
+                    "lang-ru":"Бассейн"
                   },
 
     "laundry" : {
                     "osm" : "shop=laundry",
                     "lang-de":"Wäscherei",
                     "lang-en":"Laundry",
-                    "lang-fr":"Laverie"
+                    "lang-fr":"Laverie",
+                    "lang-ru":"Прачечная"
                   },
 
     "supermarket" : {
                     "osm" : "shop=supermarket;shop=convenience",
                     "lang-de":"Supermarkt",
                     "lang-en":"Supermarket",
-                    "lang-fr":"Supermarché"
-                    }  ,
+                    "lang-fr":"Supermarché",
+                    "lang-ru":"Супермаркет"
+                    },
 
     "fastfood" : {
                     "osm" : "amenity=fast_food",
                     "lang-de":"Fastfood",
                     "lang-en":"Fastfood",
-                    "lang-fr":"Fastfood"
-                    } ,
+                    "lang-fr":"Fastfood",
+                    "lang-ru":"Фастфуд"
+                    },
     "recycling" : {
                     "osm" : "amenity=recycling",
                     "lang-de":"Recycling",
                     "lang-en":"Recycling facility",
-                    "lang-fr":"Point de recyclage"
-                    } ,
+                    "lang-fr":"Point de recyclage",
+                    "lang-ru":"Переработка"
+                    },
 
     "pub" : {
                     "osm" : "amenity=pub;amenity=bar;amenity=biergarten",
                     "lang-de":"Kneipe / Bar",
                     "lang-en":"Pub",
-                    "lang-fr":"Pub / bar"
+                    "lang-fr":"Pub / bar",
+                    "lang-ru":"Бар"
                   },
 
 
@@ -192,14 +219,16 @@
                     "osm" : "amenity=restaurant",
                     "lang-de":"Restaurant",
                     "lang-en":"Restaurant",
-                    "lang-fr":"Restaurant"
+                    "lang-fr":"Restaurant",
+                    "lang-ru":"Ресторан"
                   },
 
     "cinema" : {
                     "osm" : "amenity=cinema",
                     "lang-de":"Kino",
                     "lang-en":"Cinema",
-                    "lang-fr":"Cinéma"
+                    "lang-fr":"Cinéma",
+                    "lang-ru":"Кинотеатр"
                   },
 
 
@@ -207,21 +236,24 @@
                     "osm" : "tourism=hotel",
                     "lang-de":"Hotel",
                     "lang-en":"Hotel",
-                    "lang-fr":"Hôtel"
+                    "lang-fr":"Hôtel",
+                    "lang-ru":"Гостиница"
                   },
 
     "hostel" : {
                     "osm" : "amenity=hostel",
                     "lang-de":"Hostel",
                     "lang-en":"Hostel",
-                    "lang-fr":"Auberge de jeunesse"
+                    "lang-fr":"Auberge de jeunesse",
+                    "lang-ru":"Гостиница"
                   },
 
     "sportsfield" : {
                     "osm" : "leisure=pitch",
                     "lang-de":"Sportplatz",
                     "lang-en":"Sports field",
-                    "lang-fr":"Terrain de sport"
+                    "lang-fr":"Terrain de sport",
+                    "lang-ru":"Спортивная Площадка"
                   }
 
 
