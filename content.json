@@ -288,5 +288,20 @@
                     "lang-ru":"Спортивная Площадка"
                   }
 
+    "kindergarten" : {
+                    "osm" : "amenity=kindergarten",
+                    "lang-de":"Kindergarten",
+                    "lang-en":"Kindergarten",
+                    "lang-fr":"école enfantine",
+                    "lang-ru":"де́тский сад"
+                  }
+
+    "school" : {
+                    "osm" : "amenity=school",
+                    "lang-de":"Schule",
+                    "lang-en":"School",
+                    "lang-fr":"école",
+                    "lang-ru":"шко́лад"
+                  }
 
 }
