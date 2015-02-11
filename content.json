@@ -286,7 +286,7 @@
                     "lang-es":"Campo de deportes",
                     "lang-fr":"Terrain de sport",
                     "lang-ru":"Спортивная Площадка"
-                  }
+                  },
 
     "kindergarten" : {
                     "osm" : "amenity=kindergarten",
@@ -295,7 +295,7 @@
                     "lang-es":"Jardín de infancia",
                     "lang-fr":"école enfantine",
                     "lang-ru":"де́тский сад"
-                  }
+                  },
 
     "school" : {
                     "osm" : "amenity=school",
