@@ -450,10 +450,16 @@ function loadPOIdataFromFile() {
 }
 
 function fillMobileSelectionBox(data) {
+
+            //language detection
+            var default_lang = "lang-en";
+            var preferred_lang = "lang-" + window.navigator.language.substring(0, 2);
+
+
             //fill list
             $.each(data, function(key, poi) {
                 console.log(poi["lang-en"]);
-                var text = poi["lang-en"];
+                var text = poi.hasOwnProperty(preferred_lang) ? poi[preferred_lang] : poi[default_lang];
                 var val = key;
 
                 //add entry to drop down list
