@@ -273,8 +273,8 @@
     "hostel" : {
                     "osm" : "amenity=hostel",
                     "lang-de":"Hostel",
-                    "lang-en":"Hotel",
-                    "lang-es":"Hotel",
+                    "lang-en":"Hostel",
+                    "lang-es":"Hotal",
                     "lang-fr":"Auberge de jeunesse",
                     "lang-ru":"Гостиница"
                   },
@@ -292,6 +292,7 @@
                     "osm" : "amenity=kindergarten",
                     "lang-de":"Kindergarten",
                     "lang-en":"Kindergarten",
+                    "lang-es":"Jardín de infancia",
                     "lang-fr":"école enfantine",
                     "lang-ru":"де́тский сад"
                   }
@@ -300,6 +301,7 @@
                     "osm" : "amenity=school",
                     "lang-de":"Schule",
                     "lang-en":"School",
+                    "lang-es":"Escuela",
                     "lang-fr":"école",
                     "lang-ru":"шко́лад"
                   }
