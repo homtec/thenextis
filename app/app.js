@@ -300,9 +300,16 @@ $(function() {
     var hash = window.location.hash;
     var type = null;
     var url_location = null;
+		var startloc;
+		var startzoom;
 
-    var startloc = berlin;
-    var startzoom = 13;
+		if (localStorage.getItem("latlng") !== null && localStorage.getItem("zoom") !== null) {
+      startloc = JSON.parse(localStorage.latlng);
+			startzoom = localStorage.zoom;
+		} else {
+			startloc = berlin;
+			startzoom = 13;
+		}
 
     if (hash.length > 0) {
         hash = hash.replace('#', '');
@@ -335,6 +342,9 @@ $(function() {
         mapDragged = true;
     }
 
+		window.addEventListener('unload', function(event) {
+			cacheLocation();
+		});
 
     initMap(startloc, startzoom);
 
@@ -386,6 +396,11 @@ $(function() {
 function locateMe() {
 	map.locate({setView: true, maxZoom: 16});
     mapDragged = false;
+}
+
+function cacheLocation() {
+	localStorage.setItem('zoom', map.getZoom());
+	localStorage.setItem('latlng', JSON.stringify(map.getCenter()));
 }
 
 function showInfo() {
