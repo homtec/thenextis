@@ -28,6 +28,20 @@ html,body{
 	color: #fff;
 }
 
+#online-offline-pane {
+  position: absolute;
+  top: 25px;
+  height: 35px;
+  line-height: 35px;
+  width: 100%;
+	background-color: white;
+  text-align: center;
+  font-size: 17px;
+  color: white;
+  transition: all 0.5s ease-in-out;
+  z-index: 1;
+}
+
 .buttons {
     color: white;
     font-size: 35px;

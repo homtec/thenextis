@@ -14,6 +14,7 @@ var way;
 var myLocationMarker = null;
 var myLocationCircle = null;
 var poiData = null;
+var wasOnline = false;
 
 function initMap(loc, zoom) {
 
@@ -47,6 +48,10 @@ function initMap(loc, zoom) {
 	var attribution = 'Map data ' + osmAttr + ', Imagery &copy; <a href="http://mapbox.com" target="_blank">Mapbox</a>';
 
 	tiles = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution, detectRetina: true});
+
+	tiles.addEventListener('tileload', goOnline);
+	tiles.addEventListener('tileerror', goOffline);
+
 	map.addLayer(tiles);
 	map.addLayer(markerlayer);
         map.addLayer(waylayer);
@@ -109,6 +114,8 @@ function loadPOIs(manualRefresh) {
         var ways = [];
 	$.getJSON(URL)
 	.done( function(data) {
+
+		goOnline();
 
 
         //remove loading indicator
@@ -199,6 +206,10 @@ function loadPOIs(manualRefresh) {
 	.fail( function(jqxhr, textStatus, error ) {
 		var err = textStatus + ', ' + error;
 		console.log( "Request Failed: " + err);
+
+		$('#loading').css("visibility", "hidden");
+
+    goOffline();
 	});
 }
 
@@ -380,8 +391,40 @@ $(function() {
       hideInfo();
     });
 
-
+	window.addEventListener('online', goOnline);
+	window.addEventListener('offline', goOffline);
 });
+
+function goOnline() {
+	if (wasOnline === false) {
+		$("#online-offline-pane").text("You are online.");
+		$("#online-offline-pane").css("background-color", "green");
+		animateOnlineOfflinePane();
+		wasOnline = true;
+	}
+}
+
+function goOffline(display, connectionError) {
+	wasOnline = false;
+	$("#online-offline-pane").text("You are having connection problems.");
+	$("#online-offline-pane").css("background-color", "red");
+	animateOnlineOfflinePane();
+}
+
+function animateOnlineOfflinePane() {
+	if (typeof timeout1 !== 'undefined' && typeof timeout2 !== 'undefined') {
+		//Clear previous pane animations to avoid conflicts for repeated animations
+		window.clearTimeout(timeout1);
+		window.clearTimeout(timeout2);
+	}
+	var timeout1 = window.setTimeout(function() {
+		$("#online-offline-pane").css("transform", "translateY(35px)");
+		//Pause of 500 seconds to allow time for background-color to be applied
+	}, 500);
+	var timeout2 = window.setTimeout(function() {
+		$("#online-offline-pane").css("transform", "translateY(3px)");
+	}, 2500);
+}
 
 function locateMe() {
 	map.locate({setView: true, maxZoom: 16});
