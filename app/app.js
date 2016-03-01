@@ -6,7 +6,7 @@ var pois = [];
 var markerlayer;
 var waylayer;
 var myLocation = null;
-var OSM_URL = "http://overpass-api.de/api/interpreter?data=%5Bout:json%5D;";
+var OSM_URL = "https://overpass-api.de/api/interpreter?data=%5Bout:json%5D;";
 var berlin = new L.LatLng(52.5213616409873, 13.4101340342265);
 var icon_user;
 var mapDragged = false;
@@ -42,9 +42,9 @@ function initMap(loc, zoom) {
 	});
 
 	// create a CloudMade tile layer
-	var tileURL = 'http://api.tiles.mapbox.com/v3/thenextis.hl2jok4l/{z}/{x}/{y}.png';
-	var osmAttr = '&copy; <a href="http://openstreetmap.org" target="_blank">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/" target="_blank">CC-BY-SA</a>';
-	var attribution = 'Map data ' + osmAttr + ', Imagery &copy; <a href="http://mapbox.com" target="_blank">Mapbox</a>';
+	var tileURL = 'https://api.tiles.mapbox.com/v3/thenextis.hl2jok4l/{z}/{x}/{y}.png';
+	var osmAttr = '&copy; <a href="https://openstreetmap.org" target="_blank">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank">CC-BY-SA</a>';
+	var attribution = 'Map data ' + osmAttr + ', Imagery &copy; <a href="https://mapbox.com" target="_blank">Mapbox</a>';
 
 	tiles = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution, detectRetina: true});
 	map.addLayer(tiles);
@@ -285,7 +285,7 @@ $(function() {
         window.applicationCache.swapCache();
         if (confirm('A new version is available. Load it?')) {
           //window.location.reload();
-          window.location.reload("http://thenextis.com");
+          window.location.reload("https://thenextis.com");
         }
       } else {
         // Manifest didn't changed. Nothing new to server.
@@ -400,7 +400,7 @@ function hideInfo() {
 function editOSM() {
         var center = map.getCenter();
         var z = map.getZoom();
-        window.open('http://www.openstreetmap.org/edit?' + 'zoom=' + z +
+        window.open('https://www.openstreetmap.org/edit?' + 'zoom=' + z +
             '&editor=id' + '&lat=' + center.lat + '&lon=' + center.lng);
     }
 
