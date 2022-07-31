@@ -12,6 +12,7 @@ html,body{
     height: -moz-calc(100% - 60px);
     height: calc(100% - 60px);
     top:60px;
+    z-index: 1;
 }
 
 #inputarea{
@@ -45,16 +46,19 @@ html,body{
 #reload-button {
     top: 200px;
     left: calc(100% - 50px);
+    z-index: 3;
 }
 
 #locateMe-button {
     top: 251px;
     left: calc(100% - 50px);
+    z-index: 3;
 }
 
 #info-button {
 	top: 302px;
 	left: calc(100% - 50px);
+    z-index: 3;
 }
 
 #search-button {
@@ -66,6 +70,7 @@ html,body{
     left: calc(50% - 50px);
     font-size: 50px;
     visibility: hidden;
+    z-index: 3;
 }
 
 #loading {
