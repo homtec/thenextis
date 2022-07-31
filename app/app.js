@@ -42,14 +42,13 @@ function initMap(loc, zoom) {
 	});
 
 	// create a CloudMade tile layer
-	var tileURL = 'https://api.tiles.mapbox.com/v3/thenextis.hl2jok4l/{z}/{x}/{y}.png';
-	var osmAttr = '&copy; <a href="https://openstreetmap.org" target="_blank">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank">CC-BY-SA</a>';
-	var attribution = 'Map data ' + osmAttr + ', Imagery &copy; <a href="https://mapbox.com" target="_blank">Mapbox</a>';
+	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
 
-	tiles = new L.TileLayer(tileURL, {maxZoom: 18, attribution: attribution, detectRetina: true});
-	map.addLayer(tiles);
+
 	map.addLayer(markerlayer);
-        map.addLayer(waylayer);
+  map.addLayer(waylayer);
 }
 
 
