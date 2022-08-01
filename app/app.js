@@ -125,7 +125,7 @@ function loadPOIs(manualRefresh) {
 
 			return;
 		}
-    ga('send', 'event', 'poisearch', 'got_results', pois.length);
+    //ga('send', 'event', 'poisearch', 'got_results', pois.length);
 		$.each(pois, function(index, poi) {
                         var popuptext = "";
                         if(poi.type == 'node' && typeof poi.tags != 'undefined'){
@@ -223,11 +223,11 @@ function onLocationFound(e) {
     //update browser URL
     updateHashURL();
 
-    ga('send', 'event', 'geolocation', 'found');
+    //ga('send', 'event', 'geolocation', 'found');
 }
 
 function onLocationError(e) {
-    ga('send', 'event', 'geolocation', 'LocationError');
+    //ga('send', 'event', 'geolocation', 'LocationError');
     alert(e.message);
 }
 
@@ -258,7 +258,7 @@ function getTag() {
   tag = tagdata;
 
 
-  ga('send', 'event', 'poisearch', 'search_for', tag);
+  //ga('send', 'event', 'poisearch', 'search_for', tag);
   return tag;
 }
 
