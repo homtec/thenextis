@@ -45,7 +45,7 @@
                     },
 
     "Wheelchair eurokey toilet" : {
-                    "osm" : "amenity=toilets;centralkey=eurokey",
+                    "osm" : "centralkey=eurokey",
                     "lang-de":"Rollstuhl Toilette mit Eurokey",
                     "lang-en":"Public Toilet",
                     "lang-es":"Baño publico",
