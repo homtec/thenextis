@@ -6,7 +6,7 @@ var pois = [];
 var markerlayer;
 var waylayer;
 var myLocation = null;
-var OSM_URL = "https://overpass-api.de/api/interpreter?data=%5Bout:json%5D;";
+var OSM_URL = "https://z.overpass-api.de/api/interpreter?data=%5Bout:json%5D;";
 var berlin = new L.LatLng(52.5213616409873, 13.4101340342265);
 var icon_user;
 var mapDragged = false;
