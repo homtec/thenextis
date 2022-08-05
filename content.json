@@ -44,6 +44,15 @@
                     "lang-ru":"Общественный Туалет"
                     },
 
+    "Wheelchair eurokey toilet" : {
+                    "osm" : "amenity=toilets;wheelchair=yes;centralkey=eurokey",
+                    "lang-de":"Rollstuhl Toilette mit Eurokey",
+                    "lang-en":"Public Toilet",
+                    "lang-es":"Baño publico",
+                    "lang-fr":"Toilettes publiques",
+                    "lang-ru":"Общественный Туалет"
+                    },
+
     "busstop" : {
                     "osm" : "highway=bus_stop ",
                     "lang-de":"Bushaltestelle",
