@@ -284,7 +284,7 @@ $(function() {
     var url_location = null;
 
     var startloc = berlin;
-    var startzoom = 13;
+    var startzoom = 3;
 
     if (hash.length > 0) {
         hash = hash.replace('#', '');
