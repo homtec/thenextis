@@ -12,9 +12,10 @@ var myLocationMarker = null;
 var myLocationCircle = null;
 var poiData = null;
 
-init();
+window.onload = init();
 
 function initMap(loc, zoom) {
+  console.log("init map called")
 
 
   markerlayer = L.layerGroup();
@@ -37,7 +38,8 @@ function initMap(loc, zoom) {
 
   map = new L.Map('map', {
     center: loc,
-    zoom: zoom
+    zoom: zoom,
+    worldCopyJump: true
   });
 
   // create a CloudMade tile layer
@@ -106,7 +108,13 @@ function loadPOIs(manualRefresh) {
   var ways = [];
 
   fetch(URL)
-  .then((response) => response.json())
+  .then((response) => {
+    if (!response.ok) {
+      throw Error(response.statusText);
+    }
+
+    return response.json()
+  })
   .then((data) => {
       //remove loading indicator
       document.querySelector("#loading").style.visibility = "hidden";
@@ -190,9 +198,8 @@ function loadPOIs(manualRefresh) {
       }
 
     })
-    .fail(function (jqxhr, textStatus, error) {
-      var err = textStatus + ', ' + error;
-      console.log("Request Failed: " + err);
+    .catch((error) => {
+      console.log("Request Failed: " + error);
     });
 }
 
@@ -268,6 +275,8 @@ function reloadCurrentMapWindow() {
 
 //init function
 function init() {
+  console.log("init called")
+
 
   //detect if url parameter existing
   var hash = window.location.hash;
@@ -435,27 +444,6 @@ function fillMobileSelectionBox(data) {
     document.querySelector('#mydropdown').add(opt, null);
   };
 
-  // Now that the selection box is filled, adjust font-size of the whole
-  // inputarea content so that it fits one line
-  $('#inputarea').textFontAdjust($('#inputarea-content'));
+
 }
 
-// A small jQuery plugin for scaling down the font-size of an element until the
-// parent container isn't higher than allowed
-$.fn.textFontAdjust = function (subElem, options) {
-  var config = $.extend({
-    maxFontPerc: 100,
-    minFontPerc: 25,
-    additionalWidthToDecrease: 0
-  }, options);
-  var fontSizePerc = config.maxFontPerc,
-    textElem = $(subElem),
-    maxHeight = '40',
-    maxWidth = $(this).width() - config.additionalWidthToDecrease;
-  var textHeight, textWidth;
-  do {
-    textElem.css('font-size', fontSizePerc + '%');
-    fontSizePerc = fontSizePerc - 1;
-  } while ((textElem.height() > maxHeight || textElem.width() > maxWidth) && fontSizePerc > config.minFontPerc);
-  return this;
-};

@@ -7,7 +7,7 @@ A user-friendly POI search application based on the OSM database.
 run on the console:
 
 ```
-python -m SimpleHTTPServer
+python3 -m http.server
 ```
 
 
