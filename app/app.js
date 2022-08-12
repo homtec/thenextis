@@ -1,6 +1,3 @@
-/*global $, jQuery, L*/
-
-
 var map;
 var pois = [];
 var markerlayer;
@@ -14,6 +11,8 @@ var way;
 var myLocationMarker = null;
 var myLocationCircle = null;
 var poiData = null;
+
+init();
 
 function initMap(loc, zoom) {
 
@@ -268,7 +267,7 @@ function reloadCurrentMapWindow() {
 
 
 //init function
-$(function () {
+function init() {
 
   //detect if url parameter existing
   var hash = window.location.hash;
@@ -347,7 +346,7 @@ $(function () {
   document.querySelector('#info_overlay').onclick = function () { hideInfo(); };
 
 
-});
+}
 
 function locateMe() {
   map.locate({ setView: true, maxZoom: 16 });
