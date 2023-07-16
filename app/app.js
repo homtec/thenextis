@@ -139,7 +139,7 @@ function loadPOIs(manualRefresh) {
         }
         if (poi.type == 'way' && typeof poi.tags != 'undefined') {
           way = new L.polygon({ color: 'blue' });
-          for(let poinote of poi.nodes) {
+          for(let poinode of poi.nodes) {
             for(let waynode of pois) {
               if (waynode.id == poinode) {
                 //console.log(waynode);
