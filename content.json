@@ -127,6 +127,14 @@
     "lang-fr": "Ping-pong",
     "lang-ru": "Настольный Теннис"
   },
+  "basketball": {
+    "osm": "sport=basketball",
+    "lang-de": "Basketball",
+    "lang-en": "Basketball",
+    "lang-es": "baloncesto",
+    "lang-fr": "basket-ball",
+    "lang-ru": "баскетбол"
+  },
   "bakery": {
     "osm": "shop=bakery",
     "lang-de": "Bäckerei",
