@@ -176,7 +176,7 @@
     "lang-ru": "Остановка"
   },
     "LGBTQ": {
-    "osm": "lgbtq=*",
+    "osm": "lgbtq",
     "lang-de": "LGBTQ",
     "lang-en": "LGBTQ",
     "lang-es": "LGBTQ",
