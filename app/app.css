@@ -20,13 +20,20 @@ html,body{
 	height:60px;
   width:100%;
 	top:0px;
-	padding:15px 10px;
+	padding:8px 10px;
 	z-index:10;
 	background-color:#000;
 	font-size:25px;
 	font-family: 'Open Sans', sans-serif;
 	font-weight: 400;
 	color: #fff;
+}
+
+#mydropdown {
+  width: calc(100% - 155px);
+  margin: 0 5px;
+  padding-left: 2px;
+  height: 45px;
 }
 
 .buttons {
