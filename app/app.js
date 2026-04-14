@@ -25,6 +25,7 @@ function fetchOverpass(query) {
 }
 var mapDragged = false;
 var myLocationMarker = null;
+var searchResultMarker = null;
 var poiData = null;
 var mapLoaded = false;
 
@@ -517,6 +518,10 @@ function showFeatureDetail(feature, lngLat) {
 
 function hideFeatureDetail() {
   document.querySelector('#feature-panel').classList.remove('visible');
+  if (searchResultMarker) {
+    searchResultMarker.remove();
+    searchResultMarker = null;
+  }
 }
 
 async function fetchOsmTagsById(osmId) {
@@ -535,6 +540,53 @@ async function fetchOsmTagsById(osmId) {
     } catch (e) { /* try next */ }
   }
   return null;
+}
+
+async function fetchOsmTagsByTypeAndId(osmType, osmId) {
+  const typeMap = { N: 'node', W: 'way', R: 'relation' };
+  const type = typeMap[osmType] || osmType.toLowerCase();
+  try {
+    const res = await fetch(`https://api.openstreetmap.org/api/0.6/${type}/${osmId}.json`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.elements?.length) {
+        return { tags: data.elements[0].tags || {}, type, id: osmId };
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+function showGeocoderFeatureDetail(props, lngLat) {
+  const streetWithNumber = props.street
+    ? props.street + (props.housenumber ? ' ' + props.housenumber : '')
+    : null;
+  const name = props.name || streetWithNumber || props.city || '';
+  const streetDetail = (props.name && streetWithNumber) ? streetWithNumber : null;
+  const typeKey = props.type || props.osm_value || '';
+  const type = FEATURE_TYPE_LABELS[typeKey]
+    || typeKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    || 'Place';
+
+  document.querySelector('#feature-panel-name').textContent = name;
+  document.querySelector('#feature-panel-type').textContent =
+    [streetDetail, props.city, props.country].filter(Boolean).join(', ') || type;
+  document.querySelector('#feature-panel-details').innerHTML =
+    '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
+  document.querySelector('#feature-panel').classList.add('visible');
+
+  const resolve = (props.osm_id && props.osm_type)
+    ? fetchOsmTagsByTypeAndId(props.osm_type, props.osm_id)
+    : fetchOsmTagsByLocation(name, lngLat);
+
+  resolve.then(result => {
+    if (result) {
+      renderOsmTags(result.tags, result.type, result.id);
+    } else {
+      document.querySelector('#feature-panel-details').innerHTML =
+        '<div class="feature-detail-empty">No additional details available.</div>';
+    }
+  });
 }
 
 async function fetchOsmTagsByLocation(name, lngLat) {
@@ -751,7 +803,9 @@ function initGeocoder() {
         ? p.street + (p.housenumber ? ' ' + p.housenumber : '')
         : null;
       const name = p.name || streetWithNumber || p.city || '';
-      const detailParts = [p.city, p.state, p.country].filter(Boolean);
+      // Show street in detail only when there's a distinct POI name, to avoid repeating it
+      const streetDetail = (p.name && streetWithNumber) ? streetWithNumber : null;
+      const detailParts = [streetDetail, p.city, p.country].filter(Boolean);
       const detail = detailParts.join(', ');
 
       const item = document.createElement('div');
@@ -764,6 +818,15 @@ function initGeocoder() {
         hideGeocoderResults();
         const zoom = zoomForType(p.type || p.osm_value);
         map.flyTo({ center: [lon, lat], zoom: zoom });
+
+        // Place pin
+        if (searchResultMarker) searchResultMarker.remove();
+        searchResultMarker = new maplibregl.Marker({ color: '#e53e3e' })
+          .setLngLat([lon, lat])
+          .addTo(map);
+
+        // Open feature panel
+        showGeocoderFeatureDetail(p, { lat, lng: lon });
       });
 
       results.appendChild(item);
