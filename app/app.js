@@ -516,7 +516,10 @@ function initGeocoder() {
       const p = feature.properties;
       const [lon, lat] = feature.geometry.coordinates;
 
-      const name = p.name || p.street || p.city || '';
+      const streetWithNumber = p.street
+        ? p.street + (p.housenumber ? ' ' + p.housenumber : '')
+        : null;
+      const name = p.name || streetWithNumber || p.city || '';
       const detailParts = [p.city, p.state, p.country].filter(Boolean);
       if (p.name && p.city && p.name !== p.city) {
         detailParts.unshift('');
