@@ -1,3 +1,21 @@
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap-theme.min.css';
+import 'font-awesome/css/font-awesome.css';
+import './app.css';
+
+// Fix Leaflet default marker icon paths broken by Vite's asset handling
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
+
 var map;
 var pois = [];
 var markerlayer;
@@ -354,7 +372,7 @@ function init() {
   document.querySelector('#editOSM-button').onclick = function () { editOSM(); };
   document.querySelector('#info_overlay').onclick = function () { hideInfo(); };
 
-
+  initGeocoder();
 }
 
 function locateMe() {
@@ -445,5 +463,100 @@ function fillMobileSelectionBox(data) {
   };
 
 
+}
+
+function initGeocoder() {
+  const input = document.querySelector('#geocoder-input');
+  const clearIcon = document.querySelector('#geocoder-clear-icon');
+  const results = document.querySelector('#geocoder-results');
+  let debounceTimer = null;
+
+  input.addEventListener('input', () => {
+    clearIcon.style.display = input.value.length > 0 ? 'block' : 'none';
+
+    clearTimeout(debounceTimer);
+    if (input.value.trim().length < 2) {
+      hideGeocoderResults();
+      return;
+    }
+    debounceTimer = setTimeout(() => searchPhoton(input.value.trim()), 300);
+  });
+
+  clearIcon.addEventListener('click', () => {
+    input.value = '';
+    clearIcon.style.display = 'none';
+    hideGeocoderResults();
+    input.focus();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#geocoder')) {
+      hideGeocoderResults();
+    }
+  });
+
+  function searchPhoton(query) {
+    const lang = window.navigator.language.substring(0, 2);
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${lang}`;
+
+    fetch(url)
+      .then((r) => r.json())
+      .then((data) => renderGeocoderResults(data.features))
+      .catch(() => hideGeocoderResults());
+  }
+
+  function renderGeocoderResults(features) {
+    results.innerHTML = '';
+    if (!features || features.length === 0) {
+      hideGeocoderResults();
+      return;
+    }
+
+    features.forEach((feature) => {
+      const p = feature.properties;
+      const [lon, lat] = feature.geometry.coordinates;
+
+      const name = p.name || p.street || p.city || '';
+      const detailParts = [p.city, p.state, p.country].filter(Boolean);
+      if (p.name && p.city && p.name !== p.city) {
+        detailParts.unshift('');
+        detailParts.shift();
+      }
+      const detail = detailParts.join(', ');
+
+      const item = document.createElement('div');
+      item.className = 'geocoder-result';
+      item.innerHTML = `<div class="geocoder-result-name">${escapeHtml(name)}</div>` +
+        (detail ? `<div class="geocoder-result-detail">${escapeHtml(detail)}</div>` : '');
+
+      item.addEventListener('click', () => {
+        input.value = name + (detail ? ', ' + detail : '');
+        hideGeocoderResults();
+        const zoom = zoomForType(p.type || p.osm_value);
+        map.setView([lat, lon], zoom, { animate: true });
+      });
+
+      results.appendChild(item);
+    });
+
+    results.style.display = 'block';
+  }
+
+  function hideGeocoderResults() {
+    results.style.display = 'none';
+    results.innerHTML = '';
+  }
+
+  function zoomForType(type) {
+    const zoomMap = {
+      city: 12, town: 13, village: 13, suburb: 14,
+      street: 15, road: 15, house: 17, district: 12,
+    };
+    return zoomMap[type] || 14;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
 }
 
