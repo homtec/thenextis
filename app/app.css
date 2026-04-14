@@ -8,10 +8,10 @@ html,body{
 }
 
 #map{
-    height: -webkit-calc(100% - 60px);
-    height: -moz-calc(100% - 60px);
     height: calc(100% - 60px);
-    top:60px;
+    top: 60px;
+    position: absolute;
+    width: 100%;
     z-index: 1;
 }
 
@@ -111,6 +111,244 @@ html,body{
 
 .buttons:hover, #editOSM-button:hover{
 	color: grey;
+}
+
+/* Feature detail panel */
+#feature-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: #fff;
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.18);
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 55vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#feature-panel.visible {
+  transform: translateY(0);
+}
+
+#feature-panel-handle {
+  width: 36px;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  margin: 10px auto 0;
+  flex-shrink: 0;
+}
+
+#feature-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 12px 16px 10px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+#feature-panel-name {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #222;
+  line-height: 1.3;
+}
+
+#feature-panel-type {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  color: #888;
+  margin-top: 2px;
+}
+
+#feature-panel-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  font-size: 18px;
+  padding: 0 0 0 12px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+#feature-panel-close:hover {
+  color: #555;
+}
+
+#feature-panel-details {
+  overflow-y: auto;
+  padding: 10px 16px 16px;
+  flex: 1;
+}
+
+.feature-detail-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f5f5f5;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+}
+
+.feature-detail-row:last-child {
+  border-bottom: none;
+}
+
+.feature-detail-label {
+  color: #999;
+  font-size: 12px;
+  flex-shrink: 0;
+  width: 80px;
+}
+
+.feature-detail-value {
+  color: #333;
+  word-break: break-word;
+}
+
+.feature-detail-value a {
+  color: #0057ff;
+  text-decoration: none;
+}
+
+.feature-detail-value a:hover {
+  text-decoration: underline;
+}
+
+.feature-detail-osm-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #aaa;
+  font-family: 'Open Sans', sans-serif;
+  text-decoration: none;
+}
+
+.feature-detail-osm-link:hover {
+  color: #666;
+}
+
+.feature-detail-loading {
+  text-align: center;
+  padding: 16px;
+  color: #aaa;
+  font-size: 22px;
+}
+
+.feature-detail-empty {
+  color: #aaa;
+  font-size: 13px;
+  font-family: 'Open Sans', sans-serif;
+  padding: 8px 0;
+}
+
+/* Opening hours component */
+.feature-detail-row--oh {
+  align-items: flex-start;
+}
+
+.oh-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.oh-dot {
+  display: none;
+}
+
+.oh-open { color: #16a34a; }
+.oh-open .oh-dot { background: #22c55e; }
+
+.oh-closing-soon { color: #c2410c; }
+.oh-closing-soon .oh-dot { background: #f97316; }
+
+.oh-closed { color: #dc2626; }
+.oh-closed .oh-dot { background: #ef4444; }
+
+.oh-details {
+  margin-top: 5px;
+}
+
+.oh-details summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #888;
+  font-family: 'Open Sans', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
+}
+
+.oh-details summary::-webkit-details-marker { display: none; }
+
+.oh-chevron {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.oh-details[open] .oh-chevron {
+  transform: rotate(90deg);
+}
+
+.oh-table {
+  width: 100%;
+  margin-top: 6px;
+  border-collapse: collapse;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+}
+
+.oh-table td {
+  padding: 3px 8px 3px 0;
+  color: #666;
+  vertical-align: top;
+}
+
+.oh-table td:first-child {
+  width: 90px;
+  color: #999;
+}
+
+.oh-today td {
+  color: #222 !important;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  #feature-panel {
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 340px;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  #feature-panel.visible {
+    transform: translateX(0);
+  }
+
+  #feature-panel-handle {
+    display: none;
+  }
 }
 
 /* Geocoder search overlay */
