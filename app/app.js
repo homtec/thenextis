@@ -11,6 +11,26 @@ var poiMarkers = [];
 var myLocation = null;
 var berlin = [13.4101340342265, 52.5213616409873]; // [lng, lat]
 
+const CACHE_PREFIX = 'osm_cache_';
+
+function cacheGet(key) {
+  console.log('[cache] looking for:', key);
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key);
+    if (raw) {
+      console.log('[cache] hit:', key);
+      return JSON.parse(raw);
+    }
+    console.log('[cache] miss:', key);
+    return null;
+  } catch { return null; }
+}
+
+function cacheSet(key, value) {
+  console.log('[cache] saving:', key, value);
+  try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(value)); } catch {}
+}
+
 const OVERPASS_SERVERS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
@@ -482,6 +502,8 @@ function initFeatureClick() {
     if (feature) {
       console.log('[feature click] sourceLayer:', feature.sourceLayer, 'properties:', feature.properties);
       showFeatureDetail(feature, e.lngLat);
+    } else {
+      hideFeatureDetail();
     }
   });
 
@@ -501,6 +523,12 @@ function showFeatureDetail(feature, lngLat) {
 
   // Try several property names different tile schemas use for the OSM id
   const osmId = props.osm_id || props.id || props.osm_way_id || null;
+
+  if (osmId) {
+    console.log('[feature] OSM id found:', osmId, '→ using OSM API');
+  } else {
+    console.log('[feature] no OSM id in tile properties, falling back to Overpass by location. props:', props);
+  }
 
   const resolve = osmId
     ? fetchOsmTagsById(osmId)
@@ -525,6 +553,10 @@ function hideFeatureDetail() {
 }
 
 async function fetchOsmTagsById(osmId) {
+  const cacheKey = `id_${osmId}`;
+  const cached = cacheGet(cacheKey);
+  if (cached) return cached;
+
   const id = Math.abs(Math.round(osmId));
   const types = osmId > 0 ? ['node', 'way'] : ['way', 'node'];
 
@@ -534,7 +566,9 @@ async function fetchOsmTagsById(osmId) {
       if (res.ok) {
         const data = await res.json();
         if (data.elements?.length) {
-          return { tags: data.elements[0].tags || {}, type, id };
+          const result = { tags: data.elements[0].tags || {}, type, id };
+          if (Object.keys(result.tags).length) cacheSet(cacheKey, result);
+          return result;
         }
       }
     } catch (e) { /* try next */ }
@@ -545,12 +579,18 @@ async function fetchOsmTagsById(osmId) {
 async function fetchOsmTagsByTypeAndId(osmType, osmId) {
   const typeMap = { N: 'node', W: 'way', R: 'relation' };
   const type = typeMap[osmType] || osmType.toLowerCase();
+  const cacheKey = `${type}_${osmId}`;
+  const cached = cacheGet(cacheKey);
+  if (cached) return cached;
+
   try {
     const res = await fetch(`https://api.openstreetmap.org/api/0.6/${type}/${osmId}.json`);
     if (res.ok) {
       const data = await res.json();
       if (data.elements?.length) {
-        return { tags: data.elements[0].tags || {}, type, id: osmId };
+        const result = { tags: data.elements[0].tags || {}, type, id: osmId };
+        cacheSet(cacheKey, result);
+        return result;
       }
     }
   } catch (e) {}
@@ -591,6 +631,10 @@ function showGeocoderFeatureDetail(props, lngLat) {
 
 async function fetchOsmTagsByLocation(name, lngLat) {
   const { lat, lng } = lngLat;
+  const cacheKey = `loc_${name}_${lat.toFixed(4)}_${lng.toFixed(4)}`;
+  const cached = cacheGet(cacheKey);
+  if (cached) return cached;
+
   const safeName = name.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
   const query = `[out:json][timeout:10];(node["name"="${safeName}"](around:25,${lat},${lng});way["name"="${safeName}"](around:25,${lat},${lng}););out tags;`;
 
@@ -598,7 +642,9 @@ async function fetchOsmTagsByLocation(name, lngLat) {
     const data = await fetchOverpass(query);
     if (data.elements?.length) {
       const el = data.elements[0];
-      return { tags: el.tags || {}, type: el.type, id: el.id };
+      const result = { tags: el.tags || {}, type: el.type, id: el.id };
+      cacheSet(cacheKey, result);
+      return result;
     }
   } catch (e) {}
   return null;
