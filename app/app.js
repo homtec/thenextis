@@ -1,7 +1,6 @@
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/css/bootstrap-theme.min.css';
 import 'font-awesome/css/font-awesome.css';
 import './app.css';
 import OpeningHours from 'opening_hours';
@@ -28,7 +27,7 @@ function cacheGet(key) {
 
 function cacheSet(key, value) {
   console.log('[cache] saving:', key, value);
-  try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(value)); } catch {}
+  try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(value)); } catch (e) { console.warn('[cache] localStorage write failed:', e); }
 }
 
 const OVERPASS_SERVERS = [
@@ -459,32 +458,6 @@ function editOSM() {
     '&editor=id' + '&lat=' + center.lat + '&lon=' + center.lng);
 }
 
-function getPopupText(poi) {
-  var popuptext = "";
-  if (typeof poi.tags.name != 'undefined')
-    popuptext += poi.tags.name + "<br>";
-  if (typeof poi.tags.operator != 'undefined')
-    popuptext += poi.tags.operator + "<br>";
-  if (typeof poi.tags.collection_times != 'undefined')
-    popuptext += poi.tags.collection_times + "<br>";
-  if (typeof poi.tags.opening_hours != 'undefined')
-    popuptext += poi.tags.opening_hours + "<br>";
-  if (typeof poi.tags.phone != 'undefined')
-    popuptext += '<a href="tel:' + poi.tags.phone + '">' + poi.tags.phone + '</a><br>';
-  if (typeof poi.tags.website != 'undefined')
-    popuptext += '<a href="' + poi.tags.website + '" target="_blank" rel="nofollow">' + poi.tags.website + '</a><br>';
-
-  if (poi.tags['recycling:clothes'] == 'yes')
-    popuptext += "Clothes<br>";
-  if (poi.tags['recycling:paper'] == 'yes')
-    popuptext += "Paper<br>";
-  if (poi.tags['recycling:glass'] == 'yes')
-    popuptext += "Glass<br>";
-  if (poi.tags['recycling:garden_waste'] == 'yes')
-    popuptext += "Garden waste<br>";
-
-  return popuptext;
-}
 
 
 function updateHashURL() {
@@ -639,7 +612,7 @@ async function fetchOsmTagsById(osmId) {
           return result;
         }
       }
-    } catch (e) { /* try next */ }
+    } catch (e) { console.error('[osm] fetch failed, trying next type:', e); }
   }
   return null;
 }
@@ -661,7 +634,7 @@ async function fetchOsmTagsByTypeAndId(osmType, osmId) {
         return result;
       }
     }
-  } catch (e) {}
+  } catch (e) { console.error('[osm] fetchOsmTagsByTypeAndId failed:', e); }
   return null;
 }
 
@@ -714,7 +687,7 @@ async function fetchOsmTagsByLocation(name, lngLat) {
       cacheSet(cacheKey, result);
       return result;
     }
-  } catch (e) {}
+  } catch (e) { console.error('[osm] fetchOsmTagsByLocation failed:', e); }
   return null;
 }
 
@@ -731,6 +704,7 @@ function renderOpeningHours(ohStr) {
   try {
     oh = new OpeningHours(ohStr, null, { tag_key: 'opening_hours' });
   } catch (e) {
+    console.warn('[oh] failed to parse opening hours:', e);
     return `<span>${escapeHtml(ohStr)}</span>`;
   }
 
@@ -781,7 +755,7 @@ function renderOpeningHours(ohStr) {
     dayEnd.setDate(dayStart.getDate() + 1);
 
     let intervals = [];
-    try { intervals = oh.getOpenIntervals(dayStart, dayEnd); } catch (e) {}
+    try { intervals = oh.getOpenIntervals(dayStart, dayEnd); } catch (e) { console.error('[oh] getOpenIntervals failed:', e); }
 
     const times = intervals.length
       ? intervals.map(([s, e]) => `${formatTime(s)}–${formatTime(e)}`).join(', ')
