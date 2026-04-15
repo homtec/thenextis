@@ -7,26 +7,12 @@ html,body{
 	height:100%;
 }
 
-#map{
-    height: calc(100% - 60px);
-    top: 60px;
-    position: absolute;
-    width: 100%;
-    z-index: 1;
-}
-
-#inputarea{
-	position:absolute;
-	height:60px;
-  width:100%;
-	top:0px;
-	padding:15px 10px;
-	z-index:10;
-	background-color:#000;
-	font-size:25px;
-	font-family: 'Open Sans', sans-serif;
-	font-weight: 400;
-	color: #fff;
+#map {
+  height: 100%;
+  top: 0;
+  position: absolute;
+  width: 100%;
+  z-index: 1;
 }
 
 .buttons {
@@ -43,21 +29,15 @@ html,body{
 }
 
 
-#reload-button {
-    top: 200px;
-    left: calc(100% - 50px);
-    z-index: 3;
-}
-
 #locateMe-button {
-    top: 251px;
+    top: 191px;
     left: calc(100% - 50px);
     z-index: 3;
 }
 
 #info-button {
-	top: 302px;
-	left: calc(100% - 50px);
+    top: 242px;
+    left: calc(100% - 50px);
     z-index: 3;
 }
 
@@ -89,24 +69,18 @@ html,body{
     font-size: 50px;
 }
 
-#info_overlay {
-	position: fixed;
-	height: 100%;
-	width: 100%;
-	top:0px;
-	left: 0px;
-	z-index: 1001;
-	background: black;
-	opacity: 0.8;
-	color: white;
-	visibility: hidden;
-	text-align: center;
-	vertical-align: middle;
-	font-size: 40px;
-}
 
 #editOSM-button{
 	cursor:pointer;
+}
+
+.user-location-dot {
+  width: 16px;
+  height: 16px;
+  background: #4285f4;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(66, 133, 244, 0.4);
 }
 
 .buttons:hover, #editOSM-button:hover{
@@ -250,6 +224,50 @@ html,body{
   padding: 8px 0;
 }
 
+.poi-result-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+}
+
+.poi-result-item:last-child {
+  border-bottom: none;
+}
+
+.poi-result-item:hover {
+  background: #f9f9f9;
+  margin: 0 -16px;
+  padding: 10px 16px;
+}
+
+.poi-result-name {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+
+.poi-result-detail {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.poi-redo-search {
+  margin-top: 12px;
+  padding: 10px 0;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  color: #0057ff;
+  cursor: pointer;
+  text-align: center;
+  border-top: 1px solid #f0f0f0;
+}
+
+.poi-redo-search:hover {
+  text-decoration: underline;
+}
+
 /* Opening hours component */
 .feature-detail-row--oh {
   align-items: flex-start;
@@ -330,7 +348,7 @@ html,body{
 
 @media (min-width: 768px) {
   #feature-panel {
-    top: 60px;
+    top: 0;
     bottom: 0;
     left: 0;
     right: auto;
@@ -354,7 +372,7 @@ html,body{
 /* Geocoder search overlay */
 #geocoder {
   position: absolute;
-  top: 70px;
+  top: 10px;
   left: 10px;
   z-index: 10;
   width: 320px;
@@ -410,8 +428,60 @@ html,body{
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.35);
   margin-top: 6px;
-  overflow: hidden;
+  overflow-y: auto;
+  max-height: 70vh;
   display: none;
+}
+
+.suggestions-section {
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestions-section:last-child {
+  border-bottom: none;
+}
+
+.suggestions-section-title {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 14px 2px;
+}
+
+.suggestions-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+
+.suggestions-item:hover {
+  background: #f5f5f5;
+}
+
+.suggestions-item--active {
+  background: #f0f4ff;
+  color: #0057ff;
+}
+
+.suggestions-item--active .suggestions-icon {
+  color: #0057ff;
+}
+
+.suggestions-icon {
+  color: #bbb;
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .geocoder-result {

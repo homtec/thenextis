@@ -39,13 +39,18 @@ const OVERPASS_SERVERS = [
 function fetchOverpass(query) {
   const requests = OVERPASS_SERVERS.map(server =>
     fetch(`${server}?data=${encodeURIComponent(query)}`)
-      .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        console.log('[overpass] winner:', server);
+        return r.json();
+      })
   );
   return Promise.any(requests);
 }
 var mapDragged = false;
 var myLocationMarker = null;
 var searchResultMarker = null;
+var selectedCategory = null;
 var poiData = null;
 var mapLoaded = false;
 
@@ -135,7 +140,9 @@ function loadPOIs(manualRefresh) {
     OSM_PARAMS = "(" + OSM_PARAMS + ");out;";
   }
 
-  console.log(OSM_PARAMS);
+  const fullQuery = '[out:json];' + OSM_PARAMS;
+  console.log('[overpass] querying category:', selectedCategory, '| servers:', OVERPASS_SERVERS);
+  console.log('[overpass] query:', fullQuery);
 
   // Clear old markers and polygons
   poiMarkers.forEach(m => m.remove());
@@ -144,32 +151,37 @@ function loadPOIs(manualRefresh) {
     map.getSource('poi-polygons').setData({ type: 'FeatureCollection', features: [] });
   }
 
-  document.querySelector("#loading").style.visibility = "visible";
+  const tagName = getTagName();
+  document.querySelector('#feature-panel-name').textContent = tagName;
+  document.querySelector('#feature-panel-type').textContent = '';
+  document.querySelector('#feature-panel-details').innerHTML =
+    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> Searching for ${tagName}...</div>`;
+  document.querySelector('#feature-panel').classList.add('visible');
 
-  fetchOverpass('[out:json];' + OSM_PARAMS)
+  fetchOverpass(fullQuery)
     .then((data) => {
-      document.querySelector("#loading").style.visibility = "hidden";
+      console.log('[overpass] response received, elements:', data.elements?.length ?? 0);
 
       var pois = data.elements;
 
       if (pois.length === 0) {
-        alert("Sorry, no POI in this area. Zoom out or pan the map.");
+        document.querySelector('#feature-panel-details').innerHTML =
+          '<div class="feature-detail-empty">No results in this area. Zoom out or pan the map.</div>';
         return;
       }
 
-      var tagName = getTagName();
       var polygonFeatures = [];
       var markerPositions = []; // [lng, lat] for fitBounds
+      var resultItems = []; // for panel list
 
       for (let poi of pois) {
         if (poi.type === 'node' && typeof poi.tags !== 'undefined') {
-          var popupHtml = tagName + "<br>" + getPopupText(poi);
           var marker = new maplibregl.Marker()
             .setLngLat([poi.lon, poi.lat])
-            .setPopup(new maplibregl.Popup({ maxWidth: '300px' }).setHTML(popupHtml))
             .addTo(map);
           poiMarkers.push(marker);
           markerPositions.push([poi.lon, poi.lat]);
+          resultItems.push({ poi, lngLat: [poi.lon, poi.lat] });
         }
 
         if (poi.type === 'way' && typeof poi.tags !== 'undefined') {
@@ -180,24 +192,22 @@ function loadPOIs(manualRefresh) {
 
           if (coordinates.length < 3) continue;
 
-          var wayPopupHtml = tagName + "<br>" + getPopupText(poi);
           polygonFeatures.push({
             type: 'Feature',
             geometry: { type: 'Polygon', coordinates: [coordinates] },
-            properties: { popupHtml: wayPopupHtml }
+            properties: {}
           });
 
-          // Center marker for the polygon
           var lngs = coordinates.map(c => c[0]);
           var lats = coordinates.map(c => c[1]);
           var centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
           var centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
           var centerMarker = new maplibregl.Marker()
             .setLngLat([centerLng, centerLat])
-            .setPopup(new maplibregl.Popup({ maxWidth: '300px' }).setHTML(wayPopupHtml))
             .addTo(map);
           poiMarkers.push(centerMarker);
           markerPositions.push([centerLng, centerLat]);
+          resultItems.push({ poi, lngLat: [centerLng, centerLat] });
         }
       }
 
@@ -207,6 +217,41 @@ function loadPOIs(manualRefresh) {
           features: polygonFeatures
         });
       }
+
+      // Render result list in panel
+      document.querySelector('#feature-panel-type').textContent = `${resultItems.length} result${resultItems.length !== 1 ? 's' : ''}`;
+      const detailsEl = document.querySelector('#feature-panel-details');
+      detailsEl.innerHTML = '';
+      for (const { poi, lngLat } of resultItems) {
+        const name = poi.tags.name || poi.tags.operator || poi.tags.brand || tagName;
+        const street = [poi.tags['addr:housenumber'], poi.tags['addr:street']].filter(Boolean).join(' ');
+        const detail = street || poi.tags.description || '';
+        const row = document.createElement('div');
+        row.className = 'poi-result-item';
+        row.innerHTML = `<div class="poi-result-name">${name}</div>${detail ? `<div class="poi-result-detail">${detail}</div>` : ''}`;
+        row.addEventListener('click', () => {
+          map.flyTo({ center: lngLat, zoom: 18 });
+          const poiName = poi.tags.name || poi.tags.operator || poi.tags.brand || tagName;
+          document.querySelector('#feature-panel-name').textContent = poiName;
+          document.querySelector('#feature-panel-type').textContent = tagName;
+          document.querySelector('#feature-panel-details').innerHTML =
+            '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
+          fetchOsmTagsByTypeAndId(poi.type, poi.id).then(result => {
+            if (result) {
+              renderOsmTags(result.tags, result.type, result.id);
+            } else {
+              renderOsmTags(poi.tags, poi.type, poi.id);
+            }
+          });
+        });
+        detailsEl.appendChild(row);
+      }
+
+      const redoBtn = document.createElement('div');
+      redoBtn.className = 'poi-redo-search';
+      redoBtn.textContent = 'Redo search in this region';
+      redoBtn.addEventListener('click', () => loadPOIs(true));
+      detailsEl.appendChild(redoBtn);
 
       if (myLocation === null) return;
 
@@ -228,8 +273,9 @@ function loadPOIs(manualRefresh) {
       }
     })
     .catch((error) => {
-      console.log("Request Failed: " + error);
-      document.querySelector("#loading").style.visibility = "hidden";
+      console.log('[overpass] all servers failed:', error);
+      document.querySelector('#feature-panel-details').innerHTML =
+        '<div class="feature-detail-empty">Search failed. Please try again.</div>';
     });
 }
 
@@ -242,17 +288,12 @@ function onLocationFound(position) {
 
   if (myLocationMarker) myLocationMarker.remove();
 
-  const el = document.createElement('img');
-  el.src = '/app/images/user.svg';
-  el.style.width = '40px';
-  el.style.height = '40px';
+  const el = document.createElement('div');
+  el.className = 'user-location-dot';
 
   myLocationMarker = new maplibregl.Marker({ element: el })
     .setLngLat([myLocation.lng, myLocation.lat])
-    .setPopup(new maplibregl.Popup().setHTML("You are somewhere here"))
     .addTo(map);
-
-  myLocationMarker.togglePopup();
 
   const flyToUser = () => map.flyTo({ center: [myLocation.lng, myLocation.lat], zoom: 16 });
   if (map.loaded()) {
@@ -278,13 +319,36 @@ function onMapZoomed() {
 }
 
 function getTagName() {
-  return poiData[document.querySelector('#mydropdown').value]["lang-en"];
+  if (!selectedCategory || !poiData?.[selectedCategory]) return '';
+  return poiData[selectedCategory]['lang-en'] || '';
 }
 
 function getTag() {
-  var selection = document.querySelector('#mydropdown').value;
-  var tagdata = poiData[selection].osm;
-  return tagdata || '';
+  if (!selectedCategory || !poiData?.[selectedCategory]) return '';
+  return poiData[selectedCategory].osm || '';
+}
+
+function selectCategory(key) {
+  selectedCategory = key;
+  const preferred = 'lang-' + window.navigator.language.substring(0, 2);
+  const label = poiData[key]?.[preferred] || poiData[key]?.['lang-en'] || key;
+  const input = document.querySelector('#geocoder-input');
+  const clearIcon = document.querySelector('#geocoder-clear-icon');
+  input.value = label;
+  clearIcon.style.display = 'block';
+  loadPOIs();
+}
+
+const RECENT_SEARCHES_KEY = 'recent_searches';
+
+function getRecentSearches() {
+  try { return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) || '[]'); } catch { return []; }
+}
+
+function addRecentSearch(item) {
+  const list = getRecentSearches().filter(s => s.name !== item.name);
+  list.unshift(item);
+  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(list.slice(0, 5)));
 }
 
 
@@ -335,15 +399,9 @@ function init() {
 
   loadPOIdataFromFile();
 
-  document.querySelector('#mydropdown').onchange = function () {
-    loadPOIs();
-  };
-
-  document.querySelector('#reload-button').onclick = function () { loadPOIs(true); };
   document.querySelector('#locateMe-button').onclick = function () { locateMe(); };
   document.querySelector('#info-button').onclick = function () { showInfo(); };
   document.querySelector('#editOSM-button').onclick = function () { editOSM(); };
-  document.querySelector('#info_overlay').onclick = function () { hideInfo(); };
 
   initGeocoder();
 
@@ -360,11 +418,38 @@ function locateMe() {
 }
 
 function showInfo() {
-  document.querySelector("#info_overlay").style.visibility = "visible";
-}
-
-function hideInfo() {
-  document.querySelector("#info_overlay").style.visibility = "hidden";
+  document.querySelector('#feature-panel-name').textContent = 'About TheNextIs';
+  document.querySelector('#feature-panel-type').textContent = '';
+  document.querySelector('#feature-panel-details').innerHTML = `
+    <div class="feature-detail-row">
+      <span class="feature-detail-value">Find the nearest point of interest around you using OpenStreetMap data.</span>
+    </div>
+    <div class="feature-detail-row">
+      <span class="feature-detail-label">Source</span>
+      <span class="feature-detail-value"><a href="https://www.openstreetmap.org" target="_blank" rel="nofollow">OpenStreetMap</a></span>
+    </div>
+    <div class="feature-detail-row">
+      <span class="feature-detail-label">Code</span>
+      <span class="feature-detail-value"><a href="https://github.com/homtec/thenextis/" target="_blank" rel="nofollow">Contribute on GitHub</a></span>
+    </div>
+    <div class="feature-detail-row">
+      <span class="feature-detail-label">Follow</span>
+      <span class="feature-detail-value">
+        <a href="https://twitter.com/thenextis" target="_blank" rel="nofollow"><i class="fa fa-twitter"></i> Twitter</a>
+        &nbsp;&nbsp;
+        <a href="https://www.facebook.com/Thenextis" target="_blank" rel="nofollow"><i class="fa fa-facebook-square"></i> Facebook</a>
+      </span>
+    </div>
+    <div class="feature-detail-row">
+      <span class="feature-detail-label">Map data</span>
+      <span class="feature-detail-value">Missing a place? <a href="#" id="info-edit-osm-link">Add it in OpenStreetMap</a></span>
+    </div>
+  `;
+  document.querySelector('#feature-panel').classList.add('visible');
+  document.querySelector('#info-edit-osm-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    editOSM();
+  });
 }
 
 function editOSM() {
@@ -412,24 +497,7 @@ function updateHashURL() {
 function loadPOIdataFromFile() {
   fetch("content.json")
     .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      poiData = data;
-      fillMobileSelectionBox(poiData);
-    });
-}
-
-function fillMobileSelectionBox(data) {
-  var default_lang = "lang-en";
-  var preferred_lang = "lang-" + window.navigator.language.substring(0, 2);
-
-  for (const [key, poi] of Object.entries(data)) {
-    var text = poi.hasOwnProperty(preferred_lang) ? poi[preferred_lang] : poi[default_lang];
-    const opt = document.createElement("option");
-    opt.value = key;
-    opt.text = text;
-    document.querySelector('#mydropdown').add(opt, null);
-  }
+    .then((data) => { poiData = data; });
 }
 
 function escapeHtml(str) {
@@ -800,10 +868,17 @@ function initGeocoder() {
   const results = document.querySelector('#geocoder-results');
   let debounceTimer = null;
 
+  input.addEventListener('focus', () => {
+    if (input.value.trim().length === 0) renderSuggestions();
+  });
+
   input.addEventListener('input', () => {
     clearIcon.style.display = input.value.length > 0 ? 'block' : 'none';
-
     clearTimeout(debounceTimer);
+    if (input.value.trim().length === 0) {
+      renderSuggestions();
+      return;
+    }
     if (input.value.trim().length < 2) {
       hideGeocoderResults();
       return;
@@ -814,20 +889,70 @@ function initGeocoder() {
   clearIcon.addEventListener('click', () => {
     input.value = '';
     clearIcon.style.display = 'none';
-    hideGeocoderResults();
+    renderSuggestions();
     input.focus();
   });
 
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('#geocoder')) {
-      hideGeocoderResults();
-    }
+    if (!e.target.closest('#geocoder')) hideGeocoderResults();
   });
+
+  function renderSuggestions() {
+    const recents = getRecentSearches();
+    const preferred = 'lang-' + window.navigator.language.substring(0, 2);
+    let html = '';
+
+    if (recents.length) {
+      html += '<div class="suggestions-section">';
+      html += '<div class="suggestions-section-title">Recent</div>';
+      recents.forEach((r, i) => {
+        html += `<div class="suggestions-item suggestions-recent" data-index="${i}">
+          <i class="fa fa-clock-o suggestions-icon"></i>
+          <span class="suggestions-item-name">${escapeHtml(r.name)}</span>
+        </div>`;
+      });
+      html += '</div>';
+    }
+
+    if (poiData) {
+      html += '<div class="suggestions-section">';
+      html += '<div class="suggestions-section-title">Categories</div>';
+      for (const [key, poi] of Object.entries(poiData)) {
+        const label = poi[preferred] || poi['lang-en'];
+        const active = key === selectedCategory ? ' suggestions-item--active' : '';
+        html += `<div class="suggestions-item suggestions-category${active}" data-key="${escapeHtml(key)}">
+          <i class="fa fa-map-marker suggestions-icon"></i>
+          <span class="suggestions-item-name">${escapeHtml(label)}</span>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    if (!html) return;
+    results.innerHTML = html;
+    results.style.display = 'block';
+
+    results.querySelectorAll('.suggestions-recent').forEach(el => {
+      el.addEventListener('click', () => {
+        const r = recents[parseInt(el.dataset.index)];
+        input.value = r.name;
+        clearIcon.style.display = 'block';
+        hideGeocoderResults();
+        map.flyTo({ center: [r.lng, r.lat], zoom: r.zoom });
+      });
+    });
+
+    results.querySelectorAll('.suggestions-category').forEach(el => {
+      el.addEventListener('click', () => {
+        hideGeocoderResults();
+        selectCategory(el.dataset.key);
+      });
+    });
+  }
 
   function searchPhoton(query) {
     const lang = window.navigator.language.substring(0, 2);
     const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${lang}`;
-
     fetch(url)
       .then((r) => r.json())
       .then((data) => renderGeocoderResults(data.features))
@@ -849,7 +974,6 @@ function initGeocoder() {
         ? p.street + (p.housenumber ? ' ' + p.housenumber : '')
         : null;
       const name = p.name || streetWithNumber || p.city || '';
-      // Show street in detail only when there's a distinct POI name, to avoid repeating it
       const streetDetail = (p.name && streetWithNumber) ? streetWithNumber : null;
       const detailParts = [streetDetail, p.city, p.country].filter(Boolean);
       const detail = detailParts.join(', ');
@@ -860,18 +984,18 @@ function initGeocoder() {
         (detail ? `<div class="geocoder-result-detail">${escapeHtml(detail)}</div>` : '');
 
       item.addEventListener('click', () => {
-        input.value = name + (detail ? ', ' + detail : '');
+        const fullName = name + (detail ? ', ' + detail : '');
+        input.value = fullName;
+        addRecentSearch({ name: fullName, lat, lng: lon, zoom: zoomForType(p.type || p.osm_value) });
         hideGeocoderResults();
         const zoom = zoomForType(p.type || p.osm_value);
-        map.flyTo({ center: [lon, lat], zoom: zoom });
+        map.flyTo({ center: [lon, lat], zoom });
 
-        // Place pin
         if (searchResultMarker) searchResultMarker.remove();
         searchResultMarker = new maplibregl.Marker({ color: '#e53e3e' })
           .setLngLat([lon, lat])
           .addTo(map);
 
-        // Open feature panel
         showGeocoderFeatureDetail(p, { lat, lng: lon });
       });
 
@@ -893,5 +1017,4 @@ function initGeocoder() {
     };
     return zoomMap[type] || 14;
   }
-
 }
