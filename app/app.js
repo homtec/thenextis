@@ -1,8 +1,4 @@
 import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'font-awesome/css/font-awesome.css';
-import './app.css';
 import OpeningHours from 'opening_hours';
 
 var map;
@@ -710,12 +706,17 @@ function renderOpeningHours(ohStr) {
 
   const now = new Date();
   const isOpen = oh.getState(now);
+  const isUnknown = oh.getUnknown(now); // true for open-end (+) intervals
   const nextChange = oh.getNextChange(now);
 
   // Status line
   let statusClass, statusText;
-  if (isOpen) {
-    if (nextChange && (nextChange - now) < 30 * 60 * 1000) {
+
+  if (isOpen || isUnknown) {
+    if (isUnknown) {
+      statusClass = 'oh-open';
+      statusText = 'Open';
+    } else if (nextChange && (nextChange - now) < 30 * 60 * 1000) {
       statusClass = 'oh-closing-soon';
       statusText = `Closing soon · until ${formatTime(nextChange)}`;
     } else {
@@ -924,23 +925,68 @@ function initGeocoder() {
     });
   }
 
-  function searchPhoton(query) {
-    const lang = window.navigator.language.substring(0, 2);
-    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${lang}`;
-    fetch(url)
-      .then((r) => r.json())
-      .then((data) => renderGeocoderResults(data.features))
-      .catch(() => hideGeocoderResults());
+  function normalize(str) {
+    return String(str).toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
   }
 
-  function renderGeocoderResults(features) {
+  // Categories whose label in any language matches the query
+  function matchCategories(query) {
+    if (!poiData) return [];
+    const q = normalize(query);
+    const preferred = 'lang-' + window.navigator.language.substring(0, 2);
+    const matches = [];
+    for (const [key, poi] of Object.entries(poiData)) {
+      const labels = Object.keys(poi).filter(k => k.startsWith('lang-')).map(k => normalize(poi[k]));
+      if (labels.some(l => l.includes(q))) {
+        matches.push({ key, label: poi[preferred] || poi['lang-en'] || key });
+      }
+    }
+    return matches;
+  }
+
+  function searchPhoton(query) {
+    const lang = window.navigator.language.substring(0, 2);
+    const center = map.getCenter();
+    // Bias results towards the current map view
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${lang}` +
+      `&lat=${center.lat}&lon=${center.lng}&zoom=${Math.round(map.getZoom())}&location_bias_scale=0.1`;
+    const categories = matchCategories(query);
+    if (categories.length) renderGeocoderResults([], categories);
+    fetch(url)
+      .then((r) => r.json())
+      .then((data) => {
+        if (input.value.trim() !== query) return; // stale response
+        renderGeocoderResults(data.features, categories);
+      })
+      .catch(() => renderGeocoderResults([], categories));
+  }
+
+  function renderGeocoderResults(features, categories = []) {
     results.innerHTML = '';
-    if (!features || features.length === 0) {
+    if ((!features || features.length === 0) && categories.length === 0) {
       hideGeocoderResults();
       return;
     }
 
-    features.forEach((feature) => {
+    if (categories.length) {
+      const section = document.createElement('div');
+      section.className = 'suggestions-section';
+      section.innerHTML = '<div class="suggestions-section-title">Categories</div>';
+      for (const { key, label } of categories) {
+        const el = document.createElement('div');
+        el.className = 'suggestions-item suggestions-category';
+        el.innerHTML = `<i class="fa fa-map-marker suggestions-icon"></i>
+          <span class="suggestions-item-name">${escapeHtml(label)}</span>`;
+        el.addEventListener('click', () => {
+          hideGeocoderResults();
+          selectCategory(key);
+        });
+        section.appendChild(el);
+      }
+      results.appendChild(section);
+    }
+
+    (features || []).forEach((feature) => {
       const p = feature.properties;
       const [lon, lat] = feature.geometry.coordinates;
 

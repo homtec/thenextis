@@ -3,21 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "npx serve -p 5173 .",
     "lint": "eslint app/app.js"
-  },
-  "dependencies": {
-    "bootstrap": "^5.0.0",
-    "font-awesome": "^4.7.0",
-    "maplibre-gl": "^5.23.0",
-    "opening_hours": "^3.12.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.2.0",
-    "globals": "^17.5.0",
-    "vite": "^8.0.8"
+    "globals": "^17.5.0"
   }
 }

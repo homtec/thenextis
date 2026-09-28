@@ -1,73 +1,121 @@
-<!DOCTYPE HTML>
+<!doctype html>
 <html>
-<!-- <html> -->
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<meta name="mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="white" />
+    <!-- <html> -->
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta
+            name="viewport"
+            content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="white" />
 
-	<title>TheNextIs.com - find your place</title>
+        <title>TheNextIs.com - find your place</title>
 
-	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+        <link
+            href="https://fonts.googleapis.com/css?family=Open+Sans:400,300"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.23.0/dist/maplibre-gl.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+        />
+        <link rel="stylesheet" href="/app/app.css" />
 
+        <meta property="og:title" content="TheNextIs.com - find your place" />
+        <meta property="og:image" content="https://thenextis.com/og_icon.png" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://thenextis.com" />
+    </head>
+    <body>
+        <div id="loading">
+            <i class="fa fa-spinner fa-spin fa-large"></i> searching for you...
+        </div>
+        <span id="editOSM-button" style="display: none"></span>
 
-	<meta property="og:title" content="TheNextIs.com - find your place" />
-	<meta property="og:image" content="https://thenextis.com/og_icon.png"/>
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://thenextis.com" />
-</head>
-<body>
-<div id="loading"><i class="fa fa-spinner fa-spin fa-large"></i> searching for you...</div>
-<span id="editOSM-button" style="display:none"></span>
+        <div id="geocoder">
+            <div id="geocoder-input-wrapper">
+                <i class="fa fa-search" id="geocoder-search-icon"></i>
+                <input
+                    type="text"
+                    id="geocoder-input"
+                    placeholder="Search location..."
+                    autocomplete="off"
+                />
+                <i class="fa fa-times" id="geocoder-clear-icon"></i>
+            </div>
+            <div id="geocoder-results"></div>
+        </div>
 
+        <div id="map"></div>
 
-<div id="geocoder">
-  <div id="geocoder-input-wrapper">
-    <i class="fa fa-search" id="geocoder-search-icon"></i>
-    <input type="text" id="geocoder-input" placeholder="Search location..." autocomplete="off" />
-    <i class="fa fa-times" id="geocoder-clear-icon"></i>
-  </div>
-  <div id="geocoder-results"></div>
-</div>
+        <div id="feature-panel">
+            <div id="feature-panel-handle"></div>
+            <div id="feature-panel-header">
+                <div id="feature-panel-title">
+                    <div id="feature-panel-name"></div>
+                    <div id="feature-panel-type"></div>
+                </div>
+                <button id="feature-panel-close">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div id="feature-panel-details"></div>
+        </div>
+        <div id="locateMe-button" class="buttons">
+            <i class="fa fa-location-arrow"></i>
+        </div>
+        <div id="info-button" class="buttons"><i class="fa fa-info"></i></div>
+        <div id="search-button" class="buttons">
+            <i class="fa fa-search"></i>
+        </div>
 
-<div id="map"></div>
+        <div id="modal_no_pois" class="modal hide fade">
+            <div class="modal-header">
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-hidden="true"
+                >
+                    &times;
+                </button>
+                <h3><i class="icon-frown"></i> No result</h3>
+            </div>
+            <div class="modal-body">
+                <p>There is no in 1 km range.</p>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary">Close</a>
+            </div>
+        </div>
 
-<div id="feature-panel">
-  <div id="feature-panel-handle"></div>
-  <div id="feature-panel-header">
-    <div id="feature-panel-title">
-      <div id="feature-panel-name"></div>
-      <div id="feature-panel-type"></div>
-    </div>
-    <button id="feature-panel-close"><i class="fa fa-times"></i></button>
-  </div>
-  <div id="feature-panel-details"></div>
-</div>
-<div id="locateMe-button" class="buttons"><i class="fa fa-location-arrow"></i></div>
-<div id="info-button" class="buttons"><i class="fa fa-info"></i></div>
-<div id="search-button" class="buttons"><i class="fa fa-search"></i></div>
+        <script type="importmap">
+            {
+                "imports": {
+                    "maplibre-gl": "https://esm.sh/maplibre-gl@5.23.0",
+                    "opening_hours": "https://esm.sh/opening_hours@3.12.0"
+                }
+            }
+        </script>
+        <script type="module" src="/app/app.js"></script>
 
-
-
-<div id="modal_no_pois" class="modal hide fade">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h3><i class="icon-frown"></i> No result</h3>
-  </div>
-  <div class="modal-body">
-    <p>There is no in 1 km range. </p>
-  </div>
-  <div class="modal-footer">
-    <a href="#" class="btn btn-primary">Close</a>
-  </div>
-</div>
-
-
-
-<script type="module" src="/app/app.js"></script>
-
-<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "963e96e7b48244dfb08331900394dc80"}'></script><!-- End Cloudflare Web Analytics -->
-</body>
+        <!-- Cloudflare Web Analytics -->
+        <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon='{"token": "963e96e7b48244dfb08331900394dc80"}'
+        ></script>
+        <!-- End Cloudflare Web Analytics -->
+    </body>
 </html>
