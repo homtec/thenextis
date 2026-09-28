@@ -892,8 +892,10 @@ function initGeocoder() {
     if (poiData) {
       html += '<div class="suggestions-section">';
       html += '<div class="suggestions-section-title">Categories</div>';
-      for (const [key, poi] of Object.entries(poiData)) {
-        const label = poi[preferred] || poi['lang-en'];
+      const categories = Object.entries(poiData)
+        .map(([key, poi]) => ({ key, label: poi[preferred] || poi['lang-en'] }))
+        .sort((a, b) => a.label.localeCompare(b.label));
+      for (const { key, label } of categories) {
         const active = key === selectedCategory ? ' suggestions-item--active' : '';
         html += `<div class="suggestions-item suggestions-category${active}" data-key="${escapeHtml(key)}">
           <i class="fa fa-map-marker suggestions-icon"></i>
@@ -941,7 +943,7 @@ function initGeocoder() {
         matches.push({ key, label: poi[preferred] || poi['lang-en'] || key });
       }
     }
-    return matches;
+    return matches.sort((a, b) => a.label.localeCompare(b.label));
   }
 
   function searchPhoton(query) {

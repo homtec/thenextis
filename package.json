@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npx serve -p 5173 .",
-    "lint": "eslint app/app.js"
+    "dev": "npx serve -p 5173 public",
+    "lint": "eslint public/app/app.js"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

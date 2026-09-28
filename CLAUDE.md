@@ -6,20 +6,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```
 npm install       # first time only (installs eslint only)
-npm run dev       # static file server at http://localhost:5173
+npm run dev       # serves public/ at http://localhost:5173
 ```
 
 No build step. JS deps (maplibre-gl, opening_hours) are loaded from CDN via import map.
 
 ## Architecture
 
-TheNextIs is a single-page POI (Point of Interest) finder and map explorer using OpenStreetMap data. Everything is served as static files from the repo root:
+TheNextIs is a single-page POI (Point of Interest) finder and map explorer using OpenStreetMap data. Everything is served as static files from `public/` (Cloudflare Pages: no build command, output directory `public`):
 
-- **`index.html`** — Shell with the map container, search box, feature panel, and buttons. Loads CSS (MapLibre, Bootstrap 5, Font Awesome 4.7) from jsDelivr and JS deps via an import map from esm.sh.
-- **`app/app.js`** — All application logic, loaded as an ES module. Uses MapLibre GL with the OpenFreeMap `liberty` vector style.
-- **`app/app.css`** — App styles.
-- **`content.json`** — The POI category database. Each entry has a key, an `osm` field (semicolon-separated OSM tag queries), and translations for `lang-en`, `lang-de`, `lang-es`, `lang-fr`, `lang-ru`.
-- Other static assets: `favicon.ico`, `og_icon.png`, `app/images/`.
+- **`public/index.html`** — Shell with the map container, search box, feature panel, and buttons. Loads CSS (MapLibre, Bootstrap 5, Font Awesome 4.7) from jsDelivr and JS deps via an import map from esm.sh.
+- **`public/app/app.js`** — All application logic, loaded as an ES module. Uses MapLibre GL with the OpenFreeMap `liberty` vector style.
+- **`public/app/app.css`** — App styles.
+- **`public/content.json`** — The POI category database. Each entry has a key, an `osm` field (semicolon-separated OSM tag queries), and translations for `lang-en`, `lang-de`, `lang-es`, `lang-fr`, `lang-ru`.
+- Other static assets: `favicon.ico`, `og_icon.png`, `app/images/` (all under `public/`).
 
 ### Data flow
 
@@ -31,4 +31,4 @@ TheNextIs is a single-page POI (Point of Interest) finder and map explorer using
 
 ### Adding a new POI category
 
-Add an entry to `content.json` with a unique key, the OSM tag(s) in `osm` (semicolons separate multiple tags that are OR'd together), and translations for each `lang-*` field.
+Add an entry to `public/content.json` with a unique key, the OSM tag(s) in `osm` (semicolons separate multiple tags that are OR'd together), and translations for each `lang-*` field.
