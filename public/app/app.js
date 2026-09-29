@@ -532,6 +532,8 @@ function initFeatureClick() {
   });
 
   map.on('click', (e) => {
+    // A long-press can be followed by a synthetic click; don't let it close the panel
+    if (Date.now() - lastLongPressAt < LONG_PRESS_CLICK_GUARD_MS) return;
     if (map.queryRenderedFeatures(e.point, { layers: ['poi-polygons-fill'] }).length) return;
 
     const features = map.queryRenderedFeatures(e.point);
@@ -546,6 +548,7 @@ function initFeatureClick() {
 
   document.querySelector('#feature-panel-close').addEventListener('click', hideFeatureDetail);
 
+  initLongPress();
   initSheetDrag();
 }
 
@@ -623,6 +626,130 @@ function initSheetDrag() {
   };
   panel.addEventListener('touchend', onEnd);
   panel.addEventListener('touchcancel', onEnd);
+}
+
+const LONG_PRESS_MS = 500;
+const LONG_PRESS_MOVE_TOLERANCE_PX = 10;
+const LONG_PRESS_CLICK_GUARD_MS = 800;
+var lastLongPressAt = 0;
+var locationRequestId = 0;
+
+function initLongPress() {
+  let timer = null;
+  let startPoint = null;
+
+  const cancel = () => {
+    clearTimeout(timer);
+    timer = null;
+  };
+
+  map.on('touchstart', (e) => {
+    cancel();
+    if (e.originalEvent.touches.length !== 1) return;
+    startPoint = e.point;
+    const lngLat = e.lngLat;
+    timer = setTimeout(() => {
+      timer = null;
+      lastLongPressAt = Date.now();
+      showLocationDetail(lngLat);
+    }, LONG_PRESS_MS);
+  });
+
+  map.on('touchmove', (e) => {
+    if (!timer) return;
+    if (e.originalEvent.touches.length !== 1 ||
+        e.point.dist(startPoint) > LONG_PRESS_MOVE_TOLERANCE_PX) {
+      cancel();
+    }
+  });
+  map.on('touchend', cancel);
+  map.on('touchcancel', cancel);
+
+  // Desktop: right-click. Android also fires contextmenu on long-press, so skip it
+  // when the touch timer has just handled the same gesture.
+  map.on('contextmenu', (e) => {
+    e.preventDefault();
+    if (Date.now() - lastLongPressAt < LONG_PRESS_CLICK_GUARD_MS) return;
+    showLocationDetail(e.lngLat);
+  });
+}
+
+function showLocationDetail(lngLat) {
+  const { lat, lng } = lngLat;
+  const coords = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+  const requestId = ++locationRequestId;
+
+  if (searchResultMarker) searchResultMarker.remove();
+  searchResultMarker = new maplibregl.Marker({ color: '#e53e3e' })
+    .setLngLat([lng, lat])
+    .addTo(map);
+
+  document.querySelector('#feature-panel-name').textContent = 'Dropped pin';
+  document.querySelector('#feature-panel-type').textContent = coords;
+  document.querySelector('#feature-panel-details').innerHTML =
+    '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
+  document.querySelector('#feature-panel').classList.add('visible');
+
+  reverseGeocode(lat, lng).then(props => {
+    // Ignore stale responses if another pin was dropped meanwhile
+    if (requestId !== locationRequestId) return;
+
+    let html = '';
+    if (props) {
+      const street = props.street
+        ? props.street + (props.housenumber ? ' ' + props.housenumber : '')
+        : null;
+      const locality = [props.postcode, props.city || props.town || props.village].filter(Boolean).join(' ');
+      const address = [street, locality, props.country].filter(Boolean).join(', ');
+      if (props.name && props.name !== props.street) {
+        document.querySelector('#feature-panel-name').textContent = props.name;
+      } else if (street) {
+        document.querySelector('#feature-panel-name').textContent = street;
+      }
+      if (address) {
+        html += `<div class="feature-detail-row">
+          <span class="feature-detail-label">Address</span>
+          <span class="feature-detail-value">${escapeHtml(address)}</span>
+        </div>`;
+      }
+    }
+
+    html += `<div class="feature-detail-row">
+      <span class="feature-detail-label">Coordinates</span>
+      <span class="feature-detail-value"><a href="#" id="location-copy-coords" title="Copy to clipboard">${coords}</a></span>
+    </div>`;
+    html += `<a class="feature-detail-osm-link"
+      href="https://www.openstreetmap.org/?mlat=${lat.toFixed(6)}&mlon=${lng.toFixed(6)}#map=18/${lat.toFixed(6)}/${lng.toFixed(6)}"
+      target="_blank" rel="nofollow">View on OpenStreetMap</a>`;
+
+    document.querySelector('#feature-panel-details').innerHTML = html;
+    const copyLink = document.querySelector('#location-copy-coords');
+    copyLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      navigator.clipboard?.writeText(coords).then(() => {
+        copyLink.textContent = 'Copied!';
+        setTimeout(() => { copyLink.textContent = coords; }, 1200);
+      }).catch(err => console.warn('[location] copy failed:', err));
+    });
+  });
+}
+
+async function reverseGeocode(lat, lng) {
+  const cacheKey = `rev_${lat.toFixed(5)}_${lng.toFixed(5)}`;
+  const cached = cacheGet(cacheKey);
+  if (cached) return cached;
+
+  const lang = window.navigator.language.substring(0, 2);
+  try {
+    const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}&lang=${lang}`);
+    if (res.ok) {
+      const data = await res.json();
+      const props = data.features?.[0]?.properties || null;
+      if (props) cacheSet(cacheKey, props);
+      return props;
+    }
+  } catch (e) { console.error('[photon] reverse geocode failed:', e); }
+  return null;
 }
 
 function showFeatureDetail(feature, lngLat) {
