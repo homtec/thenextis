@@ -31,4 +31,4 @@ TheNextIs is a single-page POI (Point of Interest) finder and map explorer using
 
 ### Adding a new POI category
 
-Add an entry to `public/content.json` with a unique key, the OSM tag(s) in `osm` (semicolons separate multiple tags that are OR'd together), and translations for each `lang-*` field.
+Add an entry to `public/content.json` with a unique key, the OSM tag(s) in `osm` (semicolons separate multiple tags that are OR'd together), and translations for each `lang-*` field. Then run `npm run taginfo` to regenerate `public/taginfo.json` (the project's [taginfo](https://taginfo.openstreetmap.org/projects) listing of used OSM tags).

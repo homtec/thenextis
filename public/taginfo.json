@@ -1,0 +1,409 @@
+{
+  "data_format": 1,
+  "data_url": "https://thenextis.com/taginfo.json",
+  "project": {
+    "name": "TheNextIs",
+    "description": "Finds the nearest points of interest of a chosen category on a map.",
+    "project_url": "https://thenextis.com",
+    "icon_url": "https://thenextis.com/favicon.ico",
+    "contact_name": "Thomas Hecker",
+    "contact_email": "hello@thomashecker.net"
+  },
+  "tags": [
+    {
+      "key": "amenity",
+      "value": "atm",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: ATM"
+    },
+    {
+      "key": "amenity",
+      "value": "bar",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Pub"
+    },
+    {
+      "key": "amenity",
+      "value": "biergarten",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Pub"
+    },
+    {
+      "key": "amenity",
+      "value": "cafe",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Café"
+    },
+    {
+      "key": "amenity",
+      "value": "charging_station",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Charging Station"
+    },
+    {
+      "key": "amenity",
+      "value": "cinema",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Cinema"
+    },
+    {
+      "key": "amenity",
+      "value": "drinking_water",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Drinking Water"
+    },
+    {
+      "key": "amenity",
+      "value": "fast_food",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Fastfood"
+    },
+    {
+      "key": "amenity",
+      "value": "fuel",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Gas Station"
+    },
+    {
+      "key": "amenity",
+      "value": "hospital",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Hospital"
+    },
+    {
+      "key": "amenity",
+      "value": "hostel",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Hostel"
+    },
+    {
+      "key": "amenity",
+      "value": "kindergarten",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Kindergarten"
+    },
+    {
+      "key": "amenity",
+      "value": "library",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Library"
+    },
+    {
+      "key": "amenity",
+      "value": "pharmacy",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Pharmacy"
+    },
+    {
+      "key": "amenity",
+      "value": "post_box",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Postbox"
+    },
+    {
+      "key": "amenity",
+      "value": "pub",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Pub"
+    },
+    {
+      "key": "amenity",
+      "value": "recycling",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Recycling facility"
+    },
+    {
+      "key": "amenity",
+      "value": "restaurant",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Restaurant"
+    },
+    {
+      "key": "amenity",
+      "value": "school",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: School"
+    },
+    {
+      "key": "amenity",
+      "value": "shelter",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Shelter"
+    },
+    {
+      "key": "amenity",
+      "value": "swimming_pool",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Swimming Pool"
+    },
+    {
+      "key": "amenity",
+      "value": "taxi",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Taxi"
+    },
+    {
+      "key": "amenity",
+      "value": "telephone",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Telephone"
+    },
+    {
+      "key": "amenity",
+      "value": "toilets",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Public Toilet"
+    },
+    {
+      "key": "amenity",
+      "value": "vending_machine",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Cigarette automat"
+    },
+    {
+      "key": "atm",
+      "value": "yes",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: ATM"
+    },
+    {
+      "key": "centralkey",
+      "value": "eurokey",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Public Toilet with Eurokey"
+    },
+    {
+      "key": "highway",
+      "value": "bus_stop",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Bus Stop, Public transport station"
+    },
+    {
+      "key": "internet_access",
+      "value": "wlan",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Wifi"
+    },
+    {
+      "key": "leisure",
+      "value": "pitch",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Sports field"
+    },
+    {
+      "key": "leisure",
+      "value": "playground",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Playground"
+    },
+    {
+      "key": "lgbtq",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: LGBTQ"
+    },
+    {
+      "key": "public_transport",
+      "value": "platform",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Public transport station"
+    },
+    {
+      "key": "public_transport",
+      "value": "stop_position",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Public transport station"
+    },
+    {
+      "key": "railway",
+      "value": "station",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Public transport station"
+    },
+    {
+      "key": "shop",
+      "value": "bakery",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Bakery"
+    },
+    {
+      "key": "shop",
+      "value": "butcher",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Butcher"
+    },
+    {
+      "key": "shop",
+      "value": "convenience",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Supermarket"
+    },
+    {
+      "key": "shop",
+      "value": "laundry",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Laundry"
+    },
+    {
+      "key": "shop",
+      "value": "supermarket",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Supermarket"
+    },
+    {
+      "key": "sport",
+      "value": "basketball",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Basketball"
+    },
+    {
+      "key": "sport",
+      "value": "table_tennis",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Table Tennis"
+    },
+    {
+      "key": "tourism",
+      "value": "hotel",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Hotel"
+    },
+    {
+      "key": "vending",
+      "value": "cigarettes",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Cigarette automat"
+    }
+  ]
+}
