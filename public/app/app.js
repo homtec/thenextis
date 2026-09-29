@@ -545,6 +545,84 @@ function initFeatureClick() {
   });
 
   document.querySelector('#feature-panel-close').addEventListener('click', hideFeatureDetail);
+
+  initSheetDrag();
+}
+
+const SHEET_DESKTOP_MIN_WIDTH = 768;
+const SHEET_SNAP_THRESHOLD_PX = 60;
+
+// Mobile bottom sheet: dragging anywhere on the sheet moves it (up to expand, down to
+// collapse or close). Inside the details list, the list scrolls natively instead when it
+// can: while expanded, or while dragging down with the list not at its top.
+function initSheetDrag() {
+  const panel = document.querySelector('#feature-panel');
+  const details = document.querySelector('#feature-panel-details');
+  let startY = null;
+  let startHeight = 0;
+  let dy = 0;
+  let mode = null; // null (undecided) | 'sheet' | 'scroll'
+
+  panel.addEventListener('touchstart', (e) => {
+    if (window.innerWidth >= SHEET_DESKTOP_MIN_WIDTH || e.touches.length !== 1) return;
+    startY = e.touches[0].clientY;
+    startHeight = panel.getBoundingClientRect().height;
+    dy = 0;
+    mode = null;
+  }, { passive: true });
+
+  panel.addEventListener('touchmove', (e) => {
+    if (startY === null) return;
+    dy = e.touches[0].clientY - startY;
+    if (mode === null) {
+      if (Math.abs(dy) < 4) return;
+      const inList = details.contains(e.target);
+      const canScroll = details.scrollHeight > details.clientHeight;
+      const expanded = panel.classList.contains('expanded');
+      const listScrolls = inList && canScroll &&
+        (dy < 0 ? expanded : details.scrollTop > 0);
+      mode = listScrolls ? 'scroll' : 'sheet';
+      if (mode === 'sheet') {
+        panel.classList.add('dragging');
+        startY = e.touches[0].clientY;
+        dy = 0;
+      }
+    }
+    if (mode !== 'sheet') return;
+    e.preventDefault();
+    if (dy > 0) {
+      panel.style.transform = `translateY(${dy}px)`;
+      panel.style.height = '';
+      panel.style.maxHeight = '';
+    } else {
+      panel.style.transform = 'translateY(0)';
+      panel.style.maxHeight = 'none';
+      panel.style.height = `${Math.min(startHeight - dy, window.innerHeight - 70)}px`;
+    }
+  }, { passive: false });
+
+  const onEnd = () => {
+    if (startY === null) return;
+    const wasSheet = mode === 'sheet';
+    startY = null;
+    mode = null;
+    if (!wasSheet) return;
+    panel.classList.remove('dragging');
+    panel.style.transform = '';
+    panel.style.height = '';
+    panel.style.maxHeight = '';
+    if (dy < -SHEET_SNAP_THRESHOLD_PX) {
+      panel.classList.add('expanded');
+    } else if (dy > SHEET_SNAP_THRESHOLD_PX) {
+      if (panel.classList.contains('expanded')) {
+        panel.classList.remove('expanded');
+      } else {
+        hideFeatureDetail();
+      }
+    }
+  };
+  panel.addEventListener('touchend', onEnd);
+  panel.addEventListener('touchcancel', onEnd);
 }
 
 function showFeatureDetail(feature, lngLat) {
@@ -582,7 +660,7 @@ function showFeatureDetail(feature, lngLat) {
 }
 
 function hideFeatureDetail() {
-  document.querySelector('#feature-panel').classList.remove('visible');
+  document.querySelector('#feature-panel').classList.remove('visible', 'expanded');
   if (searchResultMarker) {
     searchResultMarker.remove();
     searchResultMarker = null;

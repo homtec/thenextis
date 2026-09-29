@@ -5,6 +5,9 @@ body{
 
 html,body{
 	height:100%;
+	overflow: hidden;
+	/* Matches the map style background so Safari's status-bar tint blends into the map */
+	background: #f8f4f0;
 	overscroll-behavior: none;
 }
 
@@ -103,10 +106,21 @@ html,body{
   max-height: 55vh;
   display: flex;
   flex-direction: column;
+  /* The sheet handles its own gestures; never pan the page/map through it */
+  touch-action: none;
 }
 
 #feature-panel.visible {
   transform: translateY(0);
+}
+
+#feature-panel.expanded {
+  height: calc(100dvh - 70px - env(safe-area-inset-top));
+  max-height: none;
+}
+
+#feature-panel.dragging {
+  transition: none;
 }
 
 #feature-panel-handle {
@@ -116,6 +130,7 @@ html,body{
   border-radius: 2px;
   margin: 10px auto 0;
   flex-shrink: 0;
+  cursor: grab;
 }
 
 #feature-panel-header {
@@ -159,8 +174,10 @@ html,body{
 
 #feature-panel-details {
   overflow-y: auto;
-  padding: 10px 16px 16px;
+  padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
   flex: 1;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 
 .feature-detail-row {
@@ -365,16 +382,26 @@ html,body{
     transform: translateX(0);
   }
 
+  #feature-panel.expanded {
+    height: auto;
+  }
+
   #feature-panel-handle {
     display: none;
   }
 }
 
+/* Keep map controls clear of the notch/status bar (viewport-fit=cover) */
+.maplibregl-ctrl-top-left,
+.maplibregl-ctrl-top-right {
+  top: env(safe-area-inset-top);
+}
+
 /* Geocoder search overlay */
 #geocoder {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: calc(10px + env(safe-area-inset-top));
+  left: calc(10px + env(safe-area-inset-left));
   z-index: 10;
   width: 320px;
   max-width: calc(100vw - 70px);
@@ -430,6 +457,8 @@ html,body{
   box-shadow: 0 2px 8px rgba(0,0,0,0.35);
   margin-top: 6px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
   max-height: 70vh;
   display: none;
 }
