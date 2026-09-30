@@ -39,16 +39,34 @@ html,body{
     z-index: 3;
 }
 
-#search-button {
-    height: 1000px;
-    top: calc(100% - 100px);
-    width: 100px;
-    background: black;
+/* Floating "Search this area" pill, below the search box */
+#redo-search-button {
     position: absolute;
-    left: calc(50% - 50px);
-    font-size: 50px;
-    visibility: hidden;
-    z-index: 3;
+    top: calc(64px + env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: none;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 18px;
+    background: #fff;
+    color: #0057ff;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    cursor: pointer;
+}
+
+#redo-search-button.visible {
+    display: block;
+}
+
+#redo-search-button:disabled {
+    color: #888;
+    cursor: default;
 }
 
 #loading {
@@ -280,21 +298,6 @@ html,body{
   font-size: 12px;
   color: #888;
   margin-top: 2px;
-}
-
-.poi-redo-search {
-  margin-top: 12px;
-  padding: 10px 0;
-  font-family: 'Open Sans', sans-serif;
-  font-size: 13px;
-  color: #0057ff;
-  cursor: pointer;
-  text-align: center;
-  border-top: 1px solid #f0f0f0;
-}
-
-.poi-redo-search:hover {
-  text-decoration: underline;
 }
 
 /* Opening hours component */
