@@ -48,6 +48,9 @@ var searchResultMarker = null;
 var selectedCategory = null;
 var poiData = null;
 var mapLoaded = false;
+// The open POI or dropped pin, kept in the URL hash so links can be shared:
+// 'poi=<osm type>/<osm id>' or 'pin=<lat>/<lng>'
+var sharedSelection = null;
 
 window.onload = init();
 
@@ -147,6 +150,7 @@ function loadPOIs(manualRefresh) {
   }
 
   const tagName = getTagName();
+  setSelection(null);
   document.querySelector('#feature-panel-name').textContent = tagName;
   document.querySelector('#feature-panel-type').textContent = '';
   document.querySelector('#feature-panel-details').innerHTML =
@@ -227,15 +231,17 @@ function loadPOIs(manualRefresh) {
         row.addEventListener('click', () => {
           map.flyTo({ center: lngLat, zoom: 18 });
           const poiName = poi.tags.name || poi.tags.operator || poi.tags.brand || tagName;
+          setSelection(null);
           document.querySelector('#feature-panel-name').textContent = poiName;
           document.querySelector('#feature-panel-type').textContent = tagName;
           document.querySelector('#feature-panel-details').innerHTML =
             '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
+          const place = { name: poiName, lngLat: { lng: lngLat[0], lat: lngLat[1] } };
           fetchOsmTagsByTypeAndId(poi.type, poi.id).then(result => {
             if (result) {
-              renderOsmTags(result.tags, result.type, result.id);
+              renderOsmTags(result.tags, result.type, result.id, place);
             } else {
-              renderOsmTags(poi.tags, poi.type, poi.id);
+              renderOsmTags(poi.tags, poi.type, poi.id, place);
             }
           });
         });
@@ -350,46 +356,22 @@ function addRecentSearch(item) {
 function init() {
   console.log("init called");
 
-  var hash = window.location.hash;
-  var type = null;
-  var url_location = null;
+  const params = parseHash();
+  const url_location = parseMapParam(params.map);
 
   var startCenter = berlin;
   var startzoom = 3;
 
-  if (hash.length > 0) {
-    hash = hash.replace('#', '');
-    var params = hash.split('&');
-
-    for (let param of params) {
-      var setting = param.split('=');
-      switch (setting[0]) {
-        case "map":
-          url_location = setting[1];
-          break;
-        case "type":
-          type = setting[1];
-          break;
-      }
-    }
-  }
-
   if (url_location) {
-    // URL format stored as zoom/lat/lng
-    var loc_array = url_location.split('/');
-    startCenter = [parseFloat(loc_array[2]), parseFloat(loc_array[1])]; // [lng, lat]
-    startzoom = parseFloat(loc_array[0]);
+    startCenter = url_location.center;
+    startzoom = url_location.zoom;
     mapDragged = true;
   }
 
   initMap(startCenter, startzoom);
 
-  if (!url_location) {
+  if (!url_location && !params.poi && !params.pin) {
     locateMe();
-  }
-
-  if (type) {
-    // search for POI type from URL
   }
 
   loadPOIdataFromFile();
@@ -400,9 +382,134 @@ function init() {
 
   initGeocoder();
 
+  document.querySelector('#feature-panel-share').addEventListener('click', shareSelection);
+  openSharedSelection(params, !url_location);
+  window.addEventListener('hashchange', () => {
+    // A pasted link in the same tab: reapply its map position and selection
+    const next = parseHash();
+    const loc = parseMapParam(next.map);
+    if (loc) map.jumpTo({ center: loc.center, zoom: loc.zoom });
+    openSharedSelection(next, !loc);
+  });
+
   map.on('load', () => {
     initFeatureClick();
   });
+}
+
+function parseHash() {
+  const params = {};
+  for (const param of window.location.hash.replace('#', '').split('&')) {
+    const [key, value] = param.split('=');
+    if (key && value) params[key] = decodeURIComponent(value);
+  }
+  return params;
+}
+
+// 'zoom/lat/lng' → { center: [lng, lat], zoom }
+function parseMapParam(value) {
+  const [zoom, lat, lng] = (value || '').split('/').map(parseFloat);
+  if ([zoom, lat, lng].some(isNaN)) return null;
+  return { center: [lng, lat], zoom };
+}
+
+function openSharedSelection(params, flyToIt) {
+  if (params.poi) {
+    const [type, id] = params.poi.split('/');
+    if (['node', 'way', 'relation'].includes(type) && /^\d+$/.test(id)) {
+      showSharedPoi(type, id, flyToIt);
+    }
+  } else if (params.pin) {
+    const [lat, lng] = params.pin.split('/').map(parseFloat);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      if (flyToIt) map.jumpTo({ center: [lng, lat], zoom: 17 });
+      showLocationDetail({ lat, lng });
+    }
+  }
+}
+
+// Tag keys that say what kind of place an OSM object is, in priority order
+const TYPE_TAG_KEYS = ['amenity', 'shop', 'tourism', 'leisure', 'sport', 'craft', 'office',
+  'healthcare', 'historic', 'public_transport', 'railway', 'highway', 'building'];
+
+function typeLabelFromTags(tags) {
+  const key = TYPE_TAG_KEYS.find(k => tags[k] && tags[k] !== 'yes');
+  if (!key) return 'Place';
+  const value = tags[key];
+  return FEATURE_TYPE_LABELS[value] || value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+var sharedPoiRequestId = 0;
+
+async function showSharedPoi(osmType, osmId, flyToIt) {
+  const requestId = ++sharedPoiRequestId;
+  const selection = `poi=${osmType}/${osmId}`;
+  setSelection(selection);
+  document.querySelector('#feature-panel-name').textContent = '';
+  document.querySelector('#feature-panel-type').textContent = '';
+  document.querySelector('#feature-panel-details').innerHTML =
+    '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
+  document.querySelector('#feature-panel').classList.add('visible');
+
+  // Overpass returns tags plus a center point for ways/relations in one request
+  let el = null;
+  try {
+    const data = await fetchOverpass(`[out:json][timeout:10];${osmType}(${osmId});out center;`);
+    el = data.elements?.[0] || null;
+  } catch (e) { console.error('[share] loading shared POI failed:', e); }
+  // Stale if another shared link was opened, or anything else was opened/closed meanwhile
+  if (requestId !== sharedPoiRequestId || sharedSelection !== selection) return;
+
+  const lat = el?.lat ?? el?.center?.lat;
+  const lng = el?.lon ?? el?.center?.lon;
+  if (!el || lat === undefined) {
+    setSelection(null);
+    document.querySelector('#feature-panel-name').textContent = 'Place not found';
+    document.querySelector('#feature-panel-details').innerHTML =
+      '<div class="feature-detail-empty">This place no longer exists on OpenStreetMap.</div>';
+    return;
+  }
+
+  const tags = el.tags || {};
+  const name = tags.name || tags.brand || tags.operator || typeLabelFromTags(tags);
+  document.querySelector('#feature-panel-name').textContent = name;
+  document.querySelector('#feature-panel-type').textContent = typeLabelFromTags(tags);
+
+  if (searchResultMarker) searchResultMarker.remove();
+  searchResultMarker = new maplibregl.Marker({ color: '#e53e3e' })
+    .setLngLat([lng, lat])
+    .addTo(map);
+  if (flyToIt) map.jumpTo({ center: [lng, lat], zoom: 18 });
+
+  renderOsmTags(tags, osmType, osmId, { name, lngLat: { lat, lng } });
+}
+
+function setSelection(selection) {
+  sharedSelection = selection;
+  document.querySelector('#feature-panel-share').style.display = selection ? '' : 'none';
+  if (map) updateHashURL();
+}
+
+function shareSelection() {
+  const url = window.location.href;
+  const title = document.querySelector('#feature-panel-name').textContent;
+  const button = document.querySelector('#feature-panel-share');
+  const confirmCopied = () => {
+    button.classList.add('copied');
+    setTimeout(() => button.classList.remove('copied'), 1200);
+  };
+
+  if (navigator.share) {
+    navigator.share({ title, url }).catch(err => {
+      if (err.name !== 'AbortError') console.warn('[share] share failed:', err);
+    });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(confirmCopied)
+      .catch(() => window.prompt('Copy this link:', url));
+  } else {
+    // Clipboard API is unavailable on insecure (http) origins
+    window.prompt('Copy this link:', url);
+  }
 }
 
 function locateMe() {
@@ -413,6 +520,7 @@ function locateMe() {
 }
 
 function showInfo() {
+  setSelection(null);
   document.querySelector('#feature-panel-name').textContent = 'About TheNextIs';
   document.querySelector('#feature-panel-type').textContent = '';
   document.querySelector('#feature-panel-details').innerHTML = `
@@ -460,6 +568,7 @@ function updateHashURL() {
   var center = map.getCenter();
   var urlhash_location = "map=" + map.getZoom().toFixed(0) + '/' +
     center.lat.toFixed(5) + '/' + center.lng.toFixed(5);
+  if (sharedSelection) urlhash_location += '&' + sharedSelection;
   history.replaceState(null, null, window.location.origin + "/#" + urlhash_location);
 }
 
@@ -684,6 +793,7 @@ function showLocationDetail(lngLat) {
     .setLngLat([lng, lat])
     .addTo(map);
 
+  setSelection(`pin=${lat.toFixed(6)}/${lng.toFixed(6)}`);
   document.querySelector('#feature-panel-name').textContent = 'Dropped pin';
   document.querySelector('#feature-panel-type').textContent = coords;
   document.querySelector('#feature-panel-details').innerHTML =
@@ -757,28 +867,28 @@ function showFeatureDetail(feature, lngLat) {
   const name = props.name || props.name_en || formatFeatureType(feature);
   const type = formatFeatureType(feature);
 
+  setSelection(null);
   document.querySelector('#feature-panel-name').textContent = name;
   document.querySelector('#feature-panel-type').textContent = type;
   document.querySelector('#feature-panel-details').innerHTML =
     '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
   document.querySelector('#feature-panel').classList.add('visible');
 
-  // Try several property names different tile schemas use for the OSM id
-  const osmId = props.osm_id || props.id || props.osm_way_id || null;
+  const osmRef = osmRefFromFeatureId(feature.id);
 
-  if (osmId) {
-    console.log('[feature] OSM id found:', osmId, '→ using OSM API');
+  if (osmRef) {
+    console.log('[feature] OSM ref from tile feature id:', osmRef, '→ using OSM API');
   } else {
-    console.log('[feature] no OSM id in tile properties, falling back to Overpass by location. props:', props);
+    console.log('[feature] no OSM id in tile feature, falling back to Overpass by location. props:', props);
   }
 
-  const resolve = osmId
-    ? fetchOsmTagsById(osmId)
+  const resolve = osmRef
+    ? fetchOsmTagsByTypeAndId(osmRef.type, osmRef.id)
     : fetchOsmTagsByLocation(name, lngLat);
 
   resolve.then(result => {
     if (result) {
-      renderOsmTags(result.tags, result.type, result.id);
+      renderOsmTags(result.tags, result.type, result.id, { name, lngLat });
     } else {
       document.querySelector('#feature-panel-details').innerHTML =
         '<div class="feature-detail-empty">No additional details available.</div>';
@@ -787,6 +897,7 @@ function showFeatureDetail(feature, lngLat) {
 }
 
 function hideFeatureDetail() {
+  setSelection(null);
   document.querySelector('#feature-panel').classList.remove('visible', 'expanded');
   if (searchResultMarker) {
     searchResultMarker.remove();
@@ -794,28 +905,12 @@ function hideFeatureDetail() {
   }
 }
 
-async function fetchOsmTagsById(osmId) {
-  const cacheKey = `id_${osmId}`;
-  const cached = cacheGet(cacheKey);
-  if (cached) return cached;
-
-  const id = Math.abs(Math.round(osmId));
-  const types = osmId > 0 ? ['node', 'way'] : ['way', 'node'];
-
-  for (const type of types) {
-    try {
-      const res = await fetch(`https://api.openstreetmap.org/api/0.6/${type}/${id}.json`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.elements?.length) {
-          const result = { tags: data.elements[0].tags || {}, type, id };
-          if (Object.keys(result.tags).length) cacheSet(cacheKey, result);
-          return result;
-        }
-      }
-    } catch (e) { console.error('[osm] fetch failed, trying next type:', e); }
-  }
-  return null;
+// OpenMapTiles tiles built with Planetiler (OpenFreeMap) encode the OSM element in the
+// feature id as osm_id * 10 + (1 = node, 2 = way, 3 = relation)
+function osmRefFromFeatureId(featureId) {
+  if (typeof featureId !== 'number' || featureId <= 0) return null;
+  const type = ['node', 'way', 'relation'][featureId % 10 - 1];
+  return type ? { type, id: Math.floor(featureId / 10) } : null;
 }
 
 async function fetchOsmTagsByTypeAndId(osmType, osmId) {
@@ -850,6 +945,7 @@ function showGeocoderFeatureDetail(props, lngLat) {
     || typeKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
     || 'Place';
 
+  setSelection(null);
   document.querySelector('#feature-panel-name').textContent = name;
   document.querySelector('#feature-panel-type').textContent =
     [streetDetail, props.city, props.country].filter(Boolean).join(', ') || type;
@@ -863,7 +959,7 @@ function showGeocoderFeatureDetail(props, lngLat) {
 
   resolve.then(result => {
     if (result) {
-      renderOsmTags(result.tags, result.type, result.id);
+      renderOsmTags(result.tags, result.type, result.id, { name, lngLat });
     } else {
       document.querySelector('#feature-panel-details').innerHTML =
         '<div class="feature-detail-empty">No additional details available.</div>';
@@ -989,7 +1085,11 @@ function renderOpeningHours(ohStr) {
   </div>`;
 }
 
-function renderOsmTags(tags, osmType, osmId) {
+function renderOsmTags(tags, osmType, osmId, place) {
+  // Skip if the panel was closed while the tags were loading
+  if (!document.querySelector('#feature-panel').classList.contains('visible')) return;
+  setSelection(`poi=${osmType}/${osmId}`);
+
   const ROWS = [
     ['addr:street',     'Street',      false],
     ['addr:housenumber','Number',      false],
@@ -1034,11 +1134,98 @@ function renderOsmTags(tags, osmType, osmId) {
     html = '<div class="feature-detail-empty">No additional details available.</div>';
   }
 
+  const reviewName = tags.name || place?.name;
+  if (reviewName && place?.lngLat) {
+    html += '<div id="feature-reviews"><div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div></div>';
+  }
+
   html += `<a class="feature-detail-osm-link"
     href="https://www.openstreetmap.org/${osmType}/${osmId}"
     target="_blank" rel="nofollow">View on OpenStreetMap</a>`;
 
   document.querySelector('#feature-panel-details').innerHTML = html;
+
+  if (reviewName && place?.lngLat) loadReviews(reviewName, place.lngLat);
+}
+
+const MANGROVE_API = 'https://api.mangrove.reviews/reviews';
+const MANGROVE_RADIUS_M = 50;
+const REVIEWS_SHOWN = 3;
+const reviewsCache = new Map();
+var reviewsRequestId = 0;
+
+function mangroveSubject(name, lngLat) {
+  return `geo:${lngLat.lat.toFixed(7)},${lngLat.lng.toFixed(7)}?q=${encodeURIComponent(name)}&u=${MANGROVE_RADIUS_M}`;
+}
+
+async function fetchMangroveReviews(sub) {
+  if (reviewsCache.has(sub)) return reviewsCache.get(sub);
+  try {
+    const res = await fetch(`${MANGROVE_API}?${new URLSearchParams({ sub })}`);
+    if (res.ok) {
+      const data = await res.json();
+      const reviews = data.reviews || [];
+      reviewsCache.set(sub, reviews);
+      return reviews;
+    }
+  } catch (e) { console.error('[mangrove] fetch reviews failed:', e); }
+  return [];
+}
+
+function renderStars(rating) {
+  // Mangrove ratings are 0–100; show 0–5 stars in half steps
+  const stars = Math.round(rating / 10) / 2;
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    const icon = stars >= i ? 'fa-star' : stars >= i - 0.5 ? 'fa-star-half-o' : 'fa-star-o';
+    html += `<i class="fa ${icon}"></i>`;
+  }
+  return `<span class="review-stars" title="${stars} / 5">${html}</span>`;
+}
+
+function renderReviews(reviews, sub) {
+  const rated = reviews.filter(r => typeof r.payload?.rating === 'number');
+  let summary;
+  if (rated.length) {
+    const avg = rated.reduce((sum, r) => sum + r.payload.rating, 0) / rated.length;
+    summary = `${renderStars(avg)} <span class="review-count">${(avg / 20).toFixed(1)} · ${reviews.length} review${reviews.length !== 1 ? 's' : ''}</span>`;
+  } else {
+    summary = '<span class="review-count">No reviews yet</span>';
+  }
+
+  let html = `<div class="feature-detail-row">
+    <span class="feature-detail-label">Reviews</span>
+    <span class="feature-detail-value">${summary}</span>
+  </div>`;
+
+  const recent = [...reviews].sort((a, b) => (b.payload?.iat || 0) - (a.payload?.iat || 0)).slice(0, REVIEWS_SHOWN);
+  for (const { payload } of recent) {
+    const meta = [
+      payload.metadata?.nickname,
+      payload.iat ? new Date(payload.iat * 1000).toLocaleDateString() : null,
+    ].filter(Boolean).map(escapeHtml).join(' · ');
+    html += `<div class="review-item">
+      ${typeof payload.rating === 'number' ? renderStars(payload.rating) : ''}
+      ${payload.opinion ? `<div class="review-opinion">${escapeHtml(payload.opinion)}</div>` : ''}
+      ${meta ? `<div class="review-meta">${meta}</div>` : ''}
+    </div>`;
+  }
+
+  const linkText = reviews.length > REVIEWS_SHOWN ? `See all ${reviews.length} reviews` : 'Write a review on Mangrove';
+  html += `<a class="review-link" href="https://mangrove.reviews/?sub=${encodeURIComponent(sub)}"
+    target="_blank" rel="nofollow">${linkText}</a>`;
+  return html;
+}
+
+function loadReviews(name, lngLat) {
+  const requestId = ++reviewsRequestId;
+  const sub = mangroveSubject(name, lngLat);
+  fetchMangroveReviews(sub).then(reviews => {
+    const el = document.querySelector('#feature-reviews');
+    // Ignore stale responses if another feature was opened meanwhile
+    if (requestId !== reviewsRequestId || !el) return;
+    el.innerHTML = renderReviews(reviews, sub);
+  });
 }
 
 
