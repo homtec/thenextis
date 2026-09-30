@@ -51,6 +51,8 @@ var mapLoaded = false;
 // The open POI or dropped pin, kept in the URL hash so links can be shared:
 // 'poi=<osm type>/<osm id>' or 'pin=<lat>/<lng>'
 var sharedSelection = null;
+var sharedPoiRequestId = 0;
+var locationRequestId = 0;
 
 window.onload = init();
 
@@ -436,7 +438,6 @@ function typeLabelFromTags(tags) {
   return FEATURE_TYPE_LABELS[value] || value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-var sharedPoiRequestId = 0;
 
 async function showSharedPoi(osmType, osmId, flyToIt) {
   const requestId = ++sharedPoiRequestId;
@@ -448,18 +449,11 @@ async function showSharedPoi(osmType, osmId, flyToIt) {
     '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
   document.querySelector('#feature-panel').classList.add('visible');
 
-  // Overpass returns tags plus a center point for ways/relations in one request
-  let el = null;
-  try {
-    const data = await fetchOverpass(`[out:json][timeout:10];${osmType}(${osmId});out center;`);
-    el = data.elements?.[0] || null;
-  } catch (e) { console.error('[share] loading shared POI failed:', e); }
+  const el = await fetchOsmElementWithCenter(osmType, osmId);
   // Stale if another shared link was opened, or anything else was opened/closed meanwhile
   if (requestId !== sharedPoiRequestId || sharedSelection !== selection) return;
 
-  const lat = el?.lat ?? el?.center?.lat;
-  const lng = el?.lon ?? el?.center?.lon;
-  if (!el || lat === undefined) {
+  if (!el) {
     setSelection(null);
     document.querySelector('#feature-panel-name').textContent = 'Place not found';
     document.querySelector('#feature-panel-details').innerHTML =
@@ -467,7 +461,7 @@ async function showSharedPoi(osmType, osmId, flyToIt) {
     return;
   }
 
-  const tags = el.tags || {};
+  const { tags, lat, lng } = el;
   const name = tags.name || tags.brand || tags.operator || typeLabelFromTags(tags);
   document.querySelector('#feature-panel-name').textContent = name;
   document.querySelector('#feature-panel-type').textContent = typeLabelFromTags(tags);
@@ -739,7 +733,6 @@ const LONG_PRESS_MS = 500;
 const LONG_PRESS_MOVE_TOLERANCE_PX = 10;
 const LONG_PRESS_CLICK_GUARD_MS = 800;
 var lastLongPressAt = 0;
-var locationRequestId = 0;
 
 function initLongPress() {
   let timer = null;
@@ -930,6 +923,43 @@ async function fetchOsmTagsByTypeAndId(osmType, osmId) {
     }
   } catch (e) { console.error('[osm] fetchOsmTagsByTypeAndId failed:', e); }
   return null;
+}
+
+// Tags plus a position for an OSM object. Nodes and ways come from the OSM API,
+// which answers much faster than Overpass; relations need Overpass to get a center.
+async function fetchOsmElementWithCenter(osmType, osmId) {
+  const cacheKey = `center_${osmType}_${osmId}`;
+  const cached = cacheGet(cacheKey);
+  if (cached) return cached;
+
+  let result = null;
+  try {
+    if (osmType === 'node' || osmType === 'way') {
+      const suffix = osmType === 'way' ? '/full' : '';
+      const res = await fetch(`https://api.openstreetmap.org/api/0.6/${osmType}/${osmId}${suffix}.json`);
+      if (res.ok) {
+        const elements = (await res.json()).elements || [];
+        const el = elements.find(e => e.type === osmType && String(e.id) === String(osmId));
+        const nodes = elements.filter(e => e.type === 'node');
+        if (el && nodes.length) {
+          // Center of the bounding box, like Overpass 'out center'
+          const lats = nodes.map(n => n.lat), lngs = nodes.map(n => n.lon);
+          result = {
+            tags: el.tags || {},
+            lat: (Math.min(...lats) + Math.max(...lats)) / 2,
+            lng: (Math.min(...lngs) + Math.max(...lngs)) / 2,
+          };
+        }
+      }
+    } else {
+      const data = await fetchOverpass(`[out:json][timeout:10];${osmType}(${osmId});out center;`);
+      const el = data.elements?.[0];
+      if (el?.center) result = { tags: el.tags || {}, lat: el.center.lat, lng: el.center.lon };
+    }
+  } catch (e) { console.error('[share] loading shared POI failed:', e); }
+
+  if (result) cacheSet(cacheKey, result);
+  return result;
 }
 
 function showGeocoderFeatureDetail(props, lngLat) {
