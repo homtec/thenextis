@@ -43,7 +43,7 @@ function fetchOverpass(query) {
   return Promise.any(requests);
 }
 var mapDragged = false;
-var myLocationMarker = null;
+var geolocateControl = null;
 var searchResultMarker = null;
 var selectedCategory = null;
 var poiData = null;
@@ -63,6 +63,19 @@ function initMap(center, zoom) {
     center: center, // [lng, lat]
     zoom: zoom
   });
+
+  // Zoom buttons for mouse users; touch devices pinch to zoom
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+  }
+
+  geolocateControl = new maplibregl.GeolocateControl({
+    positionOptions: { enableHighAccuracy: true },
+    fitBoundsOptions: { maxZoom: 16 },
+  });
+  map.addControl(geolocateControl, 'top-right');
+  geolocateControl.on('geolocate', onLocationFound);
+  geolocateControl.on('error', onLocationError);
 
   map.on('dragend', onMapDragged);
   map.on('zoomend', onMapZoomed);
@@ -281,28 +294,13 @@ function loadPOIs(manualRefresh) {
 }
 
 
+// The geolocate control draws the location dot and moves the map itself
 function onLocationFound(position) {
   myLocation = {
     lat: position.coords.latitude,
     lng: position.coords.longitude
   };
-
-  if (myLocationMarker) myLocationMarker.remove();
-
-  const el = document.createElement('div');
-  el.className = 'user-location-dot';
-
-  myLocationMarker = new maplibregl.Marker({ element: el })
-    .setLngLat([myLocation.lng, myLocation.lat])
-    .addTo(map);
-
-  const flyToUser = () => map.flyTo({ center: [myLocation.lng, myLocation.lat], zoom: 16 });
-  if (map.loaded()) {
-    flyToUser();
-  } else {
-    map.once('load', flyToUser);
-  }
-
+  mapDragged = false;
   updateHashURL();
 }
 
@@ -376,7 +374,6 @@ function init() {
 
   loadPOIdataFromFile();
 
-  document.querySelector('#locateMe-button').onclick = function () { locateMe(); };
   document.querySelector('#info-button').onclick = function () { showInfo(); };
   document.querySelector('#editOSM-button').onclick = function () { editOSM(); };
 
@@ -513,10 +510,11 @@ function shareSelection() {
 }
 
 function locateMe() {
-  mapDragged = false;
-  navigator.geolocation.getCurrentPosition(onLocationFound, onLocationError, {
-    enableHighAccuracy: true
-  });
+  if (map.loaded()) {
+    geolocateControl.trigger();
+  } else {
+    map.once('load', () => geolocateControl.trigger());
+  }
 }
 
 function showInfo() {
