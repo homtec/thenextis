@@ -19,7 +19,7 @@ TheNextIs is a single-page POI (Point of Interest) finder and map explorer using
 - **`public/app/app.js`** — All application logic, loaded as an ES module. Uses MapLibre GL with the OpenFreeMap `liberty` vector style.
 - **`public/app/app.css`** — App styles.
 - **`public/content.json`** — The POI category database. Each entry has a key, an `osm` field (semicolon-separated OSM tag queries), and translations for `lang-en`, `lang-de`, `lang-es`, `lang-fr`, `lang-ru`.
-- Other static assets: `favicon.ico`, `og_icon.png`, `app/images/` (all under `public/`).
+- Other static assets: `favicon.ico`, `og_icon.png`, `taginfo.json` (all under `public/`).
 
 ### Data flow
 

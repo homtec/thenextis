@@ -9,20 +9,16 @@ var berlin = [13.4101340342265, 52.5213616409873]; // [lng, lat]
 const CACHE_PREFIX = 'osm_cache_';
 
 function cacheGet(key) {
-  console.log('[cache] looking for:', key);
   try {
     const raw = localStorage.getItem(CACHE_PREFIX + key);
     if (raw) {
-      console.log('[cache] hit:', key);
       return JSON.parse(raw);
     }
-    console.log('[cache] miss:', key);
     return null;
   } catch { return null; }
 }
 
 function cacheSet(key, value) {
-  console.log('[cache] saving:', key, value);
   try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(value)); } catch (e) { console.warn('[cache] localStorage write failed:', e); }
 }
 
@@ -36,7 +32,6 @@ function fetchOverpass(query) {
     fetch(`${server}?data=${encodeURIComponent(query)}`)
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        console.log('[overpass] winner:', server);
         return r.json();
       })
   );
@@ -54,10 +49,7 @@ var sharedSelection = null;
 var sharedPoiRequestId = 0;
 var locationRequestId = 0;
 
-window.onload = init();
-
 function initMap(center, zoom) {
-  console.log("init map called");
 
   map = new maplibregl.Map({
     container: 'map',
@@ -122,7 +114,6 @@ function initMap(center, zoom) {
 
 function loadPOIs(manualRefresh) {
   var i;
-  console.log("loadPOIs called");
   var tags = getTag();
   if (tags === '') return;
 
@@ -154,8 +145,6 @@ function loadPOIs(manualRefresh) {
   }
 
   const fullQuery = '[out:json];' + OSM_PARAMS;
-  console.log('[overpass] querying category:', selectedCategory, '| servers:', OVERPASS_SERVERS);
-  console.log('[overpass] query:', fullQuery);
 
   // Clear old markers and polygons
   poiMarkers.forEach(m => m.remove());
@@ -174,7 +163,6 @@ function loadPOIs(manualRefresh) {
 
   fetchOverpass(fullQuery)
     .then((data) => {
-      console.log('[overpass] response received, elements:', data.elements?.length ?? 0);
 
       var pois = data.elements;
 
@@ -289,7 +277,7 @@ function loadPOIs(manualRefresh) {
       }
     })
     .catch((error) => {
-      console.log('[overpass] all servers failed:', error);
+      console.error('[overpass] all servers failed:', error);
       document.querySelector('#feature-panel-details').innerHTML =
         '<div class="feature-detail-empty">Search failed. Please try again.</div>';
     });
@@ -354,7 +342,6 @@ function addRecentSearch(item) {
 
 
 function init() {
-  console.log("init called");
 
   const params = parseHash();
   const url_location = parseMapParam(params.map);
@@ -640,7 +627,6 @@ function initFeatureClick() {
     const features = map.queryRenderedFeatures(e.point);
     const feature = selectFeature(features);
     if (feature) {
-      console.log('[feature click] sourceLayer:', feature.sourceLayer, 'properties:', feature.properties);
       showFeatureDetail(feature, e.lngLat);
     } else {
       hideFeatureDetail();
@@ -866,12 +852,6 @@ function showFeatureDetail(feature, lngLat) {
   document.querySelector('#feature-panel').classList.add('visible');
 
   const osmRef = osmRefFromFeatureId(feature.id);
-
-  if (osmRef) {
-    console.log('[feature] OSM ref from tile feature id:', osmRef, '→ using OSM API');
-  } else {
-    console.log('[feature] no OSM id in tile feature, falling back to Overpass by location. props:', props);
-  }
 
   const resolve = osmRef
     ? fetchOsmTagsByTypeAndId(osmRef.type, osmRef.id)
@@ -1471,3 +1451,5 @@ function initGeocoder() {
     return zoomMap[type] || 14;
   }
 }
+
+init();

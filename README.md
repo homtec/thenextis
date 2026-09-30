@@ -1,17 +1,18 @@
 # TheNextIs
 
-A user-friendly POI search application based on the OSM database.
+A user-friendly POI search and map explorer based on OpenStreetMap data.
+Search for a category ("pharmacy", "bakery", …) or a place, click anything on the
+map to see its details, and share links to places.
 
-## Development use
-
-run on the console:
+## Development
 
 ```
-python3 -m http.server
+npm install   # first time only
+npm run dev   # serves public/ at http://localhost:5173
+npm run lint
 ```
 
-
-
+There is no build step: `public/` is deployed as static files.
 
 ## Contributing
 
@@ -21,9 +22,11 @@ python3 -m http.server
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-## Software used
-leaflet,
-OSM,
-Cloudmade,
-jQuery,
-Fontawesome
+## Software and data used
+
+- [MapLibre GL JS](https://maplibre.org/) with [OpenFreeMap](https://openfreemap.org/) vector tiles
+- [OpenStreetMap](https://www.openstreetmap.org/) data via the OSM API and [Overpass](https://overpass-api.de/)
+- [Photon](https://photon.komoot.io/) for place search
+- [opening_hours.js](https://github.com/opening-hours/opening_hours.js)
+- [Mangrove](https://mangrove.reviews/) for reviews
+- Bootstrap, Font Awesome
