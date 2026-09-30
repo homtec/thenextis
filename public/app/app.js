@@ -1093,8 +1093,9 @@ function renderOsmTags(tags, osmType, osmId, place) {
     ['addr:housenumber','Number',      false],
     ['addr:city',       'City',        false],
     ['addr:postcode',   'Postcode',    false],
-    ['phone',           'Phone',       'tel'],
-    ['website',         'Website',     'url'],
+    [['phone', 'contact:phone'],   'Phone',   'tel'],
+    [['mobile', 'contact:mobile'], 'Mobile',  'tel'],
+    [['website', 'contact:website'], 'Website', 'url'],
     ['operator',        'Operator',    false],
     ['brand',           'Brand',       false],
     ['cuisine',         'Cuisine',     false],
@@ -1112,15 +1113,25 @@ function renderOsmTags(tags, osmType, osmId, place) {
     </div>`;
   }
 
-  for (const [key, label, linkType] of ROWS) {
-    if (!tags[key]) continue;
+  for (const [keys, label, linkType] of ROWS) {
+    const present = [keys].flat().map(k => tags[k]).filter(Boolean);
+    if (!present.length) continue;
     let value;
     if (linkType === 'url') {
-      value = `<a href="${escapeHtml(tags[key])}" target="_blank" rel="nofollow">${escapeHtml(tags[key])}</a>`;
+      value = `<a href="${escapeHtml(present[0])}" target="_blank" rel="nofollow">${escapeHtml(present[0])}</a>`;
     } else if (linkType === 'tel') {
-      value = `<a href="tel:${escapeHtml(tags[key])}">${escapeHtml(tags[key])}</a>`;
+      // A tag may hold several numbers separated by ';', and the plain and
+      // contact:* variants often repeat the same number
+      const numbers = new Map();
+      for (const n of present.flatMap(v => v.split(';')).map(n => n.trim()).filter(Boolean)) {
+        const digits = n.replace(/[^\d+]/g, '');
+        if (!numbers.has(digits)) numbers.set(digits, n);
+      }
+      value = [...numbers.values()]
+        .map(n => `<a href="tel:${escapeHtml(n.replace(/\s/g, ''))}">${escapeHtml(n)}</a>`)
+        .join('<br>');
     } else {
-      value = escapeHtml(tags[key]);
+      value = escapeHtml(present[0]);
     }
     html += `<div class="feature-detail-row">
       <span class="feature-detail-label">${label}</span>
