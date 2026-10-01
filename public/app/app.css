@@ -650,3 +650,20 @@ html,body{
 .review-link:hover {
   text-decoration: underline;
 }
+
+/* iOS home-screen apps with a translucent status bar draw the page from the very top of
+   the screen but size it to the screen minus the status bar, leaving an empty strip at the
+   bottom. Extend the page by that height and anchor the bottom sheet to the page instead. */
+@media (display-mode: standalone) {
+  html, body {
+    height: calc(100% + env(safe-area-inset-top));
+  }
+
+  body {
+    position: relative;
+  }
+
+  #feature-panel {
+    position: absolute;
+  }
+}
