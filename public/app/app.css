@@ -69,21 +69,6 @@ html,body{
     cursor: default;
 }
 
-#loading {
-    position: fixed;
-    height: 100%;
-    width: 100%;
-    top:0px;
-    left: 0px;
-    z-index: 1001;
-    background: black;
-    opacity: 0.8;
-    color: white;
-    visibility: hidden;
-    text-align: center;
-    vertical-align: middle;
-    font-size: 50px;
-}
 
 
 #editOSM-button{
@@ -486,7 +471,8 @@ html,body{
   flex: 1;
   border: none;
   outline: none;
-  font-size: 15px;
+  /* 16px+ stops iOS Safari from zooming the page when the input is focused */
+  font-size: 16px;
   font-family: 'Open Sans', sans-serif;
   padding: 0 8px;
   background: transparent;

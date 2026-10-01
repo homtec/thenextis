@@ -1,18 +1,25 @@
 <!doctype html>
-<html>
-    <!-- <html> -->
+<html lang="en">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+        <title>TheNextIs – find the nearest café, ATM, pharmacy and more</title>
         <meta
-            name="viewport"
-            content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+            name="description"
+            content="Find the nearest café, ATM, pharmacy, supermarket, toilet, playground and more around you. A free map search for places nearby, powered by OpenStreetMap."
         />
+        <link rel="canonical" href="https://thenextis.com/" />
+
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="TheNextIs" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#f8f4f0" />
-
-        <title>TheNextIs.com - find your place</title>
 
         <link
             href="https://fonts.googleapis.com/css?family=Open+Sans:400,300"
@@ -33,15 +40,45 @@
         />
         <link rel="stylesheet" href="/app/app.css" />
 
-        <meta property="og:title" content="TheNextIs.com - find your place" />
-        <meta property="og:image" content="https://thenextis.com/og_icon.png" />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://thenextis.com" />
+        <meta property="og:site_name" content="TheNextIs" />
+        <meta property="og:title" content="TheNextIs – find the nearest café, ATM, pharmacy and more" />
+        <meta
+            property="og:description"
+            content="A free map search for places nearby, powered by OpenStreetMap."
+        />
+        <meta property="og:url" content="https://thenextis.com/" />
+        <meta property="og:image" content="https://thenextis.com/og_image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="TheNextIs map pin logo" />
+        <meta name="twitter:card" content="summary_large_image" />
+
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "WebApplication",
+                "name": "TheNextIs",
+                "url": "https://thenextis.com/",
+                "description": "Find the nearest café, ATM, pharmacy and more around you. A free map search for places nearby, powered by OpenStreetMap.",
+                "applicationCategory": "TravelApplication",
+                "operatingSystem": "Any",
+                "browserRequirements": "Requires JavaScript",
+                "image": "https://thenextis.com/og_image.png",
+                "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+            }
+        </script>
     </head>
     <body>
-        <div id="loading">
-            <i class="fa fa-spinner fa-spin fa-large"></i> searching for you...
-        </div>
+        <header class="visually-hidden">
+            <h1>TheNextIs – find the nearest place around you</h1>
+            <p>
+                Search the map for the nearest café, restaurant, ATM, pharmacy, supermarket,
+                bakery, toilet, drinking water, playground, charging station and more.
+                TheNextIs uses free OpenStreetMap data and shows opening hours and contact details
+                for places nearby.
+            </p>
+        </header>
         <span id="editOSM-button" style="display: none"></span>
 
         <div id="geocoder">
@@ -82,25 +119,6 @@
         <div id="info-button" class="buttons"><i class="fa fa-info"></i></div>
         <button id="redo-search-button">Search this area</button>
 
-        <div id="modal_no_pois" class="modal hide fade">
-            <div class="modal-header">
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-hidden="true"
-                >
-                    &times;
-                </button>
-                <h3><i class="icon-frown"></i> No result</h3>
-            </div>
-            <div class="modal-body">
-                <p>There is no in 1 km range.</p>
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn btn-primary">Close</a>
-            </div>
-        </div>
 
         <script type="importmap">
             {
