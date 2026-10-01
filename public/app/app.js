@@ -1184,10 +1184,6 @@ function renderOsmTags(tags, osmType, osmId, place) {
   setSelection(`poi=${osmType}/${osmId}`);
 
   const ROWS = [
-    ['addr:street',     'Street',      false],
-    ['addr:housenumber','Number',      false],
-    ['addr:city',       'City',        false],
-    ['addr:postcode',   'Postcode',    false],
     [['phone', 'contact:phone'],   'Phone',   'tel'],
     [['mobile', 'contact:mobile'], 'Mobile',  'tel'],
     [['website', 'contact:website'], 'Website', 'url'],
@@ -1221,6 +1217,17 @@ function renderOsmTags(tags, osmType, osmId, place) {
     html += `<div class="feature-detail-row feature-detail-row--oh">
       <span class="feature-detail-label">Hours</span>
       <span class="feature-detail-value">${renderOpeningHours(tags['opening_hours'])}</span>
+    </div>`;
+  }
+
+  // Address as one block: "Street 12" / "12345 City"
+  const street = [tags['addr:street'] || tags['addr:place'], tags['addr:housenumber']].filter(Boolean).join(' ');
+  const locality = [tags['addr:postcode'], tags['addr:city']].filter(Boolean).join(' ');
+  const address = [street, locality].filter(Boolean).map(escapeHtml).join('<br>');
+  if (address) {
+    html += `<div class="feature-detail-row">
+      <span class="feature-detail-label">Address</span>
+      <span class="feature-detail-value">${address}</span>
     </div>`;
   }
 
