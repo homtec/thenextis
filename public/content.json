@@ -5,7 +5,13 @@
     "lang-en": "ATM",
     "lang-es": "Cajero automático",
     "lang-fr": "DAB",
-    "lang-ru": "Банкомат"
+    "lang-ru": "Банкомат",
+    "lang-it": "Bancomat",
+    "lang-pl": "Bankomat",
+    "lang-uk": "Банкомат",
+    "lang-nl": "Geldautomaat",
+    "lang-pt": "Multibanco",
+    "lang-tr": "ATM"
   },
   "hospital": {
     "osm": "amenity=hospital",
@@ -13,7 +19,13 @@
     "lang-en": "Hospital",
     "lang-es": "Hospital",
     "lang-fr": "Hôpital",
-    "lang-ru": "Больница"
+    "lang-ru": "Больница",
+    "lang-it": "Ospedale",
+    "lang-pl": "Szpital",
+    "lang-uk": "Лікарня",
+    "lang-nl": "Ziekenhuis",
+    "lang-pt": "Hospital",
+    "lang-tr": "Hastane"
   },
   "wifi": {
     "osm": "internet_access=wlan",
@@ -21,7 +33,13 @@
     "lang-en": "Wifi",
     "lang-es": "Wifi",
     "lang-fr": "Wifi",
-    "lang-ru": "Wifi"
+    "lang-ru": "Wifi",
+    "lang-it": "Wi-Fi",
+    "lang-pl": "Wi-Fi",
+    "lang-uk": "Wi-Fi",
+    "lang-nl": "Wifi",
+    "lang-pt": "Wi-Fi",
+    "lang-tr": "Wi-Fi"
   },
   "water": {
     "osm": "amenity=drinking_water",
@@ -29,7 +47,13 @@
     "lang-en": "Drinking Water",
     "lang-es": "Agua potable",
     "lang-fr": "Eau potable",
-    "lang-ru": "Питьевая Вода"
+    "lang-ru": "Питьевая Вода",
+    "lang-it": "Acqua potabile",
+    "lang-pl": "Woda pitna",
+    "lang-uk": "Питна вода",
+    "lang-nl": "Drinkwater",
+    "lang-pt": "Água potável",
+    "lang-tr": "İçme suyu"
   },
   "cafe": {
     "osm": "amenity=cafe",
@@ -37,7 +61,13 @@
     "lang-en": "Café",
     "lang-es": "Café",
     "lang-fr": "Café",
-    "lang-ru": "Кафе"
+    "lang-ru": "Кафе",
+    "lang-it": "Caffè",
+    "lang-pl": "Kawiarnia",
+    "lang-uk": "Кав’ярня",
+    "lang-nl": "Café",
+    "lang-pt": "Café",
+    "lang-tr": "Kafe"
   },
   "toilet": {
     "osm": "amenity=toilets",
@@ -45,7 +75,13 @@
     "lang-en": "Public Toilet",
     "lang-es": "Baño publico",
     "lang-fr": "Toilettes publiques",
-    "lang-ru": "Общественный Туалет"
+    "lang-ru": "Общественный Туалет",
+    "lang-it": "Bagno pubblico",
+    "lang-pl": "Toaleta publiczna",
+    "lang-uk": "Громадський туалет",
+    "lang-nl": "Openbaar toilet",
+    "lang-pt": "Casa de banho pública",
+    "lang-tr": "Umumi tuvalet"
   },
   "Wheelchair eurokey toilet": {
     "osm": "centralkey=eurokey",
@@ -53,7 +89,13 @@
     "lang-en": "Public Toilet with Eurokey",
     "lang-es": "Baño publico",
     "lang-fr": "Toilettes publiques",
-    "lang-ru": "Общественный Туалет"
+    "lang-ru": "Общественный Туалет",
+    "lang-it": "Bagno per disabili con Eurokey",
+    "lang-pl": "Toaleta dla niepełnosprawnych z Eurokey",
+    "lang-uk": "Туалет для людей з інвалідністю (Eurokey)",
+    "lang-nl": "Invalidentoilet met Eurokey",
+    "lang-pt": "Casa de banho acessível com Eurokey",
+    "lang-tr": "Eurokey’li engelli tuvaleti"
   },
   "busstop": {
     "osm": "highway=bus_stop ",
@@ -61,7 +103,13 @@
     "lang-en": "Bus Stop",
     "lang-es": "Parada de buses",
     "lang-fr": "Arrêt de bus",
-    "lang-ru": "Автобусная Остановка"
+    "lang-ru": "Автобусная Остановка",
+    "lang-it": "Fermata dell’autobus",
+    "lang-pl": "Przystanek autobusowy",
+    "lang-uk": "Автобусна зупинка",
+    "lang-nl": "Bushalte",
+    "lang-pt": "Paragem de autocarro",
+    "lang-tr": "Otobüs durağı"
   },
   "playground": {
     "osm": "leisure=playground",
@@ -69,7 +117,13 @@
     "lang-en": "Playground",
     "lang-es": "Parque infantil",
     "lang-fr": "Aire de jeux",
-    "lang-ru": "Детская Площадка"
+    "lang-ru": "Детская Площадка",
+    "lang-it": "Parco giochi",
+    "lang-pl": "Plac zabaw",
+    "lang-uk": "Дитячий майданчик",
+    "lang-nl": "Speeltuin",
+    "lang-pt": "Parque infantil",
+    "lang-tr": "Çocuk parkı"
   },
   "postbox": {
     "osm": "amenity=post_box",
@@ -77,7 +131,13 @@
     "lang-en": "Postbox",
     "lang-es": "Buzón",
     "lang-fr": "Boîte aux lettres",
-    "lang-ru": "Почтовый Ящик"
+    "lang-ru": "Почтовый Ящик",
+    "lang-it": "Cassetta postale",
+    "lang-pl": "Skrzynka pocztowa",
+    "lang-uk": "Поштова скринька",
+    "lang-nl": "Brievenbus",
+    "lang-pt": "Marco do correio",
+    "lang-tr": "Posta kutusu"
   },
   "telephone": {
     "osm": "amenity=telephone",
@@ -85,7 +145,13 @@
     "lang-en": "Telephone",
     "lang-es": "Telephono",
     "lang-fr": "Téléphone",
-    "lang-ru": "Телефон"
+    "lang-ru": "Телефон",
+    "lang-it": "Telefono pubblico",
+    "lang-pl": "Telefon publiczny",
+    "lang-uk": "Телефон-автомат",
+    "lang-nl": "Telefooncel",
+    "lang-pt": "Telefone público",
+    "lang-tr": "Ankesörlü telefon"
   },
   "pharmacy": {
     "osm": "amenity=pharmacy",
@@ -93,7 +159,13 @@
     "lang-en": "Pharmacy",
     "lang-es": "Farmacia",
     "lang-fr": "Pharmacie",
-    "lang-ru": "Аптека"
+    "lang-ru": "Аптека",
+    "lang-it": "Farmacia",
+    "lang-pl": "Apteka",
+    "lang-uk": "Аптека",
+    "lang-nl": "Apotheek",
+    "lang-pt": "Farmácia",
+    "lang-tr": "Eczane"
   },
   "taxi": {
     "osm": "amenity=taxi",
@@ -101,7 +173,13 @@
     "lang-en": "Taxi",
     "lang-es": "Taxi",
     "lang-fr": "Taxi",
-    "lang-ru": "Такси"
+    "lang-ru": "Такси",
+    "lang-it": "Taxi",
+    "lang-pl": "Postój taksówek",
+    "lang-uk": "Таксі",
+    "lang-nl": "Taxi",
+    "lang-pt": "Táxi",
+    "lang-tr": "Taksi"
   },
   "fuel": {
     "osm": "amenity=fuel",
@@ -109,7 +187,13 @@
     "lang-en": "Gas Station",
     "lang-es": "Gasolinera",
     "lang-fr": "Station-service",
-    "lang-ru": "Заправочная Станция"
+    "lang-ru": "Заправочная Станция",
+    "lang-it": "Distributore di benzina",
+    "lang-pl": "Stacja paliw",
+    "lang-uk": "АЗС",
+    "lang-nl": "Tankstation",
+    "lang-pt": "Posto de combustível",
+    "lang-tr": "Benzin istasyonu"
   },
   "charging": {
     "osm": "amenity=charging_station",
@@ -117,7 +201,13 @@
     "lang-en": "Charging Station",
     "lang-es": "Punto de carga",
     "lang-fr": "Station de recharge",
-    "lang-ru": "Станция Электрозаряда"
+    "lang-ru": "Станция Электрозаряда",
+    "lang-it": "Colonnina di ricarica",
+    "lang-pl": "Stacja ładowania",
+    "lang-uk": "Зарядна станція",
+    "lang-nl": "Laadpaal",
+    "lang-pt": "Posto de carregamento",
+    "lang-tr": "Şarj istasyonu"
   },
   "tabletennis": {
     "osm": "sport=table_tennis",
@@ -125,7 +215,13 @@
     "lang-en": "Table Tennis",
     "lang-es": "Ping-Pong",
     "lang-fr": "Ping-pong",
-    "lang-ru": "Настольный Теннис"
+    "lang-ru": "Настольный Теннис",
+    "lang-it": "Ping pong",
+    "lang-pl": "Tenis stołowy",
+    "lang-uk": "Настільний теніс",
+    "lang-nl": "Tafeltennis",
+    "lang-pt": "Ténis de mesa",
+    "lang-tr": "Masa tenisi"
   },
   "basketball": {
     "osm": "sport=basketball",
@@ -133,7 +229,13 @@
     "lang-en": "Basketball",
     "lang-es": "baloncesto",
     "lang-fr": "basket-ball",
-    "lang-ru": "баскетбол"
+    "lang-ru": "баскетбол",
+    "lang-it": "Basket",
+    "lang-pl": "Koszykówka",
+    "lang-uk": "Баскетбол",
+    "lang-nl": "Basketbal",
+    "lang-pt": "Basquetebol",
+    "lang-tr": "Basketbol"
   },
   "bakery": {
     "osm": "shop=bakery",
@@ -141,7 +243,13 @@
     "lang-en": "Bakery",
     "lang-es": "Panaderia",
     "lang-fr": "Boulangerie",
-    "lang-ru": "Пекарня"
+    "lang-ru": "Пекарня",
+    "lang-it": "Panetteria",
+    "lang-pl": "Piekarnia",
+    "lang-uk": "Пекарня",
+    "lang-nl": "Bakker",
+    "lang-pt": "Padaria",
+    "lang-tr": "Fırın"
   },
   "butcher": {
     "osm": "shop=butcher",
@@ -149,7 +257,13 @@
     "lang-en": "Butcher",
     "lang-es": "Carnicería",
     "lang-fr": "Boucherie",
-    "lang-ru": "Мясной Магазин"
+    "lang-ru": "Мясной Магазин",
+    "lang-it": "Macelleria",
+    "lang-pl": "Sklep mięsny",
+    "lang-uk": "М’ясна крамниця",
+    "lang-nl": "Slager",
+    "lang-pt": "Talho",
+    "lang-tr": "Kasap"
   },
   "cigarettes": {
     "osm": "amenity=vending_machine;vending=cigarettes",
@@ -157,7 +271,13 @@
     "lang-en": "Cigarette automat",
     "lang-es": "Máquina expendedora de cigarrillos",
     "lang-fr": "Distributeur automatique de cigarettes",
-    "lang-ru": "Сигаретный Автомат"
+    "lang-ru": "Сигаретный Автомат",
+    "lang-it": "Distributore di sigarette",
+    "lang-pl": "Automat z papierosami",
+    "lang-uk": "Сигаретний автомат",
+    "lang-nl": "Sigarettenautomaat",
+    "lang-pt": "Máquina de tabaco",
+    "lang-tr": "Sigara otomatı"
   },
   "shelter": {
     "osm": "amenity=shelter",
@@ -165,7 +285,13 @@
     "lang-en": "Shelter",
     "lang-es": "Refudio",
     "lang-fr": "Abris",
-    "lang-ru": "Убежище"
+    "lang-ru": "Убежище",
+    "lang-it": "Riparo",
+    "lang-pl": "Wiata",
+    "lang-uk": "Укриття",
+    "lang-nl": "Schuilhut",
+    "lang-pt": "Abrigo",
+    "lang-tr": "Barınak"
   },
   "publictransport": {
     "osm": "highway=bus_stop;public_transport=platform;public_transport=stop_position;railway=station",
@@ -173,15 +299,27 @@
     "lang-en": "Public transport station",
     "lang-es": "Parada",
     "lang-fr": "Transport public",
-    "lang-ru": "Остановка"
+    "lang-ru": "Остановка",
+    "lang-it": "Fermata dei mezzi pubblici",
+    "lang-pl": "Przystanek komunikacji miejskiej",
+    "lang-uk": "Зупинка громадського транспорту",
+    "lang-nl": "Ov-halte",
+    "lang-pt": "Paragem de transportes públicos",
+    "lang-tr": "Toplu taşıma durağı"
   },
-    "LGBTQ": {
+  "LGBTQ": {
     "osm": "lgbtq",
     "lang-de": "LGBTQ",
     "lang-en": "LGBTQ",
     "lang-es": "LGBTQ",
     "lang-fr": "LGBTQ",
-    "lang-ru": "ЛГБТК"
+    "lang-ru": "ЛГБТК",
+    "lang-it": "LGBTQ",
+    "lang-pl": "LGBTQ",
+    "lang-uk": "ЛГБТК",
+    "lang-nl": "LHBTQ",
+    "lang-pt": "LGBTQ",
+    "lang-tr": "LGBTQ"
   },
   "library": {
     "osm": "amenity=library",
@@ -189,7 +327,13 @@
     "lang-en": "Library",
     "lang-es": "Biblioteca",
     "lang-fr": "Bibliothèque",
-    "lang-ru": "Библиотека"
+    "lang-ru": "Библиотека",
+    "lang-it": "Biblioteca",
+    "lang-pl": "Biblioteka",
+    "lang-uk": "Бібліотека",
+    "lang-nl": "Bibliotheek",
+    "lang-pt": "Biblioteca",
+    "lang-tr": "Kütüphane"
   },
   "swimmingpool": {
     "osm": "amenity=swimming_pool",
@@ -197,7 +341,13 @@
     "lang-en": "Swimming Pool",
     "lang-es": "Piscina",
     "lang-fr": "Piscine",
-    "lang-ru": "Бассейн"
+    "lang-ru": "Бассейн",
+    "lang-it": "Piscina",
+    "lang-pl": "Basen",
+    "lang-uk": "Басейн",
+    "lang-nl": "Zwembad",
+    "lang-pt": "Piscina",
+    "lang-tr": "Yüzme havuzu"
   },
   "laundry": {
     "osm": "shop=laundry",
@@ -205,7 +355,13 @@
     "lang-en": "Laundry",
     "lang-es": "Lavandería",
     "lang-fr": "Laverie",
-    "lang-ru": "Прачечная"
+    "lang-ru": "Прачечная",
+    "lang-it": "Lavanderia",
+    "lang-pl": "Pralnia",
+    "lang-uk": "Пральня",
+    "lang-nl": "Wasserette",
+    "lang-pt": "Lavandaria",
+    "lang-tr": "Çamaşırhane"
   },
   "supermarket": {
     "osm": "shop=supermarket;shop=convenience",
@@ -213,7 +369,13 @@
     "lang-en": "Supermarket",
     "lang-es": "Supermercado",
     "lang-fr": "Supermarché",
-    "lang-ru": "Супермаркет"
+    "lang-ru": "Супермаркет",
+    "lang-it": "Supermercato",
+    "lang-pl": "Supermarket",
+    "lang-uk": "Супермаркет",
+    "lang-nl": "Supermarkt",
+    "lang-pt": "Supermercado",
+    "lang-tr": "Süpermarket"
   },
   "fastfood": {
     "osm": "amenity=fast_food",
@@ -221,7 +383,13 @@
     "lang-en": "Fastfood",
     "lang-es": "Comida rapida",
     "lang-fr": "Fastfood",
-    "lang-ru": "Фастфуд"
+    "lang-ru": "Фастфуд",
+    "lang-it": "Fast food",
+    "lang-pl": "Fast food",
+    "lang-uk": "Фастфуд",
+    "lang-nl": "Fastfood",
+    "lang-pt": "Comida rápida",
+    "lang-tr": "Fast food"
   },
   "recycling": {
     "osm": "amenity=recycling",
@@ -229,7 +397,13 @@
     "lang-en": "Recycling facility",
     "lang-es": "Reciclaje",
     "lang-fr": "Point de recyclage",
-    "lang-ru": "Переработка"
+    "lang-ru": "Переработка",
+    "lang-it": "Centro di riciclaggio",
+    "lang-pl": "Punkt recyklingu",
+    "lang-uk": "Пункт переробки",
+    "lang-nl": "Recyclingpunt",
+    "lang-pt": "Ecoponto",
+    "lang-tr": "Geri dönüşüm noktası"
   },
   "pub": {
     "osm": "amenity=pub;amenity=bar;amenity=biergarten",
@@ -237,7 +411,13 @@
     "lang-en": "Pub",
     "lang-es": "Bar",
     "lang-fr": "Pub / bar",
-    "lang-ru": "Бар"
+    "lang-ru": "Бар",
+    "lang-it": "Pub / Bar",
+    "lang-pl": "Pub / Bar",
+    "lang-uk": "Паб / Бар",
+    "lang-nl": "Café / Bar",
+    "lang-pt": "Pub / Bar",
+    "lang-tr": "Pub / Bar"
   },
   "restaurant": {
     "osm": "amenity=restaurant",
@@ -245,7 +425,13 @@
     "lang-en": "Restaurant",
     "lang-es": "Restaurante",
     "lang-fr": "Restaurant",
-    "lang-ru": "Ресторан"
+    "lang-ru": "Ресторан",
+    "lang-it": "Ristorante",
+    "lang-pl": "Restauracja",
+    "lang-uk": "Ресторан",
+    "lang-nl": "Restaurant",
+    "lang-pt": "Restaurante",
+    "lang-tr": "Restoran"
   },
   "cinema": {
     "osm": "amenity=cinema",
@@ -253,7 +439,13 @@
     "lang-en": "Cinema",
     "lang-es": "Cine",
     "lang-fr": "Cinéma",
-    "lang-ru": "Кинотеатр"
+    "lang-ru": "Кинотеатр",
+    "lang-it": "Cinema",
+    "lang-pl": "Kino",
+    "lang-uk": "Кінотеатр",
+    "lang-nl": "Bioscoop",
+    "lang-pt": "Cinema",
+    "lang-tr": "Sinema"
   },
   "hotel": {
     "osm": "tourism=hotel",
@@ -261,7 +453,13 @@
     "lang-en": "Hotel",
     "lang-es": "Hotel",
     "lang-fr": "Hôtel",
-    "lang-ru": "Гостиница"
+    "lang-ru": "Гостиница",
+    "lang-it": "Hotel",
+    "lang-pl": "Hotel",
+    "lang-uk": "Готель",
+    "lang-nl": "Hotel",
+    "lang-pt": "Hotel",
+    "lang-tr": "Otel"
   },
   "hostel": {
     "osm": "amenity=hostel",
@@ -269,7 +467,13 @@
     "lang-en": "Hostel",
     "lang-es": "Hotal",
     "lang-fr": "Auberge de jeunesse",
-    "lang-ru": "Гостиница"
+    "lang-ru": "Гостиница",
+    "lang-it": "Ostello",
+    "lang-pl": "Hostel",
+    "lang-uk": "Хостел",
+    "lang-nl": "Hostel",
+    "lang-pt": "Hostel",
+    "lang-tr": "Hostel"
   },
   "sportsfield": {
     "osm": "leisure=pitch",
@@ -277,7 +481,13 @@
     "lang-en": "Sports field",
     "lang-es": "Campo de deportes",
     "lang-fr": "Terrain de sport",
-    "lang-ru": "Спортивная Площадка"
+    "lang-ru": "Спортивная Площадка",
+    "lang-it": "Campo sportivo",
+    "lang-pl": "Boisko",
+    "lang-uk": "Спортивний майданчик",
+    "lang-nl": "Sportveld",
+    "lang-pt": "Campo desportivo",
+    "lang-tr": "Spor sahası"
   },
   "kindergarten": {
     "osm": "amenity=kindergarten",
@@ -285,7 +495,13 @@
     "lang-en": "Kindergarten",
     "lang-es": "Jardín de infancia",
     "lang-fr": "école enfantine",
-    "lang-ru": "де́тский сад"
+    "lang-ru": "де́тский сад",
+    "lang-it": "Scuola dell’infanzia",
+    "lang-pl": "Przedszkole",
+    "lang-uk": "Дитячий садок",
+    "lang-nl": "Kinderdagverblijf",
+    "lang-pt": "Jardim de infância",
+    "lang-tr": "Anaokulu"
   },
   "school": {
     "osm": "amenity=school",
@@ -293,6 +509,12 @@
     "lang-en": "School",
     "lang-es": "Escuela",
     "lang-fr": "école",
-    "lang-ru": "шко́лад"
+    "lang-ru": "шко́лад",
+    "lang-it": "Scuola",
+    "lang-pl": "Szkoła",
+    "lang-uk": "Школа",
+    "lang-nl": "School",
+    "lang-pt": "Escola",
+    "lang-tr": "Okul"
   }
 }

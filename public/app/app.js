@@ -1,5 +1,9 @@
 import maplibregl from 'maplibre-gl';
 import OpeningHours from 'opening_hours';
+import {
+  LANG, PREFERRED_LANG, PHOTON_LANG, t, typeLabel,
+  formatTime, formatWeekday, formatDate, formatNumber, translateDocument,
+} from './i18n.js';
 
 var map;
 var poiMarkers = [];
@@ -138,7 +142,7 @@ function loadPOIs(manualRefresh) {
     OSM_PARAMS = "(" + OSM_PARAMS + ");out;";
   } else {
     if (map.getZoom() < REDO_SEARCH_MIN_ZOOM) {
-      alert("Please zoom in");
+      alert(t('search.pleaseZoomIn'));
       return;
     }
     for (i in tag) {
@@ -161,7 +165,7 @@ function loadPOIs(manualRefresh) {
   document.querySelector('#feature-panel-name').textContent = tagName;
   document.querySelector('#feature-panel-type').textContent = '';
   document.querySelector('#feature-panel-details').innerHTML =
-    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> Searching for ${tagName}...</div>`;
+    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> ${escapeHtml(t('search.searchingFor', { query: tagName }))}</div>`;
   document.querySelector('#feature-panel').classList.add('visible');
 
   fetchOverpass(fullQuery)
@@ -171,7 +175,7 @@ function loadPOIs(manualRefresh) {
 
       if (pois.length === 0) {
         document.querySelector('#feature-panel-details').innerHTML =
-          '<div class="feature-detail-empty">No results in this area. Zoom out or pan the map.</div>';
+          `<div class="feature-detail-empty">${t('search.noResultsArea')}</div>`;
         return;
       }
 
@@ -218,7 +222,7 @@ function loadPOIs(manualRefresh) {
       }
 
       // Render result list in panel
-      document.querySelector('#feature-panel-type').textContent = `${resultItems.length} result${resultItems.length !== 1 ? 's' : ''}`;
+      document.querySelector('#feature-panel-type').textContent = t('search.results', { count: resultItems.length });
       const detailsEl = document.querySelector('#feature-panel-details');
       detailsEl.innerHTML = '';
       for (const { poi, lngLat } of resultItems) {
@@ -227,7 +231,7 @@ function loadPOIs(manualRefresh) {
         const detail = street || poi.tags.description || '';
         const row = document.createElement('div');
         row.className = 'poi-result-item';
-        row.innerHTML = `<div class="poi-result-name">${name}</div>${detail ? `<div class="poi-result-detail">${detail}</div>` : ''}`;
+        row.innerHTML = `<div class="poi-result-name">${escapeHtml(name)}</div>${detail ? `<div class="poi-result-detail">${escapeHtml(detail)}</div>` : ''}`;
         row.addEventListener('click', () => {
           map.flyTo({ center: lngLat, zoom: 18, offset: sheetOffset() });
           openResultPoi(poi, lngLat);
@@ -257,12 +261,11 @@ function loadPOIs(manualRefresh) {
     .catch((error) => {
       console.error('[overpass] all servers failed:', error);
       document.querySelector('#feature-panel-details').innerHTML =
-        '<div class="feature-detail-empty">Search failed. Please try again.</div>';
+        `<div class="feature-detail-empty">${t('search.failed')}</div>`;
     });
 }
 
 
-// The geolocate control draws the location dot and moves the map itself
 // Removes the markers and polygons of the previous category or place search
 function clearResults() {
   poiMarkers.forEach(m => m.remove());
@@ -309,6 +312,7 @@ function openResultPoi(poi, lngLat) {
   });
 }
 
+// The geolocate control draws the location dot and moves the map itself
 function onLocationFound(position) {
   myLocation = {
     lat: position.coords.latitude,
@@ -328,7 +332,7 @@ function showRedoSearchButton() {
   const button = document.querySelector('#redo-search-button');
   // Category searches query Overpass, which needs a small enough area
   const tooFar = !placeQuery && map.getZoom() < REDO_SEARCH_MIN_ZOOM;
-  button.textContent = tooFar ? 'Zoom in to search this area' : 'Search this area';
+  button.textContent = tooFar ? t('search.zoomIn') : t('search.thisArea');
   button.disabled = tooFar;
   button.classList.add('visible');
 }
@@ -382,12 +386,11 @@ async function searchPlaces(query, inView) {
   document.querySelector('#feature-panel-name').textContent = query;
   document.querySelector('#feature-panel-type').textContent = '';
   document.querySelector('#feature-panel-details').innerHTML =
-    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> Searching for ${escapeHtml(query)}...</div>`;
+    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> ${escapeHtml(t('search.searchingFor', { query }))}</div>`;
   document.querySelector('#feature-panel').classList.add('visible');
 
-  const lang = window.navigator.language.substring(0, 2);
   const center = map.getCenter();
-  let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=${PLACE_SEARCH_LIMIT}&lang=${lang}`;
+  let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=${PLACE_SEARCH_LIMIT}&lang=${PHOTON_LANG}`;
   if (inView) {
     const b = map.getBounds();
     url += `&bbox=${b.getWest()},${b.getSouth()},${b.getEast()},${b.getNorth()}`;
@@ -411,7 +414,7 @@ async function searchPlaces(query, inView) {
 
   const detailsEl = document.querySelector('#feature-panel-details');
   if (!features.length) {
-    detailsEl.innerHTML = '<div class="feature-detail-empty">No results. Try another search or move the map.</div>';
+    detailsEl.innerHTML = `<div class="feature-detail-empty">${t('search.noResults')}</div>`;
     return;
   }
   if (features.length === 1 && !inView) {
@@ -419,8 +422,7 @@ async function searchPlaces(query, inView) {
     return;
   }
 
-  document.querySelector('#feature-panel-type').textContent =
-    `${features.length} result${features.length !== 1 ? 's' : ''}`;
+  document.querySelector('#feature-panel-type').textContent = t('search.results', { count: features.length });
   detailsEl.innerHTML = '';
   const bounds = new maplibregl.LngLatBounds();
   for (const feature of features) {
@@ -475,9 +477,15 @@ function openPlaceResult(feature, fly) {
   showGeocoderFeatureDetail(feature.properties, { lat, lng });
 }
 
+// Category name from content.json: the user's own language if translated there (it has
+// more languages than the UI), else the UI language, else English
+function categoryLabel(category) {
+  return category[`lang-${PREFERRED_LANG}`] || category[`lang-${LANG}`] || category['lang-en'];
+}
+
 function getTagName() {
   if (!selectedCategory || !poiData?.[selectedCategory]) return '';
-  return poiData[selectedCategory]['lang-en'] || '';
+  return categoryLabel(poiData[selectedCategory]) || '';
 }
 
 function getTag() {
@@ -488,8 +496,7 @@ function getTag() {
 function selectCategory(key) {
   selectedCategory = key;
   placeQuery = null;
-  const preferred = 'lang-' + window.navigator.language.substring(0, 2);
-  const label = poiData[key]?.[preferred] || poiData[key]?.['lang-en'] || key;
+  const label = (poiData[key] && categoryLabel(poiData[key])) || key;
   const input = document.querySelector('#geocoder-input');
   const clearIcon = document.querySelector('#geocoder-clear-icon');
   input.value = label;
@@ -511,6 +518,7 @@ function addRecentSearch(item) {
 
 
 function init() {
+  translateDocument();
 
   const params = parseHash();
   const url_location = parseMapParam(params.map);
@@ -593,9 +601,7 @@ const TYPE_TAG_KEYS = ['amenity', 'shop', 'tourism', 'leisure', 'sport', 'craft'
 
 function typeLabelFromTags(tags) {
   const key = TYPE_TAG_KEYS.find(k => tags[k] && tags[k] !== 'yes');
-  if (!key) return 'Place';
-  const value = tags[key];
-  return FEATURE_TYPE_LABELS[value] || value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  return typeLabel(key && tags[key]);
 }
 
 
@@ -615,9 +621,9 @@ async function showSharedPoi(osmType, osmId, flyToIt) {
 
   if (!el) {
     setSelection(null);
-    document.querySelector('#feature-panel-name').textContent = 'Place not found';
+    document.querySelector('#feature-panel-name').textContent = t('place.notFound');
     document.querySelector('#feature-panel-details').innerHTML =
-      '<div class="feature-detail-empty">This place no longer exists on OpenStreetMap.</div>';
+      `<div class="feature-detail-empty">${t('place.deleted')}</div>`;
     return;
   }
 
@@ -657,10 +663,10 @@ function shareSelection() {
     });
   } else if (navigator.clipboard) {
     navigator.clipboard.writeText(url).then(confirmCopied)
-      .catch(() => window.prompt('Copy this link:', url));
+      .catch(() => window.prompt(t('share.copyPrompt'), url));
   } else {
     // Clipboard API is unavailable on insecure (http) origins
-    window.prompt('Copy this link:', url);
+    window.prompt(t('share.copyPrompt'), url);
   }
 }
 
@@ -674,22 +680,22 @@ function locateMe() {
 
 function showInfo() {
   setSelection(null);
-  document.querySelector('#feature-panel-name').textContent = 'About TheNextIs';
+  document.querySelector('#feature-panel-name').textContent = t('info.title');
   document.querySelector('#feature-panel-type').textContent = '';
   document.querySelector('#feature-panel-details').innerHTML = `
     <div class="feature-detail-row">
-      <span class="feature-detail-value">Find the nearest point of interest around you using OpenStreetMap data.</span>
+      <span class="feature-detail-value">${t('info.intro')}</span>
     </div>
     <div class="feature-detail-row">
-      <span class="feature-detail-label">Source</span>
+      <span class="feature-detail-label">${t('info.source')}</span>
       <span class="feature-detail-value"><a href="https://www.openstreetmap.org" target="_blank" rel="nofollow">OpenStreetMap</a></span>
     </div>
     <div class="feature-detail-row">
-      <span class="feature-detail-label">Code</span>
-      <span class="feature-detail-value"><a href="https://github.com/homtec/thenextis/" target="_blank" rel="nofollow">Contribute on GitHub</a></span>
+      <span class="feature-detail-label">${t('info.code')}</span>
+      <span class="feature-detail-value"><a href="https://github.com/homtec/thenextis/" target="_blank" rel="nofollow">${t('info.contribute')}</a></span>
     </div>
     <div class="feature-detail-row">
-      <span class="feature-detail-label">Follow</span>
+      <span class="feature-detail-label">${t('info.follow')}</span>
       <span class="feature-detail-value">
         <a href="https://twitter.com/thenextis" target="_blank" rel="nofollow"><i class="fa fa-twitter"></i> Twitter</a>
         &nbsp;&nbsp;
@@ -697,8 +703,8 @@ function showInfo() {
       </span>
     </div>
     <div class="feature-detail-row">
-      <span class="feature-detail-label">Map data</span>
-      <span class="feature-detail-value">Missing a place? <a href="#" id="info-edit-osm-link">Add it in OpenStreetMap</a></span>
+      <span class="feature-detail-label">${t('info.mapData')}</span>
+      <span class="feature-detail-value">${t('info.missingPlace')} <a href="#" id="info-edit-osm-link">${t('info.addInOsm')}</a></span>
     </div>
   `;
   document.querySelector('#feature-panel').classList.add('visible');
@@ -744,31 +750,6 @@ function escapeHtml(str) {
 // Source layers to consider for feature clicks, in priority order
 const SOURCE_LAYER_ORDER = ['poi', 'place', 'building', 'park', 'landuse', 'water', 'waterway'];
 
-const FEATURE_TYPE_LABELS = {
-  // poi subclasses
-  restaurant: 'Restaurant', cafe: 'Café', fast_food: 'Fast Food', bar: 'Bar',
-  pub: 'Pub', biergarten: 'Beer Garden', pharmacy: 'Pharmacy', hospital: 'Hospital',
-  bank: 'Bank', atm: 'ATM', hotel: 'Hotel', hostel: 'Hostel',
-  supermarket: 'Supermarket', convenience: 'Convenience Store', bakery: 'Bakery',
-  hairdresser: 'Hairdresser', clothes: 'Clothing Store', books: 'Bookshop',
-  library: 'Library', school: 'School', kindergarten: 'Kindergarten',
-  college: 'College', university: 'University', cinema: 'Cinema',
-  theatre: 'Theatre', museum: 'Museum', gallery: 'Gallery',
-  playground: 'Playground', park: 'Park', pitch: 'Sports Field',
-  swimming_pool: 'Swimming Pool', sports_centre: 'Sports Centre',
-  fuel: 'Gas Station', parking: 'Parking', bicycle: 'Bicycle Shop',
-  car: 'Car Dealer', car_repair: 'Car Repair', laundry: 'Laundry',
-  post_office: 'Post Office', police: 'Police', fire_station: 'Fire Station',
-  drinking_water: 'Drinking Water', toilets: 'Toilets', shelter: 'Shelter',
-  place_of_worship: 'Place of Worship', charging_station: 'Charging Station',
-  // source layers
-  building: 'Building', water: 'Water', waterway: 'Waterway',
-  // place classes
-  city: 'City', town: 'Town', village: 'Village', suburb: 'Suburb',
-  neighbourhood: 'Neighbourhood', island: 'Island', country: 'Country',
-  state: 'State', county: 'County',
-};
-
 function selectFeature(features) {
   const external = features.filter(f =>
     !['poi-polygons-fill', 'poi-polygons-outline'].includes(f.layer.id)
@@ -784,8 +765,7 @@ function selectFeature(features) {
 
 function formatFeatureType(feature) {
   const p = feature.properties;
-  const key = p.subclass || p.class || feature.sourceLayer || '';
-  return FEATURE_TYPE_LABELS[key] || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Place';
+  return typeLabel(p.subclass || p.class || feature.sourceLayer);
 }
 
 function initFeatureClick() {
@@ -974,7 +954,7 @@ function showLocationDetail(lngLat) {
 
   setSelection(`pin=${lat.toFixed(6)}/${lng.toFixed(6)}`);
   revealAboveSheet([lng, lat]);
-  document.querySelector('#feature-panel-name').textContent = 'Dropped pin';
+  document.querySelector('#feature-panel-name').textContent = t('pin.title');
   document.querySelector('#feature-panel-type').textContent = coords;
   document.querySelector('#feature-panel-details').innerHTML =
     '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
@@ -998,26 +978,26 @@ function showLocationDetail(lngLat) {
       }
       if (address) {
         html += `<div class="feature-detail-row">
-          <span class="feature-detail-label">Address</span>
+          <span class="feature-detail-label">${t('label.address')}</span>
           <span class="feature-detail-value">${escapeHtml(address)}</span>
         </div>`;
       }
     }
 
     html += `<div class="feature-detail-row">
-      <span class="feature-detail-label">Coordinates</span>
-      <span class="feature-detail-value"><a href="#" id="location-copy-coords" title="Copy to clipboard">${coords}</a></span>
+      <span class="feature-detail-label">${t('label.coordinates')}</span>
+      <span class="feature-detail-value"><a href="#" id="location-copy-coords" title="${escapeHtml(t('pin.copy'))}">${coords}</a></span>
     </div>`;
     html += `<a class="feature-detail-osm-link"
       href="https://www.openstreetmap.org/?mlat=${lat.toFixed(6)}&mlon=${lng.toFixed(6)}#map=18/${lat.toFixed(6)}/${lng.toFixed(6)}"
-      target="_blank" rel="nofollow">View on OpenStreetMap</a>`;
+      target="_blank" rel="nofollow">${t('place.viewOnOsm')}</a>`;
 
     document.querySelector('#feature-panel-details').innerHTML = html;
     const copyLink = document.querySelector('#location-copy-coords');
     copyLink.addEventListener('click', (e) => {
       e.preventDefault();
       navigator.clipboard?.writeText(coords).then(() => {
-        copyLink.textContent = 'Copied!';
+        copyLink.textContent = t('pin.copied');
         setTimeout(() => { copyLink.textContent = coords; }, 1200);
       }).catch(err => console.warn('[location] copy failed:', err));
     });
@@ -1029,9 +1009,8 @@ async function reverseGeocode(lat, lng) {
   const cached = cacheGet(cacheKey);
   if (cached) return cached;
 
-  const lang = window.navigator.language.substring(0, 2);
   try {
-    const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}&lang=${lang}`);
+    const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}&lang=${PHOTON_LANG}`);
     if (res.ok) {
       const data = await res.json();
       const props = data.features?.[0]?.properties || null;
@@ -1066,7 +1045,7 @@ function showFeatureDetail(feature, lngLat) {
       renderOsmTags(result.tags, result.type, result.id, { name, lngLat });
     } else {
       document.querySelector('#feature-panel-details').innerHTML =
-        '<div class="feature-detail-empty">No additional details available.</div>';
+        `<div class="feature-detail-empty">${t('place.noDetails')}</div>`;
     }
   });
 }
@@ -1152,10 +1131,7 @@ function showGeocoderFeatureDetail(props, lngLat) {
     : null;
   const name = props.name || streetWithNumber || props.city || '';
   const streetDetail = (props.name && streetWithNumber) ? streetWithNumber : null;
-  const typeKey = props.type || props.osm_value || '';
-  const type = FEATURE_TYPE_LABELS[typeKey]
-    || typeKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-    || 'Place';
+  const type = typeLabel(props.type || props.osm_value);
 
   setSelection(null);
   document.querySelector('#feature-panel-name').textContent = name;
@@ -1174,7 +1150,7 @@ function showGeocoderFeatureDetail(props, lngLat) {
       renderOsmTags(result.tags, result.type, result.id, { name, lngLat });
     } else {
       document.querySelector('#feature-panel-details').innerHTML =
-        '<div class="feature-detail-empty">No additional details available.</div>';
+        `<div class="feature-detail-empty">${t('place.noDetails')}</div>`;
     }
   });
 }
@@ -1200,14 +1176,6 @@ async function fetchOsmTagsByLocation(name, lngLat) {
   return null;
 }
 
-const OH_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-// Week order for table: Mon–Sun (matching OSM convention)
-const OH_MON_TO_SUN = [1, 2, 3, 4, 5, 6, 0];
-
-function formatTime(date) {
-  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-}
-
 function renderOpeningHours(ohStr) {
   let oh;
   try {
@@ -1228,13 +1196,13 @@ function renderOpeningHours(ohStr) {
   if (isOpen || isUnknown) {
     if (isUnknown) {
       statusClass = 'oh-open';
-      statusText = 'Open';
+      statusText = t('oh.open');
     } else if (nextChange && (nextChange - now) < 30 * 60 * 1000) {
       statusClass = 'oh-closing-soon';
-      statusText = `Closing soon · until ${formatTime(nextChange)}`;
+      statusText = t('oh.closingSoon', { time: formatTime(nextChange) });
     } else {
       statusClass = 'oh-open';
-      statusText = nextChange ? `Open until ${formatTime(nextChange)}` : 'Open';
+      statusText = nextChange ? t('oh.openUntil', { time: formatTime(nextChange) }) : t('oh.open');
     }
   } else {
     statusClass = 'oh-closed';
@@ -1243,15 +1211,16 @@ function renderOpeningHours(ohStr) {
       const tomorrow = new Date(now);
       tomorrow.setDate(now.getDate() + 1);
       const nextDayTomorrow = nextChange.toDateString() === tomorrow.toDateString();
+      const time = formatTime(nextChange);
       if (sameDay) {
-        statusText = `Closed · Opens at ${formatTime(nextChange)}`;
+        statusText = t('oh.opensAt', { time });
       } else if (nextDayTomorrow) {
-        statusText = `Closed · Opens tomorrow at ${formatTime(nextChange)}`;
+        statusText = t('oh.opensTomorrow', { time });
       } else {
-        statusText = `Closed · Opens ${OH_DAY_NAMES[nextChange.getDay()]} at ${formatTime(nextChange)}`;
+        statusText = t('oh.opensOnDay', { day: formatWeekday(nextChange), time });
       }
     } else {
-      statusText = 'Closed';
+      statusText = t('oh.closed');
     }
   }
 
@@ -1273,12 +1242,11 @@ function renderOpeningHours(ohStr) {
 
     const times = intervals.length
       ? intervals.map(([s, e]) => `${formatTime(s)}–${formatTime(e)}`).join(', ')
-      : 'Closed';
+      : t('oh.closed');
 
-    const jsDay = OH_MON_TO_SUN[i];
-    const isToday = jsDay === now.getDay();
+    const isToday = dayStart.toDateString() === now.toDateString();
     tableRows += `<tr${isToday ? ' class="oh-today"' : ''}>
-      <td>${OH_DAY_NAMES[jsDay]}</td>
+      <td>${formatWeekday(dayStart)}</td>
       <td>${times}</td>
     </tr>`;
   }
@@ -1290,7 +1258,7 @@ function renderOpeningHours(ohStr) {
     </div>
     <details class="oh-details">
       <summary class="oh-summary">
-        All opening times <i class="fa fa-chevron-right oh-chevron"></i>
+        ${t('oh.allTimes')} <i class="fa fa-chevron-right oh-chevron"></i>
       </summary>
       <table class="oh-table"><tbody>${tableRows}</tbody></table>
     </details>
@@ -1319,14 +1287,14 @@ function renderOsmTags(tags, osmType, osmId, place) {
   setSelection(`poi=${osmType}/${osmId}`);
 
   const ROWS = [
-    [['phone', 'contact:phone'],   'Phone',   'tel'],
-    [['mobile', 'contact:mobile'], 'Mobile',  'tel'],
-    [['website', 'contact:website'], 'Website', 'url'],
-    ['operator',        'Operator',    false],
-    ['brand',           'Brand',       false],
-    ['cuisine',         'Cuisine',     false],
-    ['wheelchair',      'Wheelchair',  false],
-    ['description',     'Description', false],
+    [['phone', 'contact:phone'],     t('label.phone'),       'tel'],
+    [['mobile', 'contact:mobile'],   t('label.mobile'),      'tel'],
+    [['website', 'contact:website'], t('label.website'),     'url'],
+    ['operator',                     t('label.operator'),    false],
+    ['brand',                        t('label.brand'),       false],
+    ['cuisine',                      t('label.cuisine'),     false],
+    ['wheelchair',                   t('label.wheelchair'),  false],
+    ['description',                  t('label.description'), false],
   ];
 
   let html = '';
@@ -1338,11 +1306,11 @@ function renderOsmTags(tags, osmType, osmId, place) {
     html += '<div class="feature-actions">';
     if (phone) {
       html += `<a class="feature-action" href="tel:${escapeHtml(phone.replace(/\s/g, ''))}">
-        <i class="fa fa-phone"></i> Call</a>`;
+        <i class="fa fa-phone"></i> ${t('place.call')}</a>`;
     }
     if (website) {
       html += `<a class="feature-action" href="${escapeHtml(websiteUrl(website))}" target="_blank" rel="nofollow">
-        <i class="fa fa-globe"></i> Website</a>`;
+        <i class="fa fa-globe"></i> ${t('place.website')}</a>`;
     }
     html += '</div>';
   }
@@ -1350,7 +1318,7 @@ function renderOsmTags(tags, osmType, osmId, place) {
   // Opening hours rendered first with the rich component
   if (tags['opening_hours']) {
     html += `<div class="feature-detail-row feature-detail-row--oh">
-      <span class="feature-detail-label">Hours</span>
+      <span class="feature-detail-label">${t('label.hours')}</span>
       <span class="feature-detail-value">${renderOpeningHours(tags['opening_hours'])}</span>
     </div>`;
   }
@@ -1361,7 +1329,7 @@ function renderOsmTags(tags, osmType, osmId, place) {
   const address = [street, locality].filter(Boolean).map(escapeHtml).join('<br>');
   if (address) {
     html += `<div class="feature-detail-row">
-      <span class="feature-detail-label">Address</span>
+      <span class="feature-detail-label">${t('label.address')}</span>
       <span class="feature-detail-value">${address}</span>
     </div>`;
   }
@@ -1386,7 +1354,7 @@ function renderOsmTags(tags, osmType, osmId, place) {
   }
 
   if (!html) {
-    html = '<div class="feature-detail-empty">No additional details available.</div>';
+    html = `<div class="feature-detail-empty">${t('place.noDetails')}</div>`;
   }
 
   const reviewName = tags.name || place?.name;
@@ -1396,7 +1364,7 @@ function renderOsmTags(tags, osmType, osmId, place) {
 
   html += `<a class="feature-detail-osm-link"
     href="https://www.openstreetmap.org/${osmType}/${osmId}"
-    target="_blank" rel="nofollow">View on OpenStreetMap</a>`;
+    target="_blank" rel="nofollow">${t('place.viewOnOsm')}</a>`;
 
   document.querySelector('#feature-panel-details').innerHTML = html;
 
@@ -1435,7 +1403,7 @@ function renderStars(rating) {
     const icon = stars >= i ? 'fa-star' : stars >= i - 0.5 ? 'fa-star-half-o' : 'fa-star-o';
     html += `<i class="fa ${icon}"></i>`;
   }
-  return `<span class="review-stars" title="${stars} / 5">${html}</span>`;
+  return `<span class="review-stars" title="${formatNumber(stars, 1)} / 5">${html}</span>`;
 }
 
 function renderReviews(reviews, sub) {
@@ -1443,13 +1411,13 @@ function renderReviews(reviews, sub) {
   let summary;
   if (rated.length) {
     const avg = rated.reduce((sum, r) => sum + r.payload.rating, 0) / rated.length;
-    summary = `${renderStars(avg)} <span class="review-count">${(avg / 20).toFixed(1)} · ${reviews.length} review${reviews.length !== 1 ? 's' : ''}</span>`;
+    summary = `${renderStars(avg)} <span class="review-count">${formatNumber(avg / 20, 1)} · ${t('reviews.count', { count: reviews.length })}</span>`;
   } else {
-    summary = '<span class="review-count">No reviews yet</span>';
+    summary = `<span class="review-count">${t('reviews.none')}</span>`;
   }
 
   let html = `<div class="feature-detail-row">
-    <span class="feature-detail-label">Reviews</span>
+    <span class="feature-detail-label">${t('label.reviews')}</span>
     <span class="feature-detail-value">${summary}</span>
   </div>`;
 
@@ -1457,7 +1425,7 @@ function renderReviews(reviews, sub) {
   for (const { payload } of recent) {
     const meta = [
       payload.metadata?.nickname,
-      payload.iat ? new Date(payload.iat * 1000).toLocaleDateString() : null,
+      payload.iat ? formatDate(new Date(payload.iat * 1000)) : null,
     ].filter(Boolean).map(escapeHtml).join(' · ');
     html += `<div class="review-item">
       ${typeof payload.rating === 'number' ? renderStars(payload.rating) : ''}
@@ -1466,7 +1434,7 @@ function renderReviews(reviews, sub) {
     </div>`;
   }
 
-  const linkText = reviews.length > REVIEWS_SHOWN ? `See all ${reviews.length} reviews` : 'Write a review on Mangrove';
+  const linkText = reviews.length > REVIEWS_SHOWN ? t('reviews.seeAll', { count: reviews.length }) : t('reviews.write');
   html += `<a class="review-link" href="https://mangrove.reviews/?sub=${encodeURIComponent(sub)}"
     target="_blank" rel="nofollow">${linkText}</a>`;
   return html;
@@ -1575,12 +1543,11 @@ function initGeocoder() {
 
   function renderSuggestions() {
     const recents = getRecentSearches();
-    const preferred = 'lang-' + window.navigator.language.substring(0, 2);
     let html = '';
 
     if (recents.length) {
       html += '<div class="suggestions-section">';
-      html += '<div class="suggestions-section-title">Recent</div>';
+      html += `<div class="suggestions-section-title">${t('search.recent')}</div>`;
       recents.forEach((r, i) => {
         html += `<div class="suggestions-item suggestions-recent" data-index="${i}">
           <i class="fa fa-clock-o suggestions-icon"></i>
@@ -1592,10 +1559,10 @@ function initGeocoder() {
 
     if (poiData) {
       html += '<div class="suggestions-section">';
-      html += '<div class="suggestions-section-title">Categories</div>';
+      html += `<div class="suggestions-section-title">${t('search.categories')}</div>`;
       const categories = Object.entries(poiData)
-        .map(([key, poi]) => ({ key, label: poi[preferred] || poi['lang-en'] }))
-        .sort((a, b) => a.label.localeCompare(b.label));
+        .map(([key, poi]) => ({ key, label: categoryLabel(poi) }))
+        .sort((a, b) => a.label.localeCompare(b.label, LANG));
       for (const { key, label } of categories) {
         const active = key === selectedCategory ? ' suggestions-item--active' : '';
         html += `<div class="suggestions-item suggestions-category${active}" data-key="${escapeHtml(key)}">
@@ -1642,22 +1609,20 @@ function initGeocoder() {
   function matchCategories(query) {
     if (!poiData) return [];
     const q = normalize(query);
-    const preferred = 'lang-' + window.navigator.language.substring(0, 2);
     const matches = [];
     for (const [key, poi] of Object.entries(poiData)) {
       const labels = Object.keys(poi).filter(k => k.startsWith('lang-')).map(k => normalize(poi[k]));
       if (labels.some(l => l.includes(q))) {
-        matches.push({ key, label: poi[preferred] || poi['lang-en'] || key });
+        matches.push({ key, label: categoryLabel(poi) || key });
       }
     }
-    return matches.sort((a, b) => a.label.localeCompare(b.label));
+    return matches.sort((a, b) => a.label.localeCompare(b.label, LANG));
   }
 
   function searchPhoton(query) {
-    const lang = window.navigator.language.substring(0, 2);
     const center = map.getCenter();
     // Bias results towards the current map view
-    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${lang}` +
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${PHOTON_LANG}` +
       `&lat=${center.lat}&lon=${center.lng}&zoom=${Math.round(map.getZoom())}&location_bias_scale=0.1`;
     const categories = matchCategories(query);
     if (categories.length) renderGeocoderResults([], categories);
@@ -1680,7 +1645,7 @@ function initGeocoder() {
     if (categories.length) {
       const section = document.createElement('div');
       section.className = 'suggestions-section';
-      section.innerHTML = '<div class="suggestions-section-title">Categories</div>';
+      section.innerHTML = `<div class="suggestions-section-title">${t('search.categories')}</div>`;
       for (const { key, label } of categories) {
         const el = document.createElement('div');
         el.className = 'suggestions-item suggestions-category';

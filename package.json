@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "npx serve -p 5173 public",
-    "lint": "eslint public/app/app.js",
-    "taginfo": "node scripts/taginfo.mjs"
+    "lint": "eslint public/app/ public/locales/",
+    "taginfo": "node scripts/taginfo.mjs",
+    "i18n:check": "node scripts/i18n-check.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -87,7 +87,8 @@
                 <input
                     type="text"
                     id="geocoder-input"
-                    placeholder="Search location..."
+                    placeholder="Search places or categories…"
+                    data-i18n-placeholder="search.placeholder"
                     autocomplete="off"
                     enterkeyhint="search"
                 />
@@ -106,19 +107,19 @@
                     <div id="feature-panel-type"></div>
                 </div>
                 <div id="feature-panel-actions">
-                    <button id="feature-panel-share" title="Share" style="display: none">
+                    <button id="feature-panel-share" title="Share" data-i18n-title="share.title" style="display: none">
                         <i class="fa fa-share-alt"></i>
                         <i class="fa fa-check"></i>
                     </button>
-                    <button id="feature-panel-close">
+                    <button id="feature-panel-close" title="Close" data-i18n-title="panel.close">
                         <i class="fa fa-times"></i>
                     </button>
                 </div>
             </div>
             <div id="feature-panel-details"></div>
         </div>
-        <div id="info-button" class="buttons"><i class="fa fa-info"></i></div>
-        <button id="redo-search-button">Search this area</button>
+        <div id="info-button" class="buttons" title="About" data-i18n-title="info.button"><i class="fa fa-info"></i></div>
+        <button id="redo-search-button" data-i18n="search.thisArea">Search this area</button>
 
 
         <script type="importmap">
