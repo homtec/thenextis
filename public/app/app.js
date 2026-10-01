@@ -43,6 +43,7 @@ var mapDragged = false;
 var geolocateControl = null;
 var searchResultMarker = null;
 var selectedCategory = null;
+var placeQuery = null; // active free-text place search (Enter in the search box)
 var poiData = null;
 var mapLoaded = false;
 // The open POI or dropped pin, kept in the URL hash so links can be shared:
@@ -153,13 +154,7 @@ function loadPOIs(manualRefresh) {
 
   hideRedoSearchButton();
 
-  // Clear old markers and polygons
-  poiMarkers.forEach(m => m.remove());
-  poiMarkers = [];
-  resultPois.clear();
-  if (mapLoaded) {
-    map.getSource('poi-polygons').setData({ type: 'FeatureCollection', features: [] });
-  }
+  clearResults();
 
   const tagName = getTagName();
   setSelection(null);
@@ -268,6 +263,16 @@ function loadPOIs(manualRefresh) {
 
 
 // The geolocate control draws the location dot and moves the map itself
+// Removes the markers and polygons of the previous category or place search
+function clearResults() {
+  poiMarkers.forEach(m => m.remove());
+  poiMarkers = [];
+  resultPois.clear();
+  if (mapLoaded) {
+    map.getSource('poi-polygons').setData({ type: 'FeatureCollection', features: [] });
+  }
+}
+
 function addResultMarker(poi, lngLat) {
   resultPois.set(`${poi.type}/${poi.id}`, { poi, lngLat });
   const marker = new maplibregl.Marker()
@@ -319,9 +324,10 @@ const REDO_SEARCH_MIN_ZOOM = 13;
 
 // Offers to repeat the current category search after the map was moved
 function showRedoSearchButton() {
-  if (!selectedCategory) return;
+  if (!selectedCategory && !placeQuery) return;
   const button = document.querySelector('#redo-search-button');
-  const tooFar = map.getZoom() < REDO_SEARCH_MIN_ZOOM;
+  // Category searches query Overpass, which needs a small enough area
+  const tooFar = !placeQuery && map.getZoom() < REDO_SEARCH_MIN_ZOOM;
   button.textContent = tooFar ? 'Zoom in to search this area' : 'Search this area';
   button.disabled = tooFar;
   button.classList.add('visible');
@@ -344,6 +350,131 @@ function onMapZoomed() {
   updateHashURL();
 }
 
+// Name and "street, city, country" line for a Photon result
+function photonLabel(p) {
+  const streetWithNumber = p.street
+    ? p.street + (p.housenumber ? ' ' + p.housenumber : '')
+    : null;
+  const name = p.name || streetWithNumber || p.city || '';
+  const streetDetail = (p.name && streetWithNumber) ? streetWithNumber : null;
+  const detail = [streetDetail, p.city, p.country].filter(Boolean).join(', ');
+  return { name, detail };
+}
+
+const PLACE_SEARCH_LIMIT = 20;
+const PLACE_SEARCH_NEARBY_KM = 50;
+var placeSearchRequestId = 0;
+
+// Free-text search ("pizza", "Rewe", "Hauptbahnhof"): all matching places as markers and
+// a list in the sheet. inView restricts results to the visible map ("Search this area").
+async function searchPlaces(query, inView) {
+  const requestId = ++placeSearchRequestId;
+  placeQuery = query;
+  selectedCategory = null;
+  hideRedoSearchButton();
+  clearResults();
+  setSelection(null);
+  if (searchResultMarker) {
+    searchResultMarker.remove();
+    searchResultMarker = null;
+  }
+
+  document.querySelector('#feature-panel-name').textContent = query;
+  document.querySelector('#feature-panel-type').textContent = '';
+  document.querySelector('#feature-panel-details').innerHTML =
+    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> Searching for ${escapeHtml(query)}...</div>`;
+  document.querySelector('#feature-panel').classList.add('visible');
+
+  const lang = window.navigator.language.substring(0, 2);
+  const center = map.getCenter();
+  let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=${PLACE_SEARCH_LIMIT}&lang=${lang}`;
+  if (inView) {
+    const b = map.getBounds();
+    url += `&bbox=${b.getWest()},${b.getSouth()},${b.getEast()},${b.getNorth()}`;
+  } else {
+    url += `&lat=${center.lat}&lon=${center.lng}&zoom=${Math.round(map.getZoom())}&location_bias_scale=0.1`;
+  }
+
+  let features = [];
+  try {
+    const res = await fetch(url);
+    if (res.ok) features = (await res.json()).features || [];
+  } catch (e) { console.error('[photon] place search failed:', e); }
+  if (requestId !== placeSearchRequestId || placeQuery !== query) return;
+
+  // Prefer results around the current view; fall back to everything if none are close
+  if (!inView) {
+    const nearby = features.filter(f =>
+      center.distanceTo(new maplibregl.LngLat(...f.geometry.coordinates)) < PLACE_SEARCH_NEARBY_KM * 1000);
+    if (nearby.length) features = nearby;
+  }
+
+  const detailsEl = document.querySelector('#feature-panel-details');
+  if (!features.length) {
+    detailsEl.innerHTML = '<div class="feature-detail-empty">No results. Try another search or move the map.</div>';
+    return;
+  }
+  if (features.length === 1 && !inView) {
+    openPlaceResult(features[0], true);
+    return;
+  }
+
+  document.querySelector('#feature-panel-type').textContent =
+    `${features.length} result${features.length !== 1 ? 's' : ''}`;
+  detailsEl.innerHTML = '';
+  const bounds = new maplibregl.LngLatBounds();
+  for (const feature of features) {
+    const lngLat = feature.geometry.coordinates;
+    bounds.extend(lngLat);
+
+    const marker = new maplibregl.Marker().setLngLat(lngLat).addTo(map);
+    const el = marker.getElement();
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openPlaceResult(feature, false);
+    });
+    poiMarkers.push(marker);
+
+    const { name, detail } = photonLabel(feature.properties);
+    const row = document.createElement('div');
+    row.className = 'poi-result-item';
+    row.innerHTML = `<div class="poi-result-name">${escapeHtml(name)}</div>` +
+      (detail ? `<div class="poi-result-detail">${escapeHtml(detail)}</div>` : '');
+    row.addEventListener('click', () => openPlaceResult(feature, true));
+    detailsEl.appendChild(row);
+  }
+
+  if (!inView) {
+    // Keep the results clear of the search box and the sheet
+    const mobile = window.innerWidth < SHEET_DESKTOP_MIN_WIDTH;
+    const height = map.getContainer().clientHeight;
+    map.fitBounds(bounds, {
+      maxZoom: 16,
+      padding: mobile
+        ? { top: 80, bottom: height * SHEET_MAX_HEIGHT_RATIO + 20, left: 40, right: 40 }
+        : { top: 80, bottom: 40, left: 380, right: 40 },
+    });
+  }
+}
+
+// Opens one place search result; fly moves the map to it, otherwise it only stays visible
+function openPlaceResult(feature, fly) {
+  const [lng, lat] = feature.geometry.coordinates;
+  if (fly) {
+    map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), 17), offset: sheetOffset() });
+  } else {
+    revealAboveSheet([lng, lat]);
+  }
+
+  if (searchResultMarker) searchResultMarker.remove();
+  searchResultMarker = new maplibregl.Marker({ color: '#e53e3e' })
+    .setLngLat([lng, lat])
+    .addTo(map);
+
+  showGeocoderFeatureDetail(feature.properties, { lat, lng });
+}
+
 function getTagName() {
   if (!selectedCategory || !poiData?.[selectedCategory]) return '';
   return poiData[selectedCategory]['lang-en'] || '';
@@ -356,6 +487,7 @@ function getTag() {
 
 function selectCategory(key) {
   selectedCategory = key;
+  placeQuery = null;
   const preferred = 'lang-' + window.navigator.language.substring(0, 2);
   const label = poiData[key]?.[preferred] || poiData[key]?.['lang-en'] || key;
   const input = document.querySelector('#geocoder-input');
@@ -401,7 +533,10 @@ function init() {
   loadPOIdataFromFile();
 
   document.querySelector('#info-button').onclick = function () { showInfo(); };
-  document.querySelector('#redo-search-button').onclick = function () { loadPOIs(true); };
+  document.querySelector('#redo-search-button').onclick = function () {
+    if (placeQuery) searchPlaces(placeQuery, true);
+    else loadPOIs(true);
+  };
   document.querySelector('#editOSM-button').onclick = function () { editOSM(); };
 
   initGeocoder();
@@ -1373,6 +1508,60 @@ function initGeocoder() {
     debounceTimer = setTimeout(() => searchPhoton(input.value.trim()), 300);
   });
 
+  // Keyboard navigation of the dropdown. The highlight lives in the DOM, so it resets
+  // whenever the results are re-rendered.
+  function dropdownItems() {
+    return [...results.querySelectorAll('.suggestions-item, .geocoder-result')];
+  }
+
+  function moveHighlight(step) {
+    const items = dropdownItems();
+    if (!items.length) return;
+    const current = items.findIndex(el => el.classList.contains('keyboard-focus'));
+    const next = current === -1
+      ? (step > 0 ? 0 : items.length - 1)
+      : (current + step + items.length) % items.length;
+    items[current]?.classList.remove('keyboard-focus');
+    items[next].classList.add('keyboard-focus');
+    items[next].scrollIntoView({ block: 'nearest' });
+  }
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (results.style.display !== 'block') return;
+      e.preventDefault(); // keep the caret in place
+      moveHighlight(e.key === 'ArrowDown' ? 1 : -1);
+      return;
+    }
+    if (e.key === 'Escape') {
+      clearTimeout(debounceTimer);
+      hideGeocoderResults();
+      input.blur();
+      return;
+    }
+    if (e.key !== 'Enter') return;
+    const highlighted = results.querySelector('.keyboard-focus');
+    if (highlighted) {
+      e.preventDefault();
+      highlighted.click();
+      input.blur();
+      return;
+    }
+    const query = input.value.trim();
+    if (query.length < 2) return;
+    e.preventDefault();
+    clearTimeout(debounceTimer);
+    hideGeocoderResults();
+    input.blur(); // closes the on-screen keyboard
+    // An exact category name runs that category search instead
+    const category = matchCategories(query).find(c => normalize(c.label) === normalize(query));
+    if (category) {
+      selectCategory(category.key);
+    } else {
+      searchPlaces(query, false);
+    }
+  });
+
   clearIcon.addEventListener('click', () => {
     input.value = '';
     clearIcon.style.display = 'none';
@@ -1510,13 +1699,7 @@ function initGeocoder() {
       const p = feature.properties;
       const [lon, lat] = feature.geometry.coordinates;
 
-      const streetWithNumber = p.street
-        ? p.street + (p.housenumber ? ' ' + p.housenumber : '')
-        : null;
-      const name = p.name || streetWithNumber || p.city || '';
-      const streetDetail = (p.name && streetWithNumber) ? streetWithNumber : null;
-      const detailParts = [streetDetail, p.city, p.country].filter(Boolean);
-      const detail = detailParts.join(', ');
+      const { name, detail } = photonLabel(p);
 
       const item = document.createElement('div');
       item.className = 'geocoder-result';

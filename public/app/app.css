@@ -573,6 +573,12 @@ html,body{
   background: #f5f5f5;
 }
 
+/* Arrow-key highlight in the search dropdown */
+.suggestions-item.keyboard-focus,
+.geocoder-result.keyboard-focus {
+  background: #e8efff;
+}
+
 .geocoder-result-name {
   font-size: 14px;
   font-family: 'Open Sans', sans-serif;
