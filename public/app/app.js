@@ -103,7 +103,9 @@ function initMap(center, zoom) {
 
     map.on('click', 'poi-polygons-fill', (e) => {
       const result = resultPois.get(e.features[0]?.properties.ref);
-      if (result) openResultPoi(result.poi, result.lngLat);
+      if (!result) return;
+      revealAboveSheet(result.lngLat);
+      openResultPoi(result.poi, result.lngLat);
     });
     map.on('mouseenter', 'poi-polygons-fill', () => {
       map.getCanvas().style.cursor = 'pointer';
@@ -232,7 +234,7 @@ function loadPOIs(manualRefresh) {
         row.className = 'poi-result-item';
         row.innerHTML = `<div class="poi-result-name">${name}</div>${detail ? `<div class="poi-result-detail">${detail}</div>` : ''}`;
         row.addEventListener('click', () => {
-          map.flyTo({ center: lngLat, zoom: 18 });
+          map.flyTo({ center: lngLat, zoom: 18, offset: sheetOffset() });
           openResultPoi(poi, lngLat);
         });
         detailsEl.appendChild(row);
@@ -276,6 +278,7 @@ function addResultMarker(poi, lngLat) {
   el.addEventListener('click', (e) => {
     // Otherwise the map click handler looks up whatever tile feature is under the marker
     e.stopPropagation();
+    revealAboveSheet(lngLat);
     openResultPoi(poi, lngLat);
   });
   return marker;
@@ -493,6 +496,7 @@ async function showSharedPoi(osmType, osmId, flyToIt) {
     .setLngLat([lng, lat])
     .addTo(map);
   if (flyToIt) map.jumpTo({ center: [lng, lat], zoom: 18 });
+  revealAboveSheet([lng, lat]);
 
   renderOsmTags(tags, osmType, osmId, { name, lngLat: { lat, lng } });
 }
@@ -596,7 +600,9 @@ function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 
@@ -676,6 +682,32 @@ function initFeatureClick() {
 
 const SHEET_DESKTOP_MIN_WIDTH = 768;
 const SHEET_SNAP_THRESHOLD_PX = 60;
+const SHEET_MAX_HEIGHT_RATIO = 0.55; // #feature-panel max-height: 55vh
+const SHEET_REVEAL_MARGIN_PX = 60;   // room for the marker above the sheet top
+
+// Lowest screen y where a selected point stays visible above the mobile sheet,
+// or null on desktop where the panel is at the side
+function sheetRevealY() {
+  if (window.innerWidth >= SHEET_DESKTOP_MIN_WIDTH) return null;
+  const height = map.getContainer().clientHeight;
+  return height * (1 - SHEET_MAX_HEIGHT_RATIO) - SHEET_REVEAL_MARGIN_PX;
+}
+
+// flyTo offset that lands the target just above the mobile sheet instead of mid-screen
+function sheetOffset() {
+  const y = sheetRevealY();
+  if (y === null) return [0, 0];
+  return [0, Math.min(0, y - map.getContainer().clientHeight / 2)];
+}
+
+// Pans the map up if the point would be covered by the mobile sheet. Skipped while
+// the camera is already moving (e.g. a flyTo that targets the point with sheetOffset)
+function revealAboveSheet(lngLat) {
+  const y = sheetRevealY();
+  if (y === null || map.isMoving()) return;
+  const point = map.project(lngLat);
+  if (point.y > y) map.panBy([0, point.y - y]);
+}
 
 // Mobile bottom sheet: dragging anywhere on the sheet moves it (up to expand, down to
 // collapse or close). Inside the details list, the list scrolls natively instead when it
@@ -806,6 +838,7 @@ function showLocationDetail(lngLat) {
     .addTo(map);
 
   setSelection(`pin=${lat.toFixed(6)}/${lng.toFixed(6)}`);
+  revealAboveSheet([lng, lat]);
   document.querySelector('#feature-panel-name').textContent = 'Dropped pin';
   document.querySelector('#feature-panel-type').textContent = coords;
   document.querySelector('#feature-panel-details').innerHTML =
@@ -880,6 +913,7 @@ function showFeatureDetail(feature, lngLat) {
   const type = formatFeatureType(feature);
 
   setSelection(null);
+  revealAboveSheet(lngLat);
   document.querySelector('#feature-panel-name').textContent = name;
   document.querySelector('#feature-panel-type').textContent = type;
   document.querySelector('#feature-panel-details').innerHTML =
@@ -1128,6 +1162,22 @@ function renderOpeningHours(ohStr) {
   </div>`;
 }
 
+// A tag may hold several numbers separated by ';', and the plain and contact:*
+// variants often repeat the same number: split and de-duplicate by digits
+function phoneNumbers(values) {
+  const numbers = new Map();
+  for (const n of values.filter(Boolean).flatMap(v => v.split(';')).map(n => n.trim()).filter(Boolean)) {
+    const digits = n.replace(/[^\d+]/g, '');
+    if (!numbers.has(digits)) numbers.set(digits, n);
+  }
+  return [...numbers.values()];
+}
+
+// OSM websites sometimes omit the scheme ("www.example.com"), which would make a relative link
+function websiteUrl(value) {
+  return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+}
+
 function renderOsmTags(tags, osmType, osmId, place) {
   // Skip if the panel was closed while the tags were loading
   if (!document.querySelector('#feature-panel').classList.contains('visible')) return;
@@ -1150,6 +1200,22 @@ function renderOsmTags(tags, osmType, osmId, place) {
 
   let html = '';
 
+  // Quick actions on top: call the first number, open the website
+  const phone = phoneNumbers([tags.phone, tags['contact:phone'], tags.mobile, tags['contact:mobile']])[0];
+  const website = tags.website || tags['contact:website'];
+  if (phone || website) {
+    html += '<div class="feature-actions">';
+    if (phone) {
+      html += `<a class="feature-action" href="tel:${escapeHtml(phone.replace(/\s/g, ''))}">
+        <i class="fa fa-phone"></i> Call</a>`;
+    }
+    if (website) {
+      html += `<a class="feature-action" href="${escapeHtml(websiteUrl(website))}" target="_blank" rel="nofollow">
+        <i class="fa fa-globe"></i> Website</a>`;
+    }
+    html += '</div>';
+  }
+
   // Opening hours rendered first with the rich component
   if (tags['opening_hours']) {
     html += `<div class="feature-detail-row feature-detail-row--oh">
@@ -1163,16 +1229,9 @@ function renderOsmTags(tags, osmType, osmId, place) {
     if (!present.length) continue;
     let value;
     if (linkType === 'url') {
-      value = `<a href="${escapeHtml(present[0])}" target="_blank" rel="nofollow">${escapeHtml(present[0])}</a>`;
+      value = `<a href="${escapeHtml(websiteUrl(present[0]))}" target="_blank" rel="nofollow">${escapeHtml(present[0])}</a>`;
     } else if (linkType === 'tel') {
-      // A tag may hold several numbers separated by ';', and the plain and
-      // contact:* variants often repeat the same number
-      const numbers = new Map();
-      for (const n of present.flatMap(v => v.split(';')).map(n => n.trim()).filter(Boolean)) {
-        const digits = n.replace(/[^\d+]/g, '');
-        if (!numbers.has(digits)) numbers.set(digits, n);
-      }
-      value = [...numbers.values()]
+      value = phoneNumbers(present)
         .map(n => `<a href="tel:${escapeHtml(n.replace(/\s/g, ''))}">${escapeHtml(n)}</a>`)
         .join('<br>');
     } else {
@@ -1365,7 +1424,7 @@ function initGeocoder() {
           openGeocoderResult(r.props, r.lat, r.lng, r.zoom);
         } else {
           // Entries saved before place details were stored: show the spot as a pin
-          map.flyTo({ center: [r.lng, r.lat], zoom: r.zoom });
+          map.flyTo({ center: [r.lng, r.lat], zoom: r.zoom, offset: sheetOffset() });
           showLocationDetail({ lat: r.lat, lng: r.lng });
         }
       });
@@ -1473,7 +1532,7 @@ function initGeocoder() {
   }
 
   function openGeocoderResult(props, lat, lng, zoom) {
-    map.flyTo({ center: [lng, lat], zoom });
+    map.flyTo({ center: [lng, lat], zoom, offset: sheetOffset() });
 
     if (searchResultMarker) searchResultMarker.remove();
     searchResultMarker = new maplibregl.Marker({ color: '#e53e3e' })

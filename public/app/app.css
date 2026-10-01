@@ -153,6 +153,12 @@ html,body{
   line-height: 1.3;
 }
 
+@media (max-width: 767px) {
+  #feature-panel-name {
+    font-size: 20px;
+  }
+}
+
 #feature-panel-type {
   font-family: 'Open Sans', sans-serif;
   font-size: 13px;
@@ -199,6 +205,38 @@ html,body{
 #feature-panel-share.copied .fa-check {
   display: inline-block;
   color: #16a34a;
+}
+
+/* Call / Website buttons at the top of the details */
+.feature-actions {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0 10px;
+}
+
+.feature-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid #d0d7e2;
+  border-radius: 18px;
+  color: #0057ff;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.feature-action:first-child {
+  background: #0057ff;
+  border-color: #0057ff;
+  color: #fff;
+}
+
+.feature-action:hover {
+  text-decoration: none;
+  filter: brightness(0.95);
 }
 
 #feature-panel-details {
