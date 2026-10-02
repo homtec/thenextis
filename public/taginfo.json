@@ -111,6 +111,15 @@
     },
     {
       "key": "amenity",
+      "value": "ice_cream",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Ice Cream"
+    },
+    {
+      "key": "amenity",
       "value": "kindergarten",
       "object_types": [
         "node",
@@ -252,6 +261,699 @@
         "way"
       ],
       "description": "Shown when searching for: Public Toilet with Eurokey"
+    },
+    {
+      "key": "cuisine",
+      "value": "african",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: African"
+    },
+    {
+      "key": "cuisine",
+      "value": "american",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: American"
+    },
+    {
+      "key": "cuisine",
+      "value": "arab",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Middle Eastern"
+    },
+    {
+      "key": "cuisine",
+      "value": "asian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Asian"
+    },
+    {
+      "key": "cuisine",
+      "value": "austrian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Austrian"
+    },
+    {
+      "key": "cuisine",
+      "value": "bagel",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Bagel"
+    },
+    {
+      "key": "cuisine",
+      "value": "balkan",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Balkan"
+    },
+    {
+      "key": "cuisine",
+      "value": "barbecue",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Barbecue"
+    },
+    {
+      "key": "cuisine",
+      "value": "bavarian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: German"
+    },
+    {
+      "key": "cuisine",
+      "value": "breakfast",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Breakfast"
+    },
+    {
+      "key": "cuisine",
+      "value": "british",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: British"
+    },
+    {
+      "key": "cuisine",
+      "value": "brunch",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Breakfast"
+    },
+    {
+      "key": "cuisine",
+      "value": "bubble_tea",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Bubble Tea"
+    },
+    {
+      "key": "cuisine",
+      "value": "burger",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Burger"
+    },
+    {
+      "key": "cuisine",
+      "value": "cake",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Cake"
+    },
+    {
+      "key": "cuisine",
+      "value": "chicken",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Chicken"
+    },
+    {
+      "key": "cuisine",
+      "value": "chinese",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Chinese, Asian"
+    },
+    {
+      "key": "cuisine",
+      "value": "crepe",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Crepe"
+    },
+    {
+      "key": "cuisine",
+      "value": "curry",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Indian"
+    },
+    {
+      "key": "cuisine",
+      "value": "dessert",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Cake"
+    },
+    {
+      "key": "cuisine",
+      "value": "diner",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: American"
+    },
+    {
+      "key": "cuisine",
+      "value": "donut",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Donut"
+    },
+    {
+      "key": "cuisine",
+      "value": "ethiopian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: African, Ethiopian"
+    },
+    {
+      "key": "cuisine",
+      "value": "filipino",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Asian, Filipino"
+    },
+    {
+      "key": "cuisine",
+      "value": "fish",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Seafood"
+    },
+    {
+      "key": "cuisine",
+      "value": "fish_and_chips",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: British, Seafood"
+    },
+    {
+      "key": "cuisine",
+      "value": "french",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: French"
+    },
+    {
+      "key": "cuisine",
+      "value": "fries",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Friterie"
+    },
+    {
+      "key": "cuisine",
+      "value": "friture",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Friterie"
+    },
+    {
+      "key": "cuisine",
+      "value": "frozen_yogurt",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Ice Cream"
+    },
+    {
+      "key": "cuisine",
+      "value": "georgian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Georgian"
+    },
+    {
+      "key": "cuisine",
+      "value": "german",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: German"
+    },
+    {
+      "key": "cuisine",
+      "value": "greek",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Greek"
+    },
+    {
+      "key": "cuisine",
+      "value": "grill",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Barbecue"
+    },
+    {
+      "key": "cuisine",
+      "value": "ice_cream",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Ice Cream"
+    },
+    {
+      "key": "cuisine",
+      "value": "indian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Indian"
+    },
+    {
+      "key": "cuisine",
+      "value": "indonesian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Asian, Indonesian"
+    },
+    {
+      "key": "cuisine",
+      "value": "italian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Italian"
+    },
+    {
+      "key": "cuisine",
+      "value": "japanese",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Japanese, Asian"
+    },
+    {
+      "key": "cuisine",
+      "value": "kebab",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Turkish, Kebab"
+    },
+    {
+      "key": "cuisine",
+      "value": "korean",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Asian, Korean"
+    },
+    {
+      "key": "cuisine",
+      "value": "lebanese",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Lebanese, Middle Eastern"
+    },
+    {
+      "key": "cuisine",
+      "value": "malaysian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Asian"
+    },
+    {
+      "key": "cuisine",
+      "value": "mediterranean",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Mediterranean"
+    },
+    {
+      "key": "cuisine",
+      "value": "mexican",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Mexican"
+    },
+    {
+      "key": "cuisine",
+      "value": "middle_eastern",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Middle Eastern"
+    },
+    {
+      "key": "cuisine",
+      "value": "moroccan",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: African"
+    },
+    {
+      "key": "cuisine",
+      "value": "noodle",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Noodle"
+    },
+    {
+      "key": "cuisine",
+      "value": "oriental",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Middle Eastern"
+    },
+    {
+      "key": "cuisine",
+      "value": "pancake",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Crepe"
+    },
+    {
+      "key": "cuisine",
+      "value": "pastry",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Cake"
+    },
+    {
+      "key": "cuisine",
+      "value": "persian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Middle Eastern, Persian"
+    },
+    {
+      "key": "cuisine",
+      "value": "peruvian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Peruvian"
+    },
+    {
+      "key": "cuisine",
+      "value": "pizza",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Pizza"
+    },
+    {
+      "key": "cuisine",
+      "value": "polish",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Polish"
+    },
+    {
+      "key": "cuisine",
+      "value": "portuguese",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Portuguese"
+    },
+    {
+      "key": "cuisine",
+      "value": "ramen",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Japanese, Noodle, Ramen"
+    },
+    {
+      "key": "cuisine",
+      "value": "russian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Russian"
+    },
+    {
+      "key": "cuisine",
+      "value": "sandwich",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Sandwich"
+    },
+    {
+      "key": "cuisine",
+      "value": "seafood",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Seafood"
+    },
+    {
+      "key": "cuisine",
+      "value": "shawarma",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Middle Eastern, Kebab"
+    },
+    {
+      "key": "cuisine",
+      "value": "soba",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Noodle"
+    },
+    {
+      "key": "cuisine",
+      "value": "spanish",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Spanish"
+    },
+    {
+      "key": "cuisine",
+      "value": "steak_house",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Steak House"
+    },
+    {
+      "key": "cuisine",
+      "value": "sushi",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Japanese, Asian, Sushi"
+    },
+    {
+      "key": "cuisine",
+      "value": "tapas",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Spanish"
+    },
+    {
+      "key": "cuisine",
+      "value": "tex-mex",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Mexican"
+    },
+    {
+      "key": "cuisine",
+      "value": "thai",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Asian, Thai"
+    },
+    {
+      "key": "cuisine",
+      "value": "turkish",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Turkish"
+    },
+    {
+      "key": "cuisine",
+      "value": "udon",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Noodle"
+    },
+    {
+      "key": "cuisine",
+      "value": "ukrainian",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Ukrainian"
+    },
+    {
+      "key": "cuisine",
+      "value": "vietnamese",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Asian, Vietnamese"
+    },
+    {
+      "key": "cuisine",
+      "value": "wings",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Chicken"
+    },
+    {
+      "key": "diet:vegan",
+      "value": "only",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Vegan"
+    },
+    {
+      "key": "diet:vegan",
+      "value": "yes",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Vegan"
+    },
+    {
+      "key": "diet:vegetarian",
+      "value": "only",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Vegetarian"
+    },
+    {
+      "key": "diet:vegetarian",
+      "value": "yes",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Vegetarian"
     },
     {
       "key": "highway",

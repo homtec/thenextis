@@ -4,6 +4,7 @@ export default {
   'search.placeholder': 'Search places or categories…',
   'search.recent': 'Recent',
   'search.categories': 'Categories',
+  'search.food': 'Food',
   'search.searchingFor': 'Searching for {query}…',
   'search.results': { one: '{count} result', other: '{count} results' },
   'search.noResults': 'No results. Try another search or move the map.',

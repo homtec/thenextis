@@ -4,6 +4,7 @@ export default {
   'search.placeholder': 'Szukaj miejsc lub kategorii…',
   'search.recent': 'Ostatnie',
   'search.categories': 'Kategorie',
+  'search.food': 'Jedzenie',
   'search.searchingFor': 'Szukam: {query}…',
   'search.results': {
     one: '{count} wynik', few: '{count} wyniki', many: '{count} wyników', other: '{count} wyniku',

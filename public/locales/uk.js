@@ -4,6 +4,7 @@ export default {
   'search.placeholder': 'Пошук місць або категорій…',
   'search.recent': 'Нещодавні',
   'search.categories': 'Категорії',
+  'search.food': 'Їжа',
   'search.searchingFor': 'Пошук: {query}…',
   'search.results': {
     one: '{count} результат', few: '{count} результати', many: '{count} результатів', other: '{count} результату',

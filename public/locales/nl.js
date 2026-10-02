@@ -3,6 +3,7 @@ export default {
   'search.placeholder': 'Zoek plaatsen of categorieën…',
   'search.recent': 'Recent',
   'search.categories': 'Categorieën',
+  'search.food': 'Eten',
   'search.searchingFor': 'Zoeken naar {query}…',
   'search.results': { one: '{count} resultaat', other: '{count} resultaten' },
   'search.noResults': 'Geen resultaten. Probeer een andere zoekopdracht of verschuif de kaart.',

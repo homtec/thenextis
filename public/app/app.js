@@ -2,7 +2,7 @@ import maplibregl from 'maplibre-gl';
 import OpeningHours from 'opening_hours';
 import {
   LANG, PREFERRED_LANG, PHOTON_LANG, t, typeLabel,
-  formatTime, formatWeekday, formatDate, formatNumber, translateDocument,
+  formatTime, formatWeekday, formatDate, formatNumber, formatDistance, translateDocument,
 } from './i18n.js';
 
 var map;
@@ -28,17 +28,37 @@ function cacheSet(key, value) {
   try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(value)); } catch (e) { console.warn('[cache] localStorage write failed:', e); }
 }
 
+// Like cacheGet/cacheSet, for data that goes stale (search results)
+function cacheGetFresh(key, maxAgeMs) {
+  const entry = cacheGet(key);
+  return entry && Date.now() - entry.savedAt < maxAgeMs ? entry.value : null;
+}
+
+function cacheSetFresh(key, value) {
+  cacheSet(key, { savedAt: Date.now(), value });
+}
+
+// Public servers are often overloaded (HTTP 504) or rate-limit (429); maps.mail.ru is
+// slow but usually up, so it serves as the fallback in the race
 const OVERPASS_SERVERS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
 ];
 
+// Queries all servers at once and uses the first answer; the other requests are then
+// cancelled so they don't keep loading the shared servers
 function fetchOverpass(query) {
-  const requests = OVERPASS_SERVERS.map(server =>
-    fetch(`${server}?data=${encodeURIComponent(query)}`)
+  const controllers = OVERPASS_SERVERS.map(() => new AbortController());
+  const requests = OVERPASS_SERVERS.map((server, i) =>
+    fetch(`${server}?data=${encodeURIComponent(query)}`, { signal: controllers[i].signal })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         return r.json();
+      })
+      .then(data => {
+        controllers.forEach((c, j) => { if (j !== i) c.abort(); });
+        return data;
       })
   );
   return Promise.any(requests);
@@ -48,7 +68,9 @@ var geolocateControl = null;
 var searchResultMarker = null;
 var selectedCategory = null;
 var placeQuery = null; // active free-text place search (Enter in the search box)
+var selectedCuisine = null; // active cuisine/diet search, a key of cuisines.json
 var poiData = null;
+var cuisineData = null;
 var mapLoaded = false;
 // The open POI or dropped pin, kept in the URL hash so links can be shared:
 // 'poi=<osm type>/<osm id>' or 'pin=<lat>/<lng>'
@@ -294,7 +316,7 @@ function addResultMarker(poi, lngLat) {
 
 // Opens a category search result; its OSM type/id is already known, so no lookup by location
 function openResultPoi(poi, lngLat) {
-  const tagName = getTagName();
+  const tagName = getTagName() || typeLabelFromTags(poi.tags);
   const poiName = poi.tags.name || poi.tags.operator || poi.tags.brand || tagName;
   setSelection(null);
   document.querySelector('#feature-panel-name').textContent = poiName;
@@ -328,7 +350,7 @@ const REDO_SEARCH_MIN_ZOOM = 13;
 
 // Offers to repeat the current category search after the map was moved
 function showRedoSearchButton() {
-  if (!selectedCategory && !placeQuery) return;
+  if (!selectedCategory && !placeQuery && !selectedCuisine) return;
   const button = document.querySelector('#redo-search-button');
   // Category searches query Overpass, which needs a small enough area
   const tooFar = !placeQuery && map.getZoom() < REDO_SEARCH_MIN_ZOOM;
@@ -375,6 +397,7 @@ async function searchPlaces(query, inView) {
   const requestId = ++placeSearchRequestId;
   placeQuery = query;
   selectedCategory = null;
+  selectedCuisine = null;
   hideRedoSearchButton();
   clearResults();
   setSelection(null);
@@ -483,6 +506,159 @@ function categoryLabel(category) {
   return category[`lang-${PREFERRED_LANG}`] || category[`lang-${LANG}`] || category['lang-en'];
 }
 
+function cuisineLabel(id) {
+  const labels = cuisineData?.[id]?.labels || {};
+  return labels[PREFERRED_LANG] || labels[LANG] || labels.en || id;
+}
+
+// Overpass query for a cuisines.json entry within bbox. Regex filters are slow on their
+// own (no index), so first select everything with the key in the area into a named set,
+// then apply the regex to that set: ~1 s instead of timeouts. The named sets must be
+// built outside the union, or the union would output them too.
+function cuisineQuery(entry, bbox) {
+  const sets = [];
+  const union = [];
+  if (entry.cuisine) {
+    // The regex also matches multi-value tags, e.g. cuisine=greek;mediterranean
+    sets.push(`nwr["cuisine"](${bbox})->.c;`);
+    union.push(`nwr.c["cuisine"~"(^|;)(${entry.cuisine.join('|')})(;|$)"];`);
+  }
+  if (entry.diet) {
+    sets.push(`nwr["diet:${entry.diet}"](${bbox})->.d;`);
+    union.push(`nwr.d["diet:${entry.diet}"~"^(yes|only)$"]["amenity"~"^(restaurant|fast_food|cafe|ice_cream|food_court|biergarten|pub|bar)$"];`);
+  }
+  for (const amenity of entry.amenity || []) union.push(`nwr["amenity"="${amenity}"](${bbox});`);
+  return `[out:json][timeout:25];${sets.join('')}(${union.join('')});out center tags;`;
+}
+
+const CUISINE_SEARCH_RADIUS_M = 2000;
+const CUISINE_FIT_RESULTS = 5;
+const CUISINE_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+var cuisineSearchRequestId = 0;
+
+// Restaurants etc. by cuisine or diet ("griechisch", "Döner", "vegan"), ranked by open now,
+// then distance. Like category searches it starts around the user's location and searches
+// the visible map after the map was moved (manualRefresh / "Search this area").
+async function searchCuisine(id, manualRefresh) {
+  const entry = cuisineData?.[id];
+  if (!entry) return;
+  const useLocation = !manualRefresh && !mapDragged && myLocation;
+  if (!useLocation && map.getZoom() < REDO_SEARCH_MIN_ZOOM) {
+    alert(t('search.pleaseZoomIn'));
+    return;
+  }
+
+  const requestId = ++cuisineSearchRequestId;
+  selectedCuisine = id;
+  selectedCategory = null;
+  placeQuery = null;
+  hideRedoSearchButton();
+  clearResults();
+  setSelection(null);
+  if (searchResultMarker) {
+    searchResultMarker.remove();
+    searchResultMarker = null;
+  }
+
+  const label = cuisineLabel(id);
+  document.querySelector('#feature-panel-name').textContent = label;
+  document.querySelector('#feature-panel-type').textContent = '';
+  document.querySelector('#feature-panel-details').innerHTML =
+    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> ${escapeHtml(t('search.searchingFor', { query: label }))}</div>`;
+  document.querySelector('#feature-panel').classList.add('visible');
+
+  // A box rather than a radius: Overpass answers bbox queries faster. Rounded to ~100 m
+  // so repeated searches of the same area hit the cache.
+  const bounds = useLocation
+    ? new maplibregl.LngLat(myLocation.lng, myLocation.lat).toBounds(CUISINE_SEARCH_RADIUS_M)
+    : map.getBounds();
+  const bbox = [bounds.getSouth(), bounds.getWest(), bounds.getNorth(), bounds.getEast()]
+    .map(v => v.toFixed(3)).join(',');
+  const query = cuisineQuery(entry, bbox);
+  const cacheKey = `cuisine_${id}_${bbox}`;
+
+  let elements = cacheGetFresh(cacheKey, CUISINE_CACHE_MAX_AGE_MS);
+  try {
+    if (!elements) {
+      elements = (await fetchOverpass(query)).elements || [];
+      cacheSetFresh(cacheKey, elements);
+    }
+  } catch (e) {
+    console.error('[overpass] cuisine search failed:', e);
+    if (requestId === cuisineSearchRequestId) {
+      document.querySelector('#feature-panel-details').innerHTML =
+        `<div class="feature-detail-empty">${t('search.failed')}</div>`;
+    }
+    return;
+  }
+  if (requestId !== cuisineSearchRequestId || selectedCuisine !== id) return;
+
+  const origin = myLocation
+    ? new maplibregl.LngLat(myLocation.lng, myLocation.lat)
+    : map.getCenter();
+  const now = new Date();
+  const results = elements
+    .map(el => {
+      const lat = el.lat ?? el.center?.lat;
+      const lng = el.lon ?? el.center?.lon;
+      if (lat === undefined || !el.tags) return null;
+      const lngLat = [lng, lat];
+      return {
+        poi: { type: el.type, id: el.id, tags: el.tags },
+        lngLat,
+        distance: origin.distanceTo(new maplibregl.LngLat(lng, lat)),
+        status: openingStatus(el.tags.opening_hours, now),
+      };
+    })
+    .filter(Boolean)
+    // Open now first, then places without opening hours, then closed ones; nearest first
+    .sort((a, b) => statusRank(a.status) - statusRank(b.status) || a.distance - b.distance);
+
+  const detailsEl = document.querySelector('#feature-panel-details');
+  if (!results.length) {
+    detailsEl.innerHTML = `<div class="feature-detail-empty">${t('search.noResultsArea')}</div>`;
+    return;
+  }
+
+  document.querySelector('#feature-panel-type').textContent = t('search.results', { count: results.length });
+  detailsEl.innerHTML = '';
+  for (const { poi, lngLat, distance, status } of results) {
+    poiMarkers.push(addResultMarker(poi, lngLat));
+
+    const name = poi.tags.name || poi.tags.brand || typeLabelFromTags(poi.tags);
+    const statusHtml = status ? `<span class="${status.cls}">${escapeHtml(status.text)}</span> · ` : '';
+    const row = document.createElement('div');
+    row.className = 'poi-result-item';
+    row.innerHTML = `<div class="poi-result-name">${escapeHtml(name)}</div>
+      <div class="poi-result-detail">${statusHtml}${escapeHtml(formatDistance(distance))}</div>`;
+    row.addEventListener('click', () => {
+      map.flyTo({ center: lngLat, zoom: 18, offset: sheetOffset() });
+      openResultPoi(poi, lngLat);
+    });
+    detailsEl.appendChild(row);
+  }
+
+  if (useLocation) {
+    // Show the user and the best few results, clear of the search box and the sheet
+    const bounds = new maplibregl.LngLatBounds([myLocation.lng, myLocation.lat], [myLocation.lng, myLocation.lat]);
+    results.slice(0, CUISINE_FIT_RESULTS).forEach(r => bounds.extend(r.lngLat));
+    const mobile = window.innerWidth < SHEET_DESKTOP_MIN_WIDTH;
+    const height = map.getContainer().clientHeight;
+    map.fitBounds(bounds, {
+      maxZoom: 16,
+      padding: mobile
+        ? { top: 80, bottom: height * SHEET_MAX_HEIGHT_RATIO + 20, left: 40, right: 40 }
+        : { top: 80, bottom: 40, left: 380, right: 40 },
+    });
+  }
+}
+
+// Sort order for openingStatus(): open, unknown (no hours), closed
+function statusRank(status) {
+  if (!status) return 1;
+  return status.open ? 0 : 2;
+}
+
 function getTagName() {
   if (!selectedCategory || !poiData?.[selectedCategory]) return '';
   return categoryLabel(poiData[selectedCategory]) || '';
@@ -496,6 +672,7 @@ function getTag() {
 function selectCategory(key) {
   selectedCategory = key;
   placeQuery = null;
+  selectedCuisine = null;
   const label = (poiData[key] && categoryLabel(poiData[key])) || key;
   const input = document.querySelector('#geocoder-input');
   const clearIcon = document.querySelector('#geocoder-clear-icon');
@@ -543,6 +720,7 @@ function init() {
   document.querySelector('#info-button').onclick = function () { showInfo(); };
   document.querySelector('#redo-search-button').onclick = function () {
     if (placeQuery) searchPlaces(placeQuery, true);
+    else if (selectedCuisine) searchCuisine(selectedCuisine, true);
     else loadPOIs(true);
   };
   document.querySelector('#editOSM-button').onclick = function () { editOSM(); };
@@ -735,6 +913,9 @@ function loadPOIdataFromFile() {
   fetch("content.json")
     .then((response) => response.json())
     .then((data) => { poiData = data; });
+  fetch("cuisines.json")
+    .then((response) => response.json())
+    .then((data) => { cuisineData = data; });
 }
 
 function escapeHtml(str) {
@@ -1176,16 +1357,22 @@ async function fetchOsmTagsByLocation(name, lngLat) {
   return null;
 }
 
-function renderOpeningHours(ohStr) {
-  let oh;
+function parseOpeningHours(ohStr) {
   try {
-    oh = new OpeningHours(ohStr, null, { tag_key: 'opening_hours' });
+    return new OpeningHours(ohStr, null, { tag_key: 'opening_hours' });
   } catch (e) {
     console.warn('[oh] failed to parse opening hours:', e);
-    return `<span>${escapeHtml(ohStr)}</span>`;
+    return null;
   }
+}
 
-  const now = new Date();
+// { open, cls, text } for an opening_hours value at `now`, or null if missing/unparseable
+function openingStatus(ohStr, now = new Date()) {
+  const oh = ohStr && parseOpeningHours(ohStr);
+  return oh ? openingStatusOf(oh, now) : null;
+}
+
+function openingStatusOf(oh, now) {
   const isOpen = oh.getState(now);
   const isUnknown = oh.getUnknown(now); // true for open-end (+) intervals
   const nextChange = oh.getNextChange(now);
@@ -1223,6 +1410,15 @@ function renderOpeningHours(ohStr) {
       statusText = t('oh.closed');
     }
   }
+  return { open: isOpen || isUnknown, cls: statusClass, text: statusText };
+}
+
+function renderOpeningHours(ohStr) {
+  const oh = parseOpeningHours(ohStr);
+  if (!oh) return `<span>${escapeHtml(ohStr)}</span>`;
+
+  const now = new Date();
+  const { cls: statusClass, text: statusText } = openingStatusOf(oh, now);
 
   // Weekly table (Mon–Sun)
   const weekStart = new Date(now);
@@ -1521,10 +1717,16 @@ function initGeocoder() {
     clearTimeout(debounceTimer);
     hideGeocoderResults();
     input.blur(); // closes the on-screen keyboard
-    // An exact category name runs that category search instead
+    // An exact category name runs that category search, a cuisine word ("griechisch",
+    // "Döner") a cuisine search; anything else searches place names
     const category = matchCategories(query).find(c => normalize(c.label) === normalize(query));
+    const cuisines = matchCuisines(query);
+    const full = cuisines.filter(c => c.full);
+    const cuisine = cuisines.find(c => c.exact) || (full.length === 1 ? full[0] : null);
     if (category) {
       selectCategory(category.key);
+    } else if (cuisine) {
+      openCuisineSearch(cuisine.id);
     } else {
       searchPlaces(query, false);
     }
@@ -1619,27 +1821,79 @@ function initGeocoder() {
     return matches.sort((a, b) => a.label.localeCompare(b.label, LANG));
   }
 
+  const CUISINE_SUGGESTIONS = 3;
+  const MIN_TOKEN_LENGTH = 3;
+
+  // Cuisines whose label (any language) or extra terms match the query by word prefix:
+  // "griech" → greek, "zum griechen" → greek (term "grieche"), "döner" → kebab.
+  // exact: a whole label or term equals the query. full: every longer query word matched,
+  // so "zum griechen" counts as a cuisine search but "burger king" doesn't.
+  function matchCuisines(query) {
+    if (!cuisineData) return [];
+    const q = normalize(query);
+    const tokens = q.split(/\s+/).filter(tok => tok.length >= MIN_TOKEN_LENGTH);
+    if (!tokens.length) return [];
+    const matches = [];
+    for (const [id, entry] of Object.entries(cuisineData)) {
+      const phrases = [...Object.values(entry.labels), ...(entry.terms || [])].map(normalize);
+      const words = phrases.flatMap(p => p.split(/[\s\-/]+/));
+      const matchesToken = (tok) => words.some(w => w.startsWith(tok) || (w.length >= 4 && tok.startsWith(w)));
+      if (!tokens.some(matchesToken)) continue;
+      const longTokens = tokens.filter(tok => tok.length >= 4);
+      matches.push({
+        id,
+        label: cuisineLabel(id),
+        exact: phrases.includes(q),
+        full: longTokens.length > 0 && longTokens.every(matchesToken),
+      });
+    }
+    return matches.sort((a, b) => b.exact - a.exact || a.label.localeCompare(b.label, LANG));
+  }
+
+  function openCuisineSearch(id) {
+    input.value = cuisineLabel(id);
+    clearIcon.style.display = 'block';
+    hideGeocoderResults();
+    searchCuisine(id, false);
+  }
+
   function searchPhoton(query) {
     const center = map.getCenter();
     // Bias results towards the current map view
     const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${PHOTON_LANG}` +
       `&lat=${center.lat}&lon=${center.lng}&zoom=${Math.round(map.getZoom())}&location_bias_scale=0.1`;
     const categories = matchCategories(query);
-    if (categories.length) renderGeocoderResults([], categories);
+    const cuisines = matchCuisines(query).slice(0, CUISINE_SUGGESTIONS);
+    if (categories.length || cuisines.length) renderGeocoderResults([], categories, cuisines);
     fetch(url)
       .then((r) => r.json())
       .then((data) => {
         if (input.value.trim() !== query) return; // stale response
-        renderGeocoderResults(data.features, categories);
+        renderGeocoderResults(data.features, categories, cuisines);
       })
-      .catch(() => renderGeocoderResults([], categories));
+      .catch(() => renderGeocoderResults([], categories, cuisines));
   }
 
-  function renderGeocoderResults(features, categories = []) {
+  function renderGeocoderResults(features, categories = [], cuisines = []) {
     results.innerHTML = '';
-    if ((!features || features.length === 0) && categories.length === 0) {
+    if ((!features || features.length === 0) && categories.length === 0 && cuisines.length === 0) {
       hideGeocoderResults();
       return;
+    }
+
+    if (cuisines.length) {
+      const section = document.createElement('div');
+      section.className = 'suggestions-section';
+      section.innerHTML = `<div class="suggestions-section-title">${t('search.food')}</div>`;
+      for (const { id, label } of cuisines) {
+        const el = document.createElement('div');
+        el.className = 'suggestions-item suggestions-category';
+        el.innerHTML = `<i class="fa fa-cutlery suggestions-icon"></i>
+          <span class="suggestions-item-name">${escapeHtml(label)}</span>`;
+        el.addEventListener('click', () => openCuisineSearch(id));
+        section.appendChild(el);
+      }
+      results.appendChild(section);
     }
 
     if (categories.length) {

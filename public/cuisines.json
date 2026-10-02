@@ -1,0 +1,1150 @@
+{
+ "chinese": {
+  "cuisine": [
+   "chinese"
+  ],
+  "terms": [
+   "chinese",
+   "chinesen"
+  ],
+  "labels": {
+   "en": "Chinese",
+   "de": "Chinesisch",
+   "es": "China",
+   "fr": "Chinoise",
+   "ru": "Китайская",
+   "it": "Cinese",
+   "pl": "Chińska",
+   "uk": "Китайська",
+   "nl": "Chinees",
+   "pt": "Chinesa",
+   "tr": "Çinli"
+  }
+ },
+ "italian": {
+  "cuisine": [
+   "italian"
+  ],
+  "terms": [
+   "italiener",
+   "pasta",
+   "trattoria"
+  ],
+  "labels": {
+   "en": "Italian",
+   "de": "Italienisch",
+   "es": "Italiana",
+   "fr": "Italienne",
+   "ru": "Итальянская",
+   "it": "Italiana",
+   "pl": "Włoska",
+   "uk": "Італійська",
+   "nl": "Italiaans",
+   "pt": "Italiana",
+   "tr": "İtalyan"
+  }
+ },
+ "mexican": {
+  "cuisine": [
+   "mexican",
+   "tex-mex"
+  ],
+  "terms": [
+   "mexikaner",
+   "burrito",
+   "taco"
+  ],
+  "labels": {
+   "en": "Mexican",
+   "de": "Mexikanisch",
+   "es": "Mexicana",
+   "fr": "Mexicaine",
+   "ru": "Мексиканская",
+   "it": "Messicana",
+   "pl": "Meksykańska",
+   "uk": "Мексиканська",
+   "nl": "Mexicaans",
+   "pt": "Mexicana",
+   "tr": "Meksikalı"
+  }
+ },
+ "japanese": {
+  "cuisine": [
+   "japanese",
+   "sushi",
+   "ramen"
+  ],
+  "terms": [
+   "japaner"
+  ],
+  "labels": {
+   "en": "Japanese",
+   "de": "Japanisch",
+   "es": "Japonesa",
+   "fr": "Japonaise",
+   "ru": "Японская",
+   "it": "Giapponese",
+   "pl": "Japońska",
+   "uk": "Японська",
+   "nl": "Japans",
+   "pt": "Japonesa",
+   "tr": "Japon"
+  }
+ },
+ "indian": {
+  "cuisine": [
+   "indian",
+   "curry"
+  ],
+  "terms": [
+   "inder",
+   "curry"
+  ],
+  "labels": {
+   "en": "Indian",
+   "de": "Indisch",
+   "es": "India",
+   "fr": "Indienne",
+   "ru": "Индийская",
+   "it": "Indiana",
+   "pl": "Indyjska",
+   "uk": "Індійська",
+   "nl": "Indiaas",
+   "pt": "Indiana",
+   "tr": "Hintli"
+  }
+ },
+ "american": {
+  "cuisine": [
+   "american",
+   "diner"
+  ],
+  "labels": {
+   "en": "American",
+   "de": "Amerikanisch",
+   "es": "Norteamericana",
+   "fr": "Américaine",
+   "ru": "Американская",
+   "it": "Americana",
+   "pl": "Amerykańska",
+   "uk": "Американська",
+   "nl": "Amerikaans",
+   "pt": "Americana",
+   "tr": "Amerikan"
+  }
+ },
+ "asian": {
+  "cuisine": [
+   "asian",
+   "chinese",
+   "thai",
+   "vietnamese",
+   "japanese",
+   "korean",
+   "sushi",
+   "indonesian",
+   "filipino",
+   "malaysian"
+  ],
+  "terms": [
+   "asiate",
+   "asiaten",
+   "asia"
+  ],
+  "labels": {
+   "en": "Asian",
+   "de": "Asiatisch",
+   "es": "Asiática",
+   "fr": "Asiatique",
+   "ru": "Азиатская",
+   "it": "Asiatica",
+   "pl": "Azjatycka",
+   "uk": "Азійська",
+   "nl": "Aziatisch",
+   "pt": "Asiática",
+   "tr": "Asyalı"
+  }
+ },
+ "thai": {
+  "cuisine": [
+   "thai"
+  ],
+  "terms": [
+   "thailänder"
+  ],
+  "labels": {
+   "en": "Thai",
+   "de": "Thailändisch",
+   "es": "Tailandesa",
+   "fr": "Thaïlandaise",
+   "ru": "Тайская",
+   "it": "Thai",
+   "pl": "Tajska",
+   "uk": "Тайська",
+   "nl": "Thaïs",
+   "pt": "Tailandesa",
+   "tr": "Tayland"
+  }
+ },
+ "korean": {
+  "cuisine": [
+   "korean"
+  ],
+  "terms": [
+   "koreaner"
+  ],
+  "labels": {
+   "en": "Korean",
+   "de": "Koreanisch",
+   "es": "Coreana",
+   "fr": "Coréenne",
+   "ru": "Корейская",
+   "it": "Coreana",
+   "pl": "Koreańska",
+   "uk": "Корейська",
+   "nl": "Koreaans",
+   "pt": "Coreana",
+   "tr": "Koreli"
+  }
+ },
+ "french": {
+  "cuisine": [
+   "french"
+  ],
+  "terms": [
+   "franzose",
+   "franzosen",
+   "bistro"
+  ],
+  "labels": {
+   "en": "French",
+   "de": "Französisch",
+   "es": "Francesa",
+   "fr": "Française",
+   "ru": "Французская",
+   "it": "Francese",
+   "pl": "Francuska",
+   "uk": "Французька",
+   "nl": "Frans",
+   "pt": "Francesa",
+   "tr": "Fransız"
+  }
+ },
+ "greek": {
+  "cuisine": [
+   "greek"
+  ],
+  "terms": [
+   "grieche",
+   "griechen",
+   "gyros",
+   "souvlaki"
+  ],
+  "labels": {
+   "en": "Greek",
+   "de": "Griechisch",
+   "es": "Griega",
+   "fr": "Grecque",
+   "ru": "Греческая",
+   "it": "Greca",
+   "pl": "Grecka",
+   "uk": "Грецька",
+   "nl": "Grieks",
+   "pt": "Grega",
+   "tr": "Yunan"
+  }
+ },
+ "vietnamese": {
+  "cuisine": [
+   "vietnamese"
+  ],
+  "terms": [
+   "vietnamese",
+   "vietnamesen",
+   "pho"
+  ],
+  "labels": {
+   "en": "Vietnamese",
+   "de": "Vietnamesisch",
+   "es": "Vietnamita",
+   "fr": "Vietnamienne",
+   "ru": "Вьетнамская",
+   "it": "Vietnamita",
+   "pl": "Wietnamska",
+   "uk": "В’єтнамська",
+   "nl": "Vietnamees",
+   "pt": "Vietnamita",
+   "tr": "Vietnamlı"
+  }
+ },
+ "german": {
+  "cuisine": [
+   "german",
+   "bavarian"
+  ],
+  "terms": [
+   "deutsche küche",
+   "gutbürgerlich",
+   "currywurst"
+  ],
+  "labels": {
+   "en": "German",
+   "de": "Deutsch",
+   "es": "Alemana",
+   "fr": "Allemande",
+   "ru": "Немецкая",
+   "it": "Tedesca",
+   "pl": "Niemiecka",
+   "uk": "Німецька",
+   "nl": "Duits",
+   "pt": "Alemã",
+   "tr": "Alman"
+  }
+ },
+ "turkish": {
+  "cuisine": [
+   "turkish",
+   "kebab"
+  ],
+  "terms": [
+   "türke",
+   "türken"
+  ],
+  "labels": {
+   "en": "Turkish",
+   "de": "Türkisch",
+   "es": "Turca",
+   "fr": "Turque",
+   "ru": "Турецкая",
+   "it": "Turca",
+   "pl": "Turecka",
+   "uk": "Турецька",
+   "nl": "Turks",
+   "pt": "Turca",
+   "tr": "Türk"
+  }
+ },
+ "spanish": {
+  "cuisine": [
+   "spanish",
+   "tapas"
+  ],
+  "terms": [
+   "spanier"
+  ],
+  "labels": {
+   "en": "Spanish",
+   "de": "Spanisch",
+   "es": "Española",
+   "fr": "Espagnole",
+   "ru": "Испанская",
+   "it": "Spagnola",
+   "pl": "Hiszpańska",
+   "uk": "Іспанська",
+   "nl": "Spaans",
+   "pt": "Espanhola",
+   "tr": "İspanyol"
+  }
+ },
+ "mediterranean": {
+  "cuisine": [
+   "mediterranean"
+  ],
+  "labels": {
+   "en": "Mediterranean",
+   "de": "Mediterran",
+   "es": "Mediterránea",
+   "fr": "Méditerranéenne",
+   "ru": "Средиземноморская",
+   "it": "Mediterranea",
+   "pl": "Śródziemnomorska",
+   "uk": "Середземноморська",
+   "nl": "Mediterraans",
+   "pt": "Mediterrânica",
+   "tr": "Akdeniz"
+  }
+ },
+ "lebanese": {
+  "cuisine": [
+   "lebanese"
+  ],
+  "terms": [
+   "libanese",
+   "libanesen"
+  ],
+  "labels": {
+   "en": "Lebanese",
+   "de": "Libanesisch",
+   "es": "Libanesa",
+   "fr": "Libanaise",
+   "ru": "Ливанская",
+   "it": "Libanese",
+   "pl": "Libańska",
+   "uk": "Ліванська",
+   "nl": "Libanees",
+   "pt": "Libanesa",
+   "tr": "Lübnanlı"
+  }
+ },
+ "middle_eastern": {
+  "cuisine": [
+   "middle_eastern",
+   "lebanese",
+   "arab",
+   "persian",
+   "oriental",
+   "shawarma"
+  ],
+  "terms": [
+   "orientalisch",
+   "falafel",
+   "hummus"
+  ],
+  "labels": {
+   "en": "Middle Eastern",
+   "de": "Nahöstlich",
+   "es": "Del Medio Oriente",
+   "fr": "Moyen-orient",
+   "ru": "Ближневосточная",
+   "it": "Mediorientale",
+   "pl": "Bliskowschodnia",
+   "uk": "Близькосхідна",
+   "nl": "Midden-Oosters",
+   "pt": "Médio Oriente",
+   "tr": "Orta Doğulu"
+  }
+ },
+ "georgian": {
+  "cuisine": [
+   "georgian"
+  ],
+  "labels": {
+   "en": "Georgian",
+   "de": "Georgisch",
+   "es": "Georgiana",
+   "fr": "Géorgienne",
+   "ru": "Грузинская",
+   "it": "Georgiano",
+   "pl": "Gruzińska",
+   "uk": "Грузинська",
+   "nl": "Georgisch",
+   "pt": "Georgiana",
+   "tr": "Gürcü"
+  }
+ },
+ "portuguese": {
+  "cuisine": [
+   "portuguese"
+  ],
+  "terms": [
+   "portugiese"
+  ],
+  "labels": {
+   "en": "Portuguese",
+   "de": "Portugiesisch",
+   "es": "Portuguesa",
+   "fr": "Portugaise",
+   "ru": "Португальская",
+   "it": "Portoghese",
+   "pl": "Portugalska",
+   "uk": "Португальська",
+   "nl": "Portugees",
+   "pt": "Portuguesa",
+   "tr": "Portekizli"
+  }
+ },
+ "indonesian": {
+  "cuisine": [
+   "indonesian"
+  ],
+  "labels": {
+   "en": "Indonesian",
+   "de": "Indonesisch",
+   "es": "Indonesia",
+   "fr": "Indonésien",
+   "ru": "Индонезийская",
+   "it": "Indonesiana",
+   "pl": "Indonezyjska",
+   "uk": "Індонезійська",
+   "nl": "Indonesisch",
+   "pt": "Indonésia",
+   "tr": "Endonezyalı"
+  }
+ },
+ "filipino": {
+  "cuisine": [
+   "filipino"
+  ],
+  "labels": {
+   "en": "Filipino",
+   "de": "Philippinisch",
+   "es": "Filipina",
+   "fr": "Philippine",
+   "ru": "Филиппинская",
+   "it": "Filippino",
+   "pl": "Filipińska",
+   "uk": "Філіппінська",
+   "nl": "Filipijns",
+   "pt": "Filipina",
+   "tr": "Filipin"
+  }
+ },
+ "african": {
+  "cuisine": [
+   "african",
+   "ethiopian",
+   "moroccan"
+  ],
+  "terms": [
+   "afrikaner"
+  ],
+  "labels": {
+   "en": "African",
+   "de": "Afrikanisch",
+   "es": "Africana",
+   "fr": "Africaine",
+   "ru": "Африканская",
+   "it": "Africana",
+   "pl": "Afrykańska",
+   "uk": "Африканська",
+   "nl": "Afrikaans",
+   "pt": "Africana",
+   "tr": "Afrikalı"
+  }
+ },
+ "ethiopian": {
+  "cuisine": [
+   "ethiopian"
+  ],
+  "labels": {
+   "en": "Ethiopian",
+   "de": "Äthiopisch",
+   "es": "Etíope",
+   "fr": "Éthiopien",
+   "ru": "Эфиопская",
+   "it": "Etiope",
+   "pl": "Etiopska",
+   "uk": "Ефіопська",
+   "nl": "Ethiopisch",
+   "pt": "Etíope",
+   "tr": "Etiyopyalı"
+  }
+ },
+ "persian": {
+  "cuisine": [
+   "persian"
+  ],
+  "terms": [
+   "perser",
+   "iranisch",
+   "iranian"
+  ],
+  "labels": {
+   "en": "Persian",
+   "de": "Persisch",
+   "es": "Persa",
+   "fr": "Perse",
+   "ru": "Персидская",
+   "it": "Persiana",
+   "pl": "Perska",
+   "uk": "Перська",
+   "nl": "Persisch",
+   "pt": "Persa",
+   "tr": "Fars"
+  }
+ },
+ "balkan": {
+  "cuisine": [
+   "balkan"
+  ],
+  "terms": [
+   "jugoslawisch",
+   "ćevapi",
+   "cevapcici"
+  ],
+  "labels": {
+   "en": "Balkan",
+   "de": "Balkan",
+   "es": "Balcánica",
+   "fr": "Balkans",
+   "ru": "Балканская",
+   "it": "Balcanica",
+   "pl": "Bałkańska",
+   "uk": "Балканська",
+   "nl": "Balkan",
+   "pt": "Balcãs",
+   "tr": "Balkan"
+  }
+ },
+ "russian": {
+  "cuisine": [
+   "russian"
+  ],
+  "labels": {
+   "en": "Russian",
+   "de": "Russisch",
+   "es": "Rusa",
+   "fr": "Russe",
+   "ru": "Русская",
+   "it": "Russa",
+   "pl": "Rosyjska",
+   "uk": "Російська",
+   "nl": "Russisch",
+   "pt": "Russa",
+   "tr": "Rus"
+  }
+ },
+ "ukrainian": {
+  "cuisine": [
+   "ukrainian"
+  ],
+  "labels": {
+   "en": "Ukrainian",
+   "de": "Ukrainisch",
+   "es": "Ucraniana",
+   "fr": "Ukrainienne",
+   "ru": "Украинская",
+   "it": "Ucraino",
+   "pl": "Ukraińska",
+   "uk": "Українська",
+   "nl": "Oekraïens",
+   "pt": "Ucraniana",
+   "tr": "Ukrainian"
+  }
+ },
+ "polish": {
+  "cuisine": [
+   "polish"
+  ],
+  "terms": [
+   "pole",
+   "polen"
+  ],
+  "labels": {
+   "en": "Polish",
+   "de": "Polnisch",
+   "es": "Polaca",
+   "fr": "Polonaise",
+   "ru": "Польская",
+   "it": "Polacca",
+   "pl": "Polska",
+   "uk": "Польська",
+   "nl": "Pools",
+   "pt": "Polaca",
+   "tr": "Polonyalı"
+  }
+ },
+ "peruvian": {
+  "cuisine": [
+   "peruvian"
+  ],
+  "labels": {
+   "en": "Peruvian",
+   "de": "Peruanisch",
+   "es": "Peruana",
+   "fr": "Péruvienne",
+   "ru": "Перуанская",
+   "it": "Peruviana",
+   "pl": "Peruwiańska",
+   "uk": "Перуанська",
+   "nl": "Peruaans",
+   "pt": "Peruana",
+   "tr": "Peru"
+  }
+ },
+ "austrian": {
+  "cuisine": [
+   "austrian"
+  ],
+  "terms": [
+   "österreicher",
+   "schnitzel"
+  ],
+  "labels": {
+   "en": "Austrian",
+   "de": "Österreichisch",
+   "es": "Austríaco",
+   "fr": "Autrichienne",
+   "pl": "Austriacka",
+   "uk": "Австрійська",
+   "nl": "Oostenrijker"
+  }
+ },
+ "british": {
+  "cuisine": [
+   "british",
+   "fish_and_chips"
+  ],
+  "labels": {
+   "en": "British",
+   "de": "Britisch",
+   "es": "Británico",
+   "fr": "Britannique",
+   "ru": "Британская",
+   "it": "Inglese",
+   "pl": "Brytyjska",
+   "uk": "Британська",
+   "nl": "Brits",
+   "tr": "İngiliz"
+  }
+ },
+ "pizza": {
+  "cuisine": [
+   "pizza"
+  ],
+  "terms": [
+   "pizzeria"
+  ],
+  "labels": {
+   "en": "Pizza",
+   "de": "Pizza",
+   "es": "Pizza",
+   "fr": "Pizza",
+   "ru": "Пицца",
+   "it": "Pizza",
+   "pl": "Pizza",
+   "uk": "Піца",
+   "nl": "Pizza",
+   "pt": "Piza",
+   "tr": "Pizza"
+  }
+ },
+ "burger": {
+  "cuisine": [
+   "burger"
+  ],
+  "terms": [
+   "hamburger"
+  ],
+  "labels": {
+   "en": "Burger",
+   "de": "Burger",
+   "es": "Hamburguesa",
+   "fr": "Hamburger",
+   "ru": "Гамбургеры",
+   "it": "Burger",
+   "pl": "Burgery",
+   "uk": "Бургери",
+   "nl": "Burger",
+   "pt": "Hambúrguer",
+   "tr": "Burger"
+  }
+ },
+ "sandwich": {
+  "cuisine": [
+   "sandwich"
+  ],
+  "terms": [
+   "sub"
+  ],
+  "labels": {
+   "en": "Sandwich",
+   "de": "Sandwich",
+   "es": "Sándwich",
+   "fr": "Sandwich",
+   "ru": "Сэндвичи",
+   "it": "Sandwich",
+   "pl": "Kanapki",
+   "uk": "Сендвіч",
+   "nl": "Broodjes",
+   "pt": "Sanduíches",
+   "tr": "Sandviç"
+  }
+ },
+ "chicken": {
+  "cuisine": [
+   "chicken",
+   "wings"
+  ],
+  "terms": [
+   "hähnchen",
+   "hühnchen",
+   "brathähnchen"
+  ],
+  "labels": {
+   "en": "Chicken",
+   "de": "Huhn",
+   "es": "Pollo",
+   "fr": "Poulet",
+   "ru": "Курица",
+   "it": "Pollo",
+   "pl": "Kurczaki",
+   "uk": "Блюда з курятини",
+   "nl": "Kip",
+   "pt": "Frango",
+   "tr": "Tavuk"
+  }
+ },
+ "kebab": {
+  "cuisine": [
+   "kebab",
+   "shawarma"
+  ],
+  "terms": [
+   "döner",
+   "doner",
+   "dürüm",
+   "durum",
+   "kebap"
+  ],
+  "labels": {
+   "en": "Kebab",
+   "de": "Kebab",
+   "es": "Kebab (Brocheta)",
+   "fr": "Kebab",
+   "ru": "Шашлык, кебаб",
+   "it": "Kebab",
+   "pl": "Kebab",
+   "uk": "Шашлик",
+   "nl": "Kebab",
+   "pt": "Kebab",
+   "tr": "Kebap"
+  }
+ },
+ "sushi": {
+  "cuisine": [
+   "sushi"
+  ],
+  "labels": {
+   "en": "Sushi",
+   "de": "Sushi",
+   "es": "Sushi",
+   "fr": "Sushi",
+   "ru": "Суши",
+   "it": "Sushi",
+   "pl": "Sushi",
+   "uk": "Суші",
+   "nl": "Sushi",
+   "pt": "Sushi",
+   "tr": "Suşi"
+  }
+ },
+ "seafood": {
+  "cuisine": [
+   "seafood",
+   "fish",
+   "fish_and_chips"
+  ],
+  "terms": [
+   "fisch",
+   "meeresfrüchte"
+  ],
+  "labels": {
+   "en": "Seafood",
+   "de": "Meeresfrüchte",
+   "es": "Mariscos",
+   "fr": "Fruits de mer",
+   "ru": "Морепродукты",
+   "it": "Pesce",
+   "pl": "Owoce morza",
+   "uk": "Морепродукти",
+   "nl": "Zeevruchten",
+   "pt": "Marisco",
+   "tr": "Su Ürünleri"
+  }
+ },
+ "ice_cream": {
+  "cuisine": [
+   "ice_cream",
+   "frozen_yogurt"
+  ],
+  "amenity": [
+   "ice_cream"
+  ],
+  "terms": [
+   "eis",
+   "eisdiele",
+   "eiscafé",
+   "gelato"
+  ],
+  "labels": {
+   "en": "Ice Cream",
+   "de": "Eiscreme",
+   "es": "Helado",
+   "fr": "Crème glacée",
+   "ru": "Мороженое",
+   "it": "Gelato",
+   "pl": "Lody",
+   "uk": "Кафе-морозиво",
+   "nl": "IJs",
+   "pt": "Gelados",
+   "tr": "Dondurma"
+  }
+ },
+ "bubble_tea": {
+  "cuisine": [
+   "bubble_tea"
+  ],
+  "labels": {
+   "en": "Bubble Tea",
+   "de": "Bubble Tea",
+   "es": "Té de burbujas",
+   "fr": "Thé aux perles",
+   "ru": "Бабл-ти",
+   "it": "Bubble Tea",
+   "pl": "Bubble Tea",
+   "uk": "Чай з бульбашками",
+   "nl": "Bubbelthee",
+   "pt": "Chá de bolhas",
+   "tr": "İnci Çayı"
+  }
+ },
+ "barbecue": {
+  "cuisine": [
+   "barbecue",
+   "grill"
+  ],
+  "terms": [
+   "bbq",
+   "grill"
+  ],
+  "labels": {
+   "en": "Barbecue",
+   "de": "Grill",
+   "es": "Barbacoa",
+   "fr": "Barbecue",
+   "ru": "Барбекю",
+   "it": "Barbecue",
+   "pl": "Grillowa (barbecue)",
+   "uk": "Барбекю",
+   "nl": "Barbecue",
+   "pt": "Churrasco",
+   "tr": "Barbekü"
+  }
+ },
+ "steak_house": {
+  "cuisine": [
+   "steak_house"
+  ],
+  "terms": [
+   "steak"
+  ],
+  "labels": {
+   "en": "Steak House",
+   "de": "Steakhaus",
+   "es": "Asador / Parrilla",
+   "fr": "Viandes",
+   "ru": "Стейки",
+   "it": "Bisteccheria",
+   "pl": "Steki",
+   "uk": "Стейк-хаус",
+   "nl": "Steakhouse",
+   "pt": "Steakhouse",
+   "tr": "Et Lokantası"
+  }
+ },
+ "noodle": {
+  "cuisine": [
+   "noodle",
+   "ramen",
+   "udon",
+   "soba"
+  ],
+  "terms": [
+   "nudeln"
+  ],
+  "labels": {
+   "en": "Noodle",
+   "de": "Nudel",
+   "es": "Fideos",
+   "fr": "Nouilles",
+   "ru": "Лапша",
+   "it": "Noodle",
+   "pl": "Makarony",
+   "uk": "Локшина",
+   "nl": "Noodles",
+   "pt": "Noodles",
+   "tr": "Noodle"
+  }
+ },
+ "ramen": {
+  "cuisine": [
+   "ramen"
+  ],
+  "labels": {
+   "en": "Ramen",
+   "de": "Ramen",
+   "es": "Ramen",
+   "fr": "Ramen",
+   "ru": "Рамен",
+   "it": "Ramen",
+   "pl": "Ramen",
+   "uk": "Рамен",
+   "nl": "Ramen",
+   "pt": "Ramen",
+   "tr": "Ramen"
+  }
+ },
+ "friture": {
+  "cuisine": [
+   "friture",
+   "fries"
+  ],
+  "terms": [
+   "pommes",
+   "fritten",
+   "frietkot"
+  ],
+  "labels": {
+   "en": "Friterie",
+   "de": "Frittenbude",
+   "es": "Freiduría",
+   "fr": "Friterie",
+   "ru": "Фритюрница",
+   "it": "Friggitoria",
+   "pl": "Friterie",
+   "uk": "Фритюр",
+   "nl": "Frituur",
+   "pt": "Batata frita"
+  }
+ },
+ "breakfast": {
+  "cuisine": [
+   "breakfast",
+   "brunch"
+  ],
+  "terms": [
+   "frühstück",
+   "brunch"
+  ],
+  "labels": {
+   "en": "Breakfast",
+   "de": "Frühstück",
+   "es": "Desayuno",
+   "fr": "Petit-déjeuner",
+   "ru": "Завтрак",
+   "it": "Colazione",
+   "pl": "Śniadaniowa",
+   "uk": "Сніданки",
+   "nl": "Ontbijt",
+   "pt": "Pequeno-almoço",
+   "tr": "Kahvaltı"
+  }
+ },
+ "crepe": {
+  "cuisine": [
+   "crepe",
+   "pancake"
+  ],
+  "terms": [
+   "crêpes",
+   "pfannkuchen"
+  ],
+  "labels": {
+   "en": "Crepe",
+   "de": "Crepe",
+   "es": "Crepe",
+   "fr": "Crêpes",
+   "ru": "Тонкие блинчики",
+   "it": "Crepes",
+   "pl": "Naleśniki",
+   "uk": "Млинці",
+   "nl": "Crèpe",
+   "pt": "Crepes",
+   "tr": "Krep"
+  }
+ },
+ "bagel": {
+  "cuisine": [
+   "bagel"
+  ],
+  "labels": {
+   "en": "Bagel",
+   "de": "Bagel",
+   "es": "Bagel",
+   "fr": "Bagel",
+   "ru": "Бейгл",
+   "it": "Bagel",
+   "pl": "Bajgle",
+   "uk": "Бублики",
+   "nl": "Bagel",
+   "pt": "Bagel",
+   "tr": "Simit"
+  }
+ },
+ "donut": {
+  "cuisine": [
+   "donut"
+  ],
+  "terms": [
+   "doughnut"
+  ],
+  "labels": {
+   "en": "Donut",
+   "de": "Donut",
+   "es": "Dona / Rosquilla",
+   "fr": "Donuts",
+   "ru": "Пончики",
+   "it": "Ciambelle",
+   "pl": "Pączki / Donuty",
+   "uk": "Пончики",
+   "nl": "Donut",
+   "pt": "Donuts",
+   "tr": "Donut"
+  }
+ },
+ "cake": {
+  "cuisine": [
+   "cake",
+   "dessert",
+   "pastry"
+  ],
+  "terms": [
+   "kuchen",
+   "torte",
+   "konditorei"
+  ],
+  "labels": {
+   "en": "Cake",
+   "de": "Kuchen",
+   "es": "Pastel / Torta / Tarta",
+   "fr": "Pâtisserie",
+   "ru": "Торты",
+   "it": "Torte",
+   "pl": "Ciasta",
+   "uk": "Тістечка",
+   "nl": "Taart",
+   "pt": "Bolos",
+   "tr": "Pasta"
+  }
+ },
+ "vegan": {
+  "diet": "vegan",
+  "terms": [
+   "vegan"
+  ],
+  "labels": {
+   "en": "Vegan",
+   "de": "Vegan",
+   "es": "Vegana",
+   "fr": "Végane",
+   "ru": "Веганская",
+   "it": "Vegana",
+   "pl": "Wegańska",
+   "uk": "Веганські",
+   "nl": "Veganistisch",
+   "pt": "Vegana",
+   "tr": "Vegan"
+  }
+ },
+ "vegetarian": {
+  "diet": "vegetarian",
+  "terms": [
+   "vegetarisch",
+   "veggie"
+  ],
+  "labels": {
+   "en": "Vegetarian",
+   "de": "Vegetarisch",
+   "es": "Vegetariana",
+   "fr": "Végétarienne",
+   "ru": "Вегетарианская",
+   "it": "Vegetariana",
+   "pl": "Wegetariańska",
+   "uk": "Вегетаріанські",
+   "nl": "Vegetarisch",
+   "pt": "Vegetariana",
+   "tr": "Vejetaryen"
+  }
+ }
+}

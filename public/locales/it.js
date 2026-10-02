@@ -3,6 +3,7 @@ export default {
   'search.placeholder': 'Cerca luoghi o categorie…',
   'search.recent': 'Recenti',
   'search.categories': 'Categorie',
+  'search.food': 'Cibo',
   'search.searchingFor': 'Ricerca di {query}…',
   'search.results': { one: '{count} risultato', many: '{count} di risultati', other: '{count} risultati' },
   'search.noResults': 'Nessun risultato. Prova un’altra ricerca o sposta la mappa.',

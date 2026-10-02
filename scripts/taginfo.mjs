@@ -1,8 +1,10 @@
 // Generates public/taginfo.json (https://wiki.openstreetmap.org/wiki/Taginfo/Projects)
-// from the categories in public/content.json. Run with `npm run taginfo`.
+// from the categories in public/content.json and the cuisine search in public/cuisines.json.
+// Run with `npm run taginfo`.
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const content = JSON.parse(readFileSync('public/content.json', 'utf8'));
+const cuisines = JSON.parse(readFileSync('public/cuisines.json', 'utf8'));
 
 // loadPOIs() queries every tag as both node[...] and way[...]
 const OBJECT_TYPES = ['node', 'way'];
@@ -15,6 +17,22 @@ for (const category of Object.values(content)) {
     const id = value ? `${key}=${value}` : key;
     if (!tags.has(id)) tags.set(id, { key, value, labels: [] });
     tags.get(id).labels.push(category['lang-en']);
+  }
+}
+
+// searchCuisine() queries cuisine=*, diet:*=yes|only and extra amenity values
+const addTag = (key, value, label) => {
+  const id = value ? `${key}=${value}` : key;
+  if (!tags.has(id)) tags.set(id, { key, value, labels: [] });
+  if (!tags.get(id).labels.includes(label)) tags.get(id).labels.push(label);
+};
+for (const entry of Object.values(cuisines)) {
+  const label = entry.labels.en;
+  for (const value of entry.cuisine || []) addTag('cuisine', value, label);
+  for (const value of entry.amenity || []) addTag('amenity', value, label);
+  if (entry.diet) {
+    addTag(`diet:${entry.diet}`, 'yes', label);
+    addTag(`diet:${entry.diet}`, 'only', label);
   }
 }
 

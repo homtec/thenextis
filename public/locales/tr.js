@@ -3,6 +3,7 @@ export default {
   'search.placeholder': 'Yer veya kategori ara…',
   'search.recent': 'Son aramalar',
   'search.categories': 'Kategoriler',
+  'search.food': 'Yemek',
   'search.searchingFor': '{query} aranıyor…',
   'search.results': { one: '{count} sonuç', other: '{count} sonuç' },
   'search.noResults': 'Sonuç yok. Başka bir arama deneyin veya haritayı kaydırın.',

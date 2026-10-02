@@ -49,6 +49,15 @@ const dateFormat = new Intl.DateTimeFormat(LOCALE, { dateStyle: 'medium' });
 export const formatTime = (date) => timeFormat.format(date);
 export const formatWeekday = (date) => weekdayFormat.format(date);
 export const formatDate = (date) => dateFormat.format(date);
+// 350 → "350 m", 1234 → "1.2 km" (localized number and unit)
+export function formatDistance(meters) {
+  if (meters < 1000) {
+    return (Math.round(meters / 10) * 10).toLocaleString(LOCALE, { style: 'unit', unit: 'meter' });
+  }
+  const km = meters / 1000;
+  return km.toLocaleString(LOCALE, { style: 'unit', unit: 'kilometer', maximumFractionDigits: km < 10 ? 1 : 0 });
+}
+
 export const formatNumber = (n, digits = 0) =>
   n.toLocaleString(LOCALE, { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
