@@ -33,6 +33,7 @@ export default {
   'label.description': 'Açıklama',
   'label.coordinates': 'Koordinatlar',
   'label.reviews': 'Yorumlar',
+  'label.collectionTimes': 'Toplama saatleri',
 
   'oh.open': 'Açık',
   'oh.openUntil': '{time} saatine kadar açık',
@@ -42,6 +43,11 @@ export default {
   'oh.opensTomorrow': 'Kapalı · Yarın {time} saatinde açılıyor',
   'oh.opensOnDay': 'Kapalı · {day} {time} saatinde açılıyor',
   'oh.allTimes': 'Tüm çalışma saatleri',
+
+  'ct.nextToday': 'Sonraki toplama bugün {time}',
+  'ct.nextTomorrow': 'Sonraki toplama yarın {time}',
+  'ct.nextOnDay': 'Sonraki toplama {day} {time}',
+  'ct.allTimes': 'Tüm toplama saatleri',
 
   'pin.title': 'İşaretlenen yer',
   'pin.copy': 'Panoya kopyala',

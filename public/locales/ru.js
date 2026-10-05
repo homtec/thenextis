@@ -36,6 +36,7 @@ export default {
   'label.description': 'Описание',
   'label.coordinates': 'Координаты',
   'label.reviews': 'Отзывы',
+  'label.collectionTimes': 'Выемка',
 
   'oh.open': 'Открыто',
   'oh.openUntil': 'Открыто до {time}',
@@ -45,6 +46,11 @@ export default {
   'oh.opensTomorrow': 'Закрыто · Откроется завтра в {time}',
   'oh.opensOnDay': 'Закрыто · Откроется: {day}, {time}',
   'oh.allTimes': 'Все часы работы',
+
+  'ct.nextToday': 'Следующая выемка сегодня в {time}',
+  'ct.nextTomorrow': 'Следующая выемка завтра в {time}',
+  'ct.nextOnDay': 'Следующая выемка: {day}, {time}',
+  'ct.allTimes': 'Всё время выемки',
 
   'pin.title': 'Отмеченное место',
   'pin.copy': 'Скопировать в буфер обмена',

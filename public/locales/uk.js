@@ -36,6 +36,7 @@ export default {
   'label.description': 'Опис',
   'label.coordinates': 'Координати',
   'label.reviews': 'Відгуки',
+  'label.collectionTimes': 'Виїмка',
 
   'oh.open': 'Відчинено',
   'oh.openUntil': 'Відчинено до {time}',
@@ -45,6 +46,11 @@ export default {
   'oh.opensTomorrow': 'Зачинено · Відчиниться завтра о {time}',
   'oh.opensOnDay': 'Зачинено · Відчиниться: {day}, {time}',
   'oh.allTimes': 'Усі години роботи',
+
+  'ct.nextToday': 'Наступна виїмка сьогодні о {time}',
+  'ct.nextTomorrow': 'Наступна виїмка завтра о {time}',
+  'ct.nextOnDay': 'Наступна виїмка: {day}, {time}',
+  'ct.allTimes': 'Усі часи виїмки',
 
   'pin.title': 'Позначене місце',
   'pin.copy': 'Копіювати в буфер обміну',

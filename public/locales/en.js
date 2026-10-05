@@ -34,6 +34,7 @@ export default {
   'label.description': 'Description',
   'label.coordinates': 'Coordinates',
   'label.reviews': 'Reviews',
+  'label.collectionTimes': 'Collection times',
 
   'oh.open': 'Open',
   'oh.openUntil': 'Open until {time}',
@@ -43,6 +44,11 @@ export default {
   'oh.opensTomorrow': 'Closed · Opens tomorrow at {time}',
   'oh.opensOnDay': 'Closed · Opens {day} at {time}',
   'oh.allTimes': 'All opening times',
+
+  'ct.nextToday': 'Next collection today at {time}',
+  'ct.nextTomorrow': 'Next collection tomorrow at {time}',
+  'ct.nextOnDay': 'Next collection {day} at {time}',
+  'ct.allTimes': 'All collection times',
 
   'pin.title': 'Dropped pin',
   'pin.copy': 'Copy to clipboard',

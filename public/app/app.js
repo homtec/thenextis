@@ -1357,9 +1357,10 @@ async function fetchOsmTagsByLocation(name, lngLat) {
   return null;
 }
 
-function parseOpeningHours(ohStr) {
+// tagKey 'collection_times' parses the value as points in time (post box collections)
+function parseOpeningHours(ohStr, tagKey = 'opening_hours') {
   try {
-    return new OpeningHours(ohStr, null, { tag_key: 'opening_hours' });
+    return new OpeningHours(ohStr, null, { tag_key: tagKey });
   } catch (e) {
     console.warn('[oh] failed to parse opening hours:', e);
     return null;
@@ -1419,14 +1420,62 @@ function renderOpeningHours(ohStr) {
 
   const now = new Date();
   const { cls: statusClass, text: statusText } = openingStatusOf(oh, now);
+  const rows = weekTableRows(oh, now, intervals => intervals.length
+    ? intervals.map(([s, e]) => `${formatTime(s)}–${formatTime(e)}`).join(', ')
+    : t('oh.closed'));
 
-  // Weekly table (Mon–Sun)
+  return `<div class="oh-container">
+    <div class="oh-status ${statusClass}">
+      <span class="oh-dot"></span>
+      <span>${statusText}</span>
+    </div>
+    ${weekTableDetails(t('oh.allTimes'), rows)}
+  </div>`;
+}
+
+// Post box collection_times: next collection plus the weekly times
+function renderCollectionTimes(ctStr) {
+  const oh = parseOpeningHours(ctStr, 'collection_times');
+  if (!oh) return `<span>${escapeHtml(ctStr)}</span>`;
+
+  const now = new Date();
+  const next = oh.getNextChange(now);
+  let nextText = escapeHtml(ctStr);
+  if (next) {
+    const time = formatTime(next);
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    if (next.toDateString() === now.toDateString()) {
+      nextText = t('ct.nextToday', { time });
+    } else if (next.toDateString() === tomorrow.toDateString()) {
+      nextText = t('ct.nextTomorrow', { time });
+    } else {
+      nextText = t('ct.nextOnDay', { day: formatWeekday(next), time });
+    }
+  }
+  // Each collection is a one-minute interval; show its start time
+  const rows = weekTableRows(oh, now, intervals => intervals.length
+    ? intervals.map(([s]) => formatTime(s)).join(', ')
+    : '–');
+
+  return `<div class="oh-container">
+    <div class="oh-status ct-next">
+      <i class="fa fa-envelope-o"></i>
+      <span>${nextText}</span>
+    </div>
+    ${weekTableDetails(t('ct.allTimes'), rows)}
+  </div>`;
+}
+
+// One table row per day of the current week (Mon–Sun); formatIntervals turns that
+// day's intervals into the cell text
+function weekTableRows(oh, now, formatIntervals) {
   const weekStart = new Date(now);
   const dayOffset = now.getDay() === 0 ? -6 : 1 - now.getDay();
   weekStart.setDate(now.getDate() + dayOffset);
   weekStart.setHours(0, 0, 0, 0);
 
-  let tableRows = '';
+  let rows = '';
   for (let i = 0; i < 7; i++) {
     const dayStart = new Date(weekStart);
     dayStart.setDate(weekStart.getDate() + i);
@@ -1436,29 +1485,22 @@ function renderOpeningHours(ohStr) {
     let intervals = [];
     try { intervals = oh.getOpenIntervals(dayStart, dayEnd); } catch (e) { console.error('[oh] getOpenIntervals failed:', e); }
 
-    const times = intervals.length
-      ? intervals.map(([s, e]) => `${formatTime(s)}–${formatTime(e)}`).join(', ')
-      : t('oh.closed');
-
     const isToday = dayStart.toDateString() === now.toDateString();
-    tableRows += `<tr${isToday ? ' class="oh-today"' : ''}>
+    rows += `<tr${isToday ? ' class="oh-today"' : ''}>
       <td>${formatWeekday(dayStart)}</td>
-      <td>${times}</td>
+      <td>${formatIntervals(intervals)}</td>
     </tr>`;
   }
+  return rows;
+}
 
-  return `<div class="oh-container">
-    <div class="oh-status ${statusClass}">
-      <span class="oh-dot"></span>
-      <span>${statusText}</span>
-    </div>
-    <details class="oh-details">
+function weekTableDetails(summary, rows) {
+  return `<details class="oh-details">
       <summary class="oh-summary">
-        ${t('oh.allTimes')} <i class="fa fa-chevron-right oh-chevron"></i>
+        ${summary} <i class="fa fa-chevron-right oh-chevron"></i>
       </summary>
-      <table class="oh-table"><tbody>${tableRows}</tbody></table>
-    </details>
-  </div>`;
+      <table class="oh-table"><tbody>${rows}</tbody></table>
+    </details>`;
 }
 
 // A tag may hold several numbers separated by ';', and the plain and contact:*
@@ -1516,6 +1558,13 @@ function renderOsmTags(tags, osmType, osmId, place) {
     html += `<div class="feature-detail-row feature-detail-row--oh">
       <span class="feature-detail-label">${t('label.hours')}</span>
       <span class="feature-detail-value">${renderOpeningHours(tags['opening_hours'])}</span>
+    </div>`;
+  }
+
+  if (tags['collection_times']) {
+    html += `<div class="feature-detail-row feature-detail-row--oh">
+      <span class="feature-detail-label">${t('label.collectionTimes')}</span>
+      <span class="feature-detail-value">${renderCollectionTimes(tags['collection_times'])}</span>
     </div>`;
   }
 

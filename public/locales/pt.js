@@ -33,6 +33,7 @@ export default {
   'label.description': 'Descrição',
   'label.coordinates': 'Coordenadas',
   'label.reviews': 'Avaliações',
+  'label.collectionTimes': 'Recolha',
 
   'oh.open': 'Aberto',
   'oh.openUntil': 'Aberto até às {time}',
@@ -42,6 +43,11 @@ export default {
   'oh.opensTomorrow': 'Fechado · Abre amanhã às {time}',
   'oh.opensOnDay': 'Fechado · Abre {day} às {time}',
   'oh.allTimes': 'Todos os horários',
+
+  'ct.nextToday': 'Próxima recolha hoje às {time}',
+  'ct.nextTomorrow': 'Próxima recolha amanhã às {time}',
+  'ct.nextOnDay': 'Próxima recolha {day} às {time}',
+  'ct.allTimes': 'Todos os horários de recolha',
 
   'pin.title': 'Local marcado',
   'pin.copy': 'Copiar para a área de transferência',

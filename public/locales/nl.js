@@ -33,6 +33,7 @@ export default {
   'label.description': 'Beschrijving',
   'label.coordinates': 'Coördinaten',
   'label.reviews': 'Beoordelingen',
+  'label.collectionTimes': 'Lichting',
 
   'oh.open': 'Open',
   'oh.openUntil': 'Open tot {time}',
@@ -42,6 +43,11 @@ export default {
   'oh.opensTomorrow': 'Gesloten · Opent morgen om {time}',
   'oh.opensOnDay': 'Gesloten · Opent {day} om {time}',
   'oh.allTimes': 'Alle openingstijden',
+
+  'ct.nextToday': 'Volgende lichting vandaag om {time}',
+  'ct.nextTomorrow': 'Volgende lichting morgen om {time}',
+  'ct.nextOnDay': 'Volgende lichting {day} om {time}',
+  'ct.allTimes': 'Alle lichtingstijden',
 
   'pin.title': 'Gemarkeerde plaats',
   'pin.copy': 'Kopiëren naar klembord',

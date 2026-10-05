@@ -33,6 +33,7 @@ export default {
   'label.description': 'Descrizione',
   'label.coordinates': 'Coordinate',
   'label.reviews': 'Recensioni',
+  'label.collectionTimes': 'Levata',
 
   'oh.open': 'Aperto',
   'oh.openUntil': 'Aperto fino alle {time}',
@@ -42,6 +43,11 @@ export default {
   'oh.opensTomorrow': 'Chiuso · Apre domani alle {time}',
   'oh.opensOnDay': 'Chiuso · Apre {day} alle {time}',
   'oh.allTimes': 'Tutti gli orari',
+
+  'ct.nextToday': 'Prossima levata oggi alle {time}',
+  'ct.nextTomorrow': 'Prossima levata domani alle {time}',
+  'ct.nextOnDay': 'Prossima levata {day} alle {time}',
+  'ct.allTimes': 'Tutti gli orari di levata',
 
   'pin.title': 'Luogo segnato',
   'pin.copy': 'Copia negli appunti',

@@ -3,6 +3,12 @@ body{
 	margin:0;
 }
 
+:root {
+  /* Space for the status bar/notch, plus 10px extra when there is one: iOS blurs the
+     content just below the status bar, which would otherwise catch the search box */
+  --top-inset: calc(env(safe-area-inset-top) + min(env(safe-area-inset-top), 10px));
+}
+
 html,body{
 	height:100%;
 	overflow: hidden;
@@ -42,7 +48,7 @@ html,body{
 /* Floating "Search this area" pill, below the search box */
 #redo-search-button {
     position: absolute;
-    top: calc(64px + env(safe-area-inset-top));
+    top: calc(64px + var(--top-inset));
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;
@@ -355,6 +361,10 @@ html,body{
 .oh-closing-soon .oh-dot { background: #f97316; }
 
 .oh-closed { color: #dc2626; }
+
+/* Post box: next collection, neutral rather than open/closed colors */
+.ct-next { color: #333; }
+.ct-next .fa { color: #888; }
 .oh-closed .oh-dot { background: #ef4444; }
 
 .oh-details {
@@ -438,13 +448,13 @@ html,body{
 /* Keep map controls clear of the notch/status bar (viewport-fit=cover) */
 .maplibregl-ctrl-top-left,
 .maplibregl-ctrl-top-right {
-  top: env(safe-area-inset-top);
+  top: var(--top-inset);
 }
 
 /* Geocoder search overlay */
 #geocoder {
   position: absolute;
-  top: calc(10px + env(safe-area-inset-top));
+  top: calc(10px + var(--top-inset));
   left: calc(10px + env(safe-area-inset-left));
   z-index: 10;
   width: 320px;
@@ -666,4 +676,22 @@ html,body{
   #feature-panel {
     position: absolute;
   }
+}
+
+/* Larger text in the bottom sheet on phones */
+@media (max-width: 767px) {
+  #feature-panel-type { font-size: 15px; }
+  .feature-action { font-size: 16px; padding: 9px 16px; }
+  .feature-detail-row { font-size: 16px; padding: 8px 0; }
+  /* Wider label column so longer labels ("Öffnungszeiten") fit at the larger size */
+  .feature-detail-label { font-size: 14px; width: 104px; }
+  .feature-detail-osm-link { font-size: 14px; }
+  .feature-detail-empty { font-size: 15px; }
+  .poi-result-name { font-size: 16px; }
+  .poi-result-detail { font-size: 14px; }
+  .oh-status { font-size: 15px; }
+  .oh-details summary { font-size: 14px; }
+  .oh-table { font-size: 15px; }
+  .review-stars, .review-count, .review-opinion, .review-link { font-size: 15px; }
+  .review-meta { font-size: 14px; }
 }

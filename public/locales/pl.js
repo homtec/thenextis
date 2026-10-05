@@ -36,6 +36,7 @@ export default {
   'label.description': 'Opis',
   'label.coordinates': 'Współrzędne',
   'label.reviews': 'Opinie',
+  'label.collectionTimes': 'Opróżnianie',
 
   'oh.open': 'Otwarte',
   'oh.openUntil': 'Otwarte do {time}',
@@ -45,6 +46,11 @@ export default {
   'oh.opensTomorrow': 'Zamknięte · Otwarcie jutro o {time}',
   'oh.opensOnDay': 'Zamknięte · Otwarcie: {day}, {time}',
   'oh.allTimes': 'Wszystkie godziny otwarcia',
+
+  'ct.nextToday': 'Następne opróżnienie dziś o {time}',
+  'ct.nextTomorrow': 'Następne opróżnienie jutro o {time}',
+  'ct.nextOnDay': 'Następne opróżnienie: {day}, {time}',
+  'ct.allTimes': 'Wszystkie godziny opróżniania',
 
   'pin.title': 'Zaznaczone miejsce',
   'pin.copy': 'Kopiuj do schowka',
