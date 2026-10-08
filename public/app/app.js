@@ -255,7 +255,7 @@ function loadPOIs(manualRefresh) {
         row.className = 'poi-result-item';
         row.innerHTML = `<div class="poi-result-name">${escapeHtml(name)}</div>${detail ? `<div class="poi-result-detail">${escapeHtml(detail)}</div>` : ''}`;
         row.addEventListener('click', () => {
-          map.flyTo({ center: lngLat, zoom: 18, offset: sheetOffset() });
+          flyTo({ center: lngLat, zoom: 18, offset: sheetOffset() });
           openResultPoi(poi, lngLat);
         });
         detailsEl.appendChild(row);
@@ -319,6 +319,7 @@ function openResultPoi(poi, lngLat) {
   const tagName = getTagName() || typeLabelFromTags(poi.tags);
   const poiName = poi.tags.name || poi.tags.operator || poi.tags.brand || tagName;
   setSelection(null);
+  startPlaceImage({ lng: lngLat[0], lat: lngLat[1] }, poiName);
   document.querySelector('#feature-panel-name').textContent = poiName;
   document.querySelector('#feature-panel-type').textContent = tagName;
   document.querySelector('#feature-panel-details').innerHTML =
@@ -387,6 +388,10 @@ function photonLabel(p) {
   return { name, detail };
 }
 
+// How much Photon favours places near the map view over important ones (0–1). Lower
+// values buried big cities under local streets ("paris" near Mainz → "Pariser Straße").
+const PHOTON_LOCATION_BIAS = 0.5;
+
 const PLACE_SEARCH_LIMIT = 20;
 const PLACE_SEARCH_NEARBY_KM = 50;
 var placeSearchRequestId = 0;
@@ -418,7 +423,7 @@ async function searchPlaces(query, inView) {
     const b = map.getBounds();
     url += `&bbox=${b.getWest()},${b.getSouth()},${b.getEast()},${b.getNorth()}`;
   } else {
-    url += `&lat=${center.lat}&lon=${center.lng}&zoom=${Math.round(map.getZoom())}&location_bias_scale=0.1`;
+    url += `&lat=${center.lat}&lon=${center.lng}&zoom=${Math.round(map.getZoom())}&location_bias_scale=${PHOTON_LOCATION_BIAS}`;
   }
 
   let features = [];
@@ -477,7 +482,7 @@ async function searchPlaces(query, inView) {
     map.fitBounds(bounds, {
       maxZoom: 16,
       padding: mobile
-        ? { top: 80, bottom: height * SHEET_MAX_HEIGHT_RATIO + 20, left: 40, right: 40 }
+        ? { top: 80, bottom: height * SHEET_MEDIUM_RATIO + 20, left: 40, right: 40 }
         : { top: 80, bottom: 40, left: 380, right: 40 },
     });
   }
@@ -487,7 +492,7 @@ async function searchPlaces(query, inView) {
 function openPlaceResult(feature, fly) {
   const [lng, lat] = feature.geometry.coordinates;
   if (fly) {
-    map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), 17), offset: sheetOffset() });
+    flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), 17), offset: sheetOffset() });
   } else {
     revealAboveSheet([lng, lat]);
   }
@@ -632,7 +637,7 @@ async function searchCuisine(id, manualRefresh) {
     row.innerHTML = `<div class="poi-result-name">${escapeHtml(name)}</div>
       <div class="poi-result-detail">${statusHtml}${escapeHtml(formatDistance(distance))}</div>`;
     row.addEventListener('click', () => {
-      map.flyTo({ center: lngLat, zoom: 18, offset: sheetOffset() });
+      flyTo({ center: lngLat, zoom: 18, offset: sheetOffset() });
       openResultPoi(poi, lngLat);
     });
     detailsEl.appendChild(row);
@@ -647,7 +652,7 @@ async function searchCuisine(id, manualRefresh) {
     map.fitBounds(bounds, {
       maxZoom: 16,
       padding: mobile
-        ? { top: 80, bottom: height * SHEET_MAX_HEIGHT_RATIO + 20, left: 40, right: 40 }
+        ? { top: 80, bottom: height * SHEET_MEDIUM_RATIO + 20, left: 40, right: 40 }
         : { top: 80, bottom: 40, left: 380, right: 40 },
     });
   }
@@ -728,6 +733,8 @@ function init() {
   initGeocoder();
 
   document.querySelector('#feature-panel-share').addEventListener('click', shareSelection);
+  // Before anything can open the sheet (shared links open it right away)
+  initSheetDrag();
   openSharedSelection(params, !url_location);
   window.addEventListener('hashchange', () => {
     // A pasted link in the same tab: reapply its map position and selection
@@ -787,6 +794,7 @@ async function showSharedPoi(osmType, osmId, flyToIt) {
   const requestId = ++sharedPoiRequestId;
   const selection = `poi=${osmType}/${osmId}`;
   setSelection(selection);
+  clearPlaceImage();
   document.querySelector('#feature-panel-name').textContent = '';
   document.querySelector('#feature-panel-type').textContent = '';
   document.querySelector('#feature-panel-details').innerHTML =
@@ -816,12 +824,14 @@ async function showSharedPoi(osmType, osmId, flyToIt) {
     .addTo(map);
   if (flyToIt) map.jumpTo({ center: [lng, lat], zoom: 18 });
   revealAboveSheet([lng, lat]);
+  startPlaceImage({ lat, lng }, name);
 
   renderOsmTags(tags, osmType, osmId, { name, lngLat: { lat, lng } });
 }
 
 function setSelection(selection) {
   sharedSelection = selection;
+  if (!selection) clearPlaceImage();
   document.querySelector('#feature-panel-share').style.display = selection ? '' : 'none';
   if (map) updateHashURL();
 }
@@ -973,20 +983,31 @@ function initFeatureClick() {
   document.querySelector('#feature-panel-close').addEventListener('click', hideFeatureDetail);
 
   initLongPress();
-  initSheetDrag();
 }
 
 const SHEET_DESKTOP_MIN_WIDTH = 768;
-const SHEET_SNAP_THRESHOLD_PX = 60;
-const SHEET_MAX_HEIGHT_RATIO = 0.55; // #feature-panel max-height: 55vh
+const SHEET_MEDIUM_RATIO = 0.5;      // share of the screen the sheet covers at the medium detent
 const SHEET_REVEAL_MARGIN_PX = 60;   // room for the marker above the sheet top
 
-// Lowest screen y where a selected point stays visible above the mobile sheet,
-// or null on desktop where the panel is at the side
+function isMobileSheet() {
+  return window.innerWidth < SHEET_DESKTOP_MIN_WIDTH;
+}
+
+// Camera flights to places: twice MapLibre's default speed (1.2), and long jumps (e.g.
+// to another city) capped so they never take more than 2 seconds
+const FLY_SPEED = 2.4;
+const FLY_MAX_DURATION_MS = 2000;
+
+function flyTo(options) {
+  map.flyTo({ speed: FLY_SPEED, maxDuration: FLY_MAX_DURATION_MS, ...options });
+}
+
+// Lowest screen y where a selected point stays visible above the mobile sheet (at its
+// medium detent), or null on desktop where the panel is at the side
 function sheetRevealY() {
-  if (window.innerWidth >= SHEET_DESKTOP_MIN_WIDTH) return null;
+  if (!isMobileSheet()) return null;
   const height = map.getContainer().clientHeight;
-  return height * (1 - SHEET_MAX_HEIGHT_RATIO) - SHEET_REVEAL_MARGIN_PX;
+  return height * (1 - SHEET_MEDIUM_RATIO) - SHEET_REVEAL_MARGIN_PX;
 }
 
 // flyTo offset that lands the target just above the mobile sheet instead of mid-screen
@@ -1005,53 +1026,190 @@ function revealAboveSheet(lngLat) {
   if (point.y > y) map.panBy([0, point.y - y]);
 }
 
-// Mobile bottom sheet: dragging anywhere on the sheet moves it (up to expand, down to
-// collapse or close). Inside the details list, the list scrolls natively instead when it
-// can: while expanded, or while dragging down with the list not at its top.
+// Spring for sheet animations: critically damped, so it settles without bouncing
+const SHEET_SPRING_STIFFNESS = 500;
+const SHEET_SPRING_DAMPING_RATIO = 1;
+// iOS-style momentum projection (WWDC 2018 "Designing Fluid Interfaces"): where a flick
+// would come to rest with a scroll view's deceleration rate
+const SHEET_DECELERATION_RATE = 0.995;
+const SHEET_DISMISS_DRAG_PX = 40;     // released this far below peek: close
+const SHEET_DISMISS_DISTANCE_PX = 80; // or flicked so it would travel this far below peek
+const SHEET_VELOCITY_WINDOW_MS = 100;
+
+// Mobile bottom sheet with three detents, modelled on Apple Maps: peek (header only),
+// medium (half the screen) and large (almost full screen). The sheet has a fixed height
+// and is positioned with translateY, so dragging follows the finger 1:1 without relayout.
+// Releasing projects the flick's momentum to pick a detent and springs there, carrying
+// the finger's velocity without overshooting. Below peek the sheet follows the finger
+// freely, so pulling it down closes it. The rest of the app opens and closes the sheet through the
+// 'visible' class, which this watches. Desktop keeps the CSS side panel.
 function initSheetDrag() {
   const panel = document.querySelector('#feature-panel');
   const details = document.querySelector('#feature-panel-details');
-  let startY = null;
-  let startHeight = 0;
-  let dy = 0;
-  let mode = null; // null (undecided) | 'sheet' | 'scroll'
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  let y = null;           // current translateY in px; null while hidden on desktop
+  let detent = 'hidden';  // 'hidden' | 'peek' | 'medium' | 'large'
+  let frame = null;
+
+  const viewHeight = () => panel.parentElement.clientHeight;
+  const positions = () => {
+    const height = panel.offsetHeight;
+    const peekVisible = details.offsetTop + 16;
+    return {
+      large: 0,
+      medium: Math.max(0, height - viewHeight() * SHEET_MEDIUM_RATIO),
+      peek: Math.max(0, height - peekVisible),
+      hidden: height + 40,
+    };
+  };
+
+  const apply = (value) => {
+    y = value;
+    panel.style.transform = `translateY(${value}px)`;
+    // Only the large detent shows the whole list, so only there it scrolls by itself
+    details.style.overflowY = detent === 'large' ? 'auto' : 'hidden';
+  };
+
+  const stop = () => {
+    if (frame) cancelAnimationFrame(frame);
+    frame = null;
+  };
+
+  function springTo(target, velocity = 0, onDone) {
+    stop();
+    if (reduceMotion.matches || y === null) {
+      apply(target);
+      onDone?.();
+      return;
+    }
+    const k = SHEET_SPRING_STIFFNESS;
+    const c = 2 * Math.sqrt(k) * SHEET_SPRING_DAMPING_RATIO;
+    let v = velocity;
+    let last = performance.now();
+    const step = (time) => {
+      const dt = Math.min((time - last) / 1000, 1 / 30);
+      last = time;
+      const a = -k * (y - target) - c * v;
+      v += a * dt;
+      const next = y + v * dt;
+      // Settled, or about to cross the target (a fast flick would overshoot): stop there
+      const crossed = Math.sign(next - target) !== Math.sign(y - target);
+      if (crossed || (Math.abs(next - target) < 0.5 && Math.abs(v) < 10)) {
+        apply(target);
+        frame = null;
+        onDone?.();
+        return;
+      }
+      apply(next);
+      frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+  }
+
+  function goTo(name, velocity = 0) {
+    detent = name;
+    if (name !== 'large') details.scrollTop = 0;
+    springTo(positions()[name], velocity);
+  }
+
+  // Opened/closed by the rest of the app
+  new MutationObserver(() => {
+    if (!isMobileSheet()) return;
+    const visible = panel.classList.contains('visible');
+    if (visible && detent === 'hidden') {
+      if (y === null) apply(positions().hidden);
+      goTo('medium');
+    } else if (!visible && detent !== 'hidden') {
+      goTo('hidden');
+    }
+  }).observe(panel, { attributes: true, attributeFilter: ['class'] });
+  if (isMobileSheet()) {
+    apply(positions().hidden);
+    if (panel.classList.contains('visible')) goTo('medium');
+  }
+
+  // Desktop uses the CSS side panel; switching sizes resets or re-places the sheet
+  window.addEventListener('resize', () => {
+    stop();
+    if (!isMobileSheet()) {
+      panel.style.transform = '';
+      details.style.overflowY = '';
+      y = null;
+      detent = panel.classList.contains('visible') ? 'medium' : 'hidden';
+      return;
+    }
+    if (panel.classList.contains('visible') && detent === 'hidden') detent = 'medium';
+    apply(positions()[detent]);
+  });
+
+  // Rubber band above the large detent (iOS formula)
+  const rubberBand = (overshoot) => {
+    const dim = viewHeight();
+    return (1 - 1 / (overshoot * 0.55 / dim + 1)) * dim;
+  };
+
+  let startY = null;      // finger position at drag start
+  let startPos = 0;       // sheet position at drag start
+  let mode = null;        // null (undecided) | 'sheet' | 'scroll'
+  let samples = [];       // recent { t, y } for the release velocity
+  let pendingY = null;    // drag position waiting for the next frame
+  let dragFrame = null;
+
+  // Touch events can arrive several times per frame; move the sheet once per frame
+  const scheduleDrag = (value) => {
+    pendingY = value;
+    if (dragFrame) return;
+    dragFrame = requestAnimationFrame(() => {
+      dragFrame = null;
+      if (pendingY !== null) apply(pendingY);
+      pendingY = null;
+    });
+  };
+  const flushDrag = () => {
+    if (dragFrame) cancelAnimationFrame(dragFrame);
+    dragFrame = null;
+    if (pendingY !== null) apply(pendingY);
+    pendingY = null;
+  };
 
   panel.addEventListener('touchstart', (e) => {
-    if (window.innerWidth >= SHEET_DESKTOP_MIN_WIDTH || e.touches.length !== 1) return;
+    if (!isMobileSheet() || e.touches.length !== 1 || detent === 'hidden') return;
+    stop(); // catch the sheet mid-animation, like iOS
     startY = e.touches[0].clientY;
-    startHeight = panel.getBoundingClientRect().height;
-    dy = 0;
+    startPos = y;
     mode = null;
+    samples = [{ t: e.timeStamp, y: startY }];
   }, { passive: true });
 
   panel.addEventListener('touchmove', (e) => {
     if (startY === null) return;
-    dy = e.touches[0].clientY - startY;
+    const fingerY = e.touches[0].clientY;
+    const dy = fingerY - startY;
     if (mode === null) {
       if (Math.abs(dy) < 4) return;
+      // At the large detent the list scrolls, unless it's at the top and pulled down
       const inList = details.contains(e.target);
       const canScroll = details.scrollHeight > details.clientHeight;
-      const expanded = panel.classList.contains('expanded');
-      const listScrolls = inList && canScroll &&
-        (dy < 0 ? expanded : details.scrollTop > 0);
+      const listScrolls = detent === 'large' && inList && canScroll && (dy < 0 || details.scrollTop > 0);
       mode = listScrolls ? 'scroll' : 'sheet';
       if (mode === 'sheet') {
-        panel.classList.add('dragging');
-        startY = e.touches[0].clientY;
-        dy = 0;
+        startY = fingerY;
+        samples = [{ t: e.timeStamp, y: fingerY }];
+        return;
       }
     }
     if (mode !== 'sheet') return;
     e.preventDefault();
-    if (dy > 0) {
-      panel.style.transform = `translateY(${dy}px)`;
-      panel.style.height = '';
-      panel.style.maxHeight = '';
-    } else {
-      panel.style.transform = 'translateY(0)';
-      panel.style.maxHeight = 'none';
-      panel.style.height = `${Math.min(startHeight - dy, window.innerHeight - 70)}px`;
-    }
+
+    samples.push({ t: e.timeStamp, y: fingerY });
+    samples = samples.filter(sample => e.timeStamp - sample.t <= SHEET_VELOCITY_WINDOW_MS);
+
+    // Resistance only above the top detent; downwards it follows the finger
+    const { large } = positions();
+    let next = startPos + (fingerY - startY);
+    if (next < large) next = large - rubberBand(large - next);
+    scheduleDrag(next);
   }, { passive: false });
 
   const onEnd = () => {
@@ -1060,22 +1218,37 @@ function initSheetDrag() {
     startY = null;
     mode = null;
     if (!wasSheet) return;
-    panel.classList.remove('dragging');
-    panel.style.transform = '';
-    panel.style.height = '';
-    panel.style.maxHeight = '';
-    if (dy < -SHEET_SNAP_THRESHOLD_PX) {
-      panel.classList.add('expanded');
-    } else if (dy > SHEET_SNAP_THRESHOLD_PX) {
-      if (panel.classList.contains('expanded')) {
-        panel.classList.remove('expanded');
-      } else {
-        hideFeatureDetail();
-      }
+    flushDrag();
+
+    // Velocity in px/s over the last ~100 ms
+    const first = samples[0];
+    const lastSample = samples[samples.length - 1];
+    const elapsed = (lastSample.t - first.t) / 1000;
+    const velocity = elapsed > 0 ? (lastSample.y - first.y) / elapsed : 0;
+
+    // Where the flick would come to rest; pick the nearest detent to that
+    const r = SHEET_DECELERATION_RATE;
+    const projected = y + (velocity / 1000) * r / (1 - r);
+    const pos = positions();
+    if (y > pos.peek + SHEET_DISMISS_DRAG_PX || projected > pos.peek + SHEET_DISMISS_DISTANCE_PX) {
+      detent = 'hidden';
+      springTo(pos.hidden, velocity, () => hideFeatureDetail());
+      return;
     }
+    const nearest = ['large', 'medium', 'peek']
+      .reduce((best, name) => (Math.abs(pos[name] - projected) < Math.abs(pos[best] - projected) ? name : best));
+    goTo(nearest, velocity);
   };
   panel.addEventListener('touchend', onEnd);
   panel.addEventListener('touchcancel', onEnd);
+
+  // A tap on the handle or header of a peeking sheet brings it back up
+  for (const el of [panel.querySelector('#feature-panel-handle'), panel.querySelector('#feature-panel-header')]) {
+    el.addEventListener('click', (e) => {
+      if (!isMobileSheet() || detent !== 'peek' || e.target.closest('button')) return;
+      goTo('medium');
+    });
+  }
 }
 
 const LONG_PRESS_MS = 500;
@@ -1134,6 +1307,7 @@ function showLocationDetail(lngLat) {
     .addTo(map);
 
   setSelection(`pin=${lat.toFixed(6)}/${lng.toFixed(6)}`);
+  startPlaceImage({ lat, lng }, t('pin.title'), PANORAMAX_PIN_FOV_TOLERANCE);
   revealAboveSheet([lng, lat]);
   document.querySelector('#feature-panel-name').textContent = t('pin.title');
   document.querySelector('#feature-panel-type').textContent = coords;
@@ -1208,6 +1382,7 @@ function showFeatureDetail(feature, lngLat) {
   const type = formatFeatureType(feature);
 
   setSelection(null);
+  startPlaceImage(lngLat, name);
   revealAboveSheet(lngLat);
   document.querySelector('#feature-panel-name').textContent = name;
   document.querySelector('#feature-panel-type').textContent = type;
@@ -1233,7 +1408,7 @@ function showFeatureDetail(feature, lngLat) {
 
 function hideFeatureDetail() {
   setSelection(null);
-  document.querySelector('#feature-panel').classList.remove('visible', 'expanded');
+  document.querySelector('#feature-panel').classList.remove('visible');
   if (searchResultMarker) {
     searchResultMarker.remove();
     searchResultMarker = null;
@@ -1315,6 +1490,7 @@ function showGeocoderFeatureDetail(props, lngLat) {
   const type = typeLabel(props.type || props.osm_value);
 
   setSelection(null);
+  startPlaceImage(lngLat, name);
   document.querySelector('#feature-panel-name').textContent = name;
   document.querySelector('#feature-panel-type').textContent =
     [streetDetail, props.city, props.country].filter(Boolean).join(', ') || type;
@@ -1614,6 +1790,217 @@ function renderOsmTags(tags, osmType, osmId, place) {
   document.querySelector('#feature-panel-details').innerHTML = html;
 
   if (reviewName && place?.lngLat) loadReviews(reviewName, place.lngLat);
+  upgradePlaceImage(tags, osmType, osmId, tags.name || place?.name || '');
+}
+
+// --- Place images ---------------------------------------------------------------------
+// One header image per place, from the first source that has one:
+//   1. the place's own photo: image=*, wikimedia_commons=File:…, or its Wikidata image (P18)
+//   2. a Panoramax street-level photo: panoramax=<id>, or one taken nearby facing the place
+//   3. the brand's logo for chains: brand:wikidata → Wikidata logo (P154)
+
+const IMAGE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const IMAGE_WIDTH_PX = 800;
+const PANORAMAX_API = 'https://api.panoramax.xyz/api';
+// Photos taken up to 30 m away with the place within 45° of the viewing direction
+const PANORAMAX_PLACE_DISTANCE = '0-30';
+const PANORAMAX_FOV_TOLERANCE = 90;
+// A dropped pin (e.g. on a street) may be anywhere in the picture
+const PANORAMAX_PIN_FOV_TOLERANCE = 180;
+
+const stripHtml = (html) => {
+  const el = document.createElement('div');
+  el.innerHTML = html || '';
+  return el.textContent.trim();
+};
+
+// URL, author and license of a Wikimedia Commons file ("File:Foo.jpg" or "Foo.jpg")
+async function commonsImage(file) {
+  const title = file.startsWith('File:') ? file : `File:${file}`;
+  const res = await fetch('https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*' +
+    `&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=${IMAGE_WIDTH_PX}&titles=${encodeURIComponent(title)}`);
+  if (!res.ok) return null;
+  const info = Object.values((await res.json()).query?.pages || {})[0]?.imageinfo?.[0];
+  if (!info?.thumburl) return null;
+  const meta = info.extmetadata || {};
+  return {
+    url: info.thumburl,
+    link: info.descriptionurl,
+    // Commons uses "Unknown author" for many logos and old images
+    author: /unknown author/i.test(stripHtml(meta.Artist?.value)) ? '' : stripHtml(meta.Artist?.value),
+    license: meta.LicenseShortName?.value || '',
+    source: 'Wikimedia Commons',
+  };
+}
+
+// File name of a Wikidata entity's image (P18) or logo (P154)
+async function wikidataFile(qid, property) {
+  if (!/^Q\d+$/.test(qid || '')) return null;
+  const res = await fetch('https://www.wikidata.org/w/api.php?action=wbgetclaims&format=json&origin=*' +
+    `&entity=${qid}&property=${property}`);
+  if (!res.ok) return null;
+  return (await res.json()).claims?.[property]?.[0]?.mainsnak?.datavalue?.value || null;
+}
+
+// Bearing in degrees from a to b ({ lat, lng })
+function bearing(a, b) {
+  const toRad = Math.PI / 180;
+  const y = Math.sin((b.lng - a.lng) * toRad) * Math.cos(b.lat * toRad);
+  const x = Math.cos(a.lat * toRad) * Math.sin(b.lat * toRad) -
+    Math.sin(a.lat * toRad) * Math.cos(b.lat * toRad) * Math.cos((b.lng - a.lng) * toRad);
+  return (Math.atan2(y, x) / toRad + 360) % 360;
+}
+
+function panoramaxImage(feature, place) {
+  const props = feature.properties;
+  const is360 = props['pers:interior_orientation']?.field_of_view === 360;
+  let panoramaX = null;
+  if (is360 && place) {
+    // Horizontal position of the place within the 360° picture (0–1)
+    const [lng, lat] = feature.geometry.coordinates;
+    const offset = (bearing({ lat, lng }, place) - (props['view:azimuth'] || 0) + 540) % 360;
+    panoramaX = offset / 360;
+  }
+  return {
+    url: feature.assets?.sd?.href || feature.assets?.thumb?.href,
+    link: `https://api.panoramax.xyz/#focus=pic&pic=${feature.id}`,
+    author: feature.providers?.find(p => p.roles?.includes('producer'))?.name || props['geovisio:producer'] || '',
+    // 'CC-BY-SA-4.0' → 'CC BY-SA 4.0'; others (e.g. 'etalab-2.0') as given
+    license: (props.license || '').replace(/^CC-(.+)-(\d\.\d)$/, 'CC $1 $2'),
+    source: 'Panoramax',
+    panoramaX,
+  };
+}
+
+async function panoramaxImageFor(tags, lngLat, fovTolerance = PANORAMAX_FOV_TOLERANCE) {
+  let url;
+  if (/^[0-9a-f-]{36}$/i.test(tags.panoramax || '')) {
+    url = `${PANORAMAX_API}/search?ids=${tags.panoramax}`;
+  } else if (lngLat) {
+    url = `${PANORAMAX_API}/search?limit=10&place_position=${lngLat.lng},${lngLat.lat}` +
+      `&place_distance=${PANORAMAX_PLACE_DISTANCE}&place_fov_tolerance=${fovTolerance}`;
+  } else {
+    return null;
+  }
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const features = (await res.json()).features || [];
+  // Prefer normal photos over 360° panoramas, which need cropping
+  const best = features.find(f => f.properties['pers:interior_orientation']?.field_of_view !== 360) || features[0];
+  return best ? panoramaxImage(best, lngLat) : null;
+}
+
+// The image slot sits at the top of #feature-panel-details and survives the many places
+// that replace the details' HTML: whenever it's removed, it's put back
+const imageSlot = document.createElement('div');
+imageSlot.id = 'feature-image';
+const detailsEl = document.querySelector('#feature-panel-details');
+new MutationObserver(() => {
+  if (detailsEl.firstChild !== imageSlot) detailsEl.prepend(imageSlot);
+}).observe(detailsEl, { childList: true });
+detailsEl.prepend(imageSlot);
+
+// Image state of the open place. A street photo starts loading the moment a place is
+// opened (it only needs the position); the place's own photo and the brand logo need
+// its OSM tags, which come later (upgradePlaceImage).
+var placeImage = { id: 0, shown: null, streetPhoto: null, name: '' };
+
+function clearPlaceImage() {
+  placeImage = { id: placeImage.id + 1, shown: null, streetPhoto: Promise.resolve(null), name: '' };
+  imageSlot.innerHTML = '';
+}
+
+function showPlaceImage(id, kind, image) {
+  if (id !== placeImage.id || !image) return;
+  placeImage.shown = kind;
+  imageSlot.innerHTML = renderPlaceImage(image, placeImage.name);
+  imageSlot.querySelector('img').addEventListener('error', () => {
+    if (id === placeImage.id) imageSlot.innerHTML = '';
+  });
+}
+
+// Cached lookup: resolves to the image or null
+function cachedImage(cacheKey, find) {
+  const cached = cacheGetFresh(cacheKey, IMAGE_CACHE_MAX_AGE_MS);
+  if (cached !== null) return Promise.resolve(cached.image);
+  return find()
+    .catch(e => { console.warn('[image] lookup failed:', e); return null; })
+    .then(image => { cacheSetFresh(cacheKey, { image }); return image; });
+}
+
+function startPlaceImage(lngLat, name, fovTolerance = PANORAMAX_FOV_TOLERANCE) {
+  clearPlaceImage();
+  const id = placeImage.id;
+  placeImage.name = name;
+  const { lat, lng } = lngLat;
+  placeImage.streetPhoto = cachedImage(`image_street_${lat.toFixed(5)}_${lng.toFixed(5)}_${fovTolerance}`,
+    () => panoramaxImageFor({}, { lat, lng }, fovTolerance));
+  // Shown as soon as it arrives, unless the place's own photo got there first
+  placeImage.streetPhoto.then(image => {
+    if (id === placeImage.id && placeImage.shown !== 'own') showPlaceImage(id, 'street', image);
+  });
+}
+
+// The place's own photo (image / wikimedia_commons / Wikidata P18) wins over the street photo
+async function ownPhoto(tags) {
+  const commonsFile = tags.wikimedia_commons?.startsWith('File:') && tags.wikimedia_commons;
+  const imageTag = tags.image || '';
+  const imageFile = commonsFile ||
+    imageTag.match(/commons\.wikimedia\.org\/wiki\/(File:[^?#]+)/)?.[1]?.replace(/_/g, ' ') ||
+    (imageTag.startsWith('File:') && imageTag);
+  if (imageFile) {
+    const image = await commonsImage(decodeURIComponent(imageFile));
+    if (image) return image;
+  } else if (/^https:\/\/\S+\.(jpe?g|png|webp)$/i.test(imageTag)) {
+    return { url: imageTag, link: imageTag, author: '', license: '', source: new URL(imageTag).hostname };
+  }
+  const file = await wikidataFile(tags.wikidata, 'P18');
+  return file ? commonsImage(file) : null;
+}
+
+async function brandLogo(tags) {
+  const file = await wikidataFile(tags['brand:wikidata'], 'P154');
+  const logo = file && await commonsImage(file);
+  return logo ? { ...logo, logo: true } : null;
+}
+
+// Called once the place's OSM tags are known
+async function upgradePlaceImage(tags, osmType, osmId, name) {
+  const id = placeImage.id;
+  if (name) placeImage.name = name;
+
+  const own = await cachedImage(`image_own_${osmType}_${osmId}`, () => ownPhoto(tags));
+  if (own) return showPlaceImage(id, 'own', own);
+
+  // A specific Panoramax picture linked in OSM beats a nearby one
+  if (tags.panoramax) {
+    const linked = await cachedImage(`image_linked_${tags.panoramax}`, () => panoramaxImageFor(tags, null));
+    if (linked) return showPlaceImage(id, 'own', linked);
+  }
+
+  if (await placeImage.streetPhoto || id !== placeImage.id) return;
+  const logo = await cachedImage(`image_logo_${tags['brand:wikidata'] || 'none'}`, () => brandLogo(tags));
+  if (logo && !placeImage.shown) showPlaceImage(id, 'logo', logo);
+}
+
+function renderPlaceImage(image, name) {
+  const credit = [image.author && `© ${image.author}`, image.license, image.source].filter(Boolean).join(' · ');
+  let cls = 'feature-image';
+  let imgStyle = '';
+  if (image.logo) {
+    cls += ' feature-image--logo';
+  } else if (image.panoramaX !== null && image.panoramaX !== undefined) {
+    // Show the ~90° slice of the 360° panorama that faces the place
+    cls += ' feature-image--panorama';
+    const x = Math.min(Math.max(image.panoramaX, 0.125), 0.875);
+    imgStyle = ` style="left: calc(50% - ${(x * 400).toFixed(2)}%)"`;
+  }
+  return `<figure class="${cls}">
+    <a class="feature-image-frame" href="${escapeHtml(image.link)}" target="_blank" rel="nofollow">
+      <img src="${escapeHtml(image.url)}" alt="${escapeHtml(name)}" loading="lazy"${imgStyle}>
+    </a>
+    ${credit ? `<figcaption>${escapeHtml(credit)}</figcaption>` : ''}
+  </figure>`;
 }
 
 const MANGROVE_API = 'https://api.mangrove.reviews/reviews';
@@ -1838,7 +2225,7 @@ function initGeocoder() {
           openGeocoderResult(r.props, r.lat, r.lng, r.zoom);
         } else {
           // Entries saved before place details were stored: show the spot as a pin
-          map.flyTo({ center: [r.lng, r.lat], zoom: r.zoom, offset: sheetOffset() });
+          flyTo({ center: [r.lng, r.lat], zoom: r.zoom, offset: sheetOffset() });
           showLocationDetail({ lat: r.lat, lng: r.lng });
         }
       });
@@ -1910,7 +2297,7 @@ function initGeocoder() {
     const center = map.getCenter();
     // Bias results towards the current map view
     const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lang=${PHOTON_LANG}` +
-      `&lat=${center.lat}&lon=${center.lng}&zoom=${Math.round(map.getZoom())}&location_bias_scale=0.1`;
+      `&lat=${center.lat}&lon=${center.lng}&zoom=${Math.round(map.getZoom())}&location_bias_scale=${PHOTON_LOCATION_BIAS}`;
     const categories = matchCategories(query);
     const cuisines = matchCuisines(query).slice(0, CUISINE_SUGGESTIONS);
     if (categories.length || cuisines.length) renderGeocoderResults([], categories, cuisines);
@@ -1990,7 +2377,7 @@ function initGeocoder() {
   }
 
   function openGeocoderResult(props, lat, lng, zoom) {
-    map.flyTo({ center: [lng, lat], zoom, offset: sheetOffset() });
+    flyTo({ center: [lng, lat], zoom, offset: sheetOffset() });
 
     if (searchResultMarker) searchResultMarker.remove();
     searchResultMarker = new maplibregl.Marker({ color: '#e53e3e' })

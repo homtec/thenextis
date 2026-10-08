@@ -96,25 +96,19 @@ html,body{
   border-radius: 28px 28px 0 0;
   box-shadow: 0 -4px 20px rgba(0,0,0,0.18);
   transform: translateY(100%);
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  max-height: 55vh;
   display: flex;
   flex-direction: column;
   /* The sheet handles its own gestures; never pan the page/map through it */
   touch-action: none;
 }
 
-#feature-panel.visible {
-  transform: translateY(0);
-}
-
-#feature-panel.expanded {
-  height: calc(100dvh - 70px - env(safe-area-inset-top));
-  max-height: none;
-}
-
-#feature-panel.dragging {
-  transition: none;
+/* Mobile: a fixed-height sheet positioned by initSheetDrag() with translateY (detents
+   peek / medium / large); it never changes height, so dragging needs no relayout */
+@media (max-width: 767px) {
+  #feature-panel {
+    height: calc(100% - var(--top-inset) - 12px);
+    will-change: transform;
+  }
 }
 
 #feature-panel-handle {
@@ -203,6 +197,66 @@ html,body{
 #feature-panel-share.copied .fa-check {
   display: inline-block;
   color: #16a34a;
+}
+
+/* Header image in the details: photo, Panoramax street view or brand logo */
+/* Edge to edge: cancels #feature-panel-details' padding (10px top, 16px sides) */
+.feature-image {
+  margin: -10px -16px 12px;
+}
+
+.feature-image-frame {
+  display: block;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.feature-image-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Logos: whole logo on white, smaller */
+.feature-image--logo .feature-image-frame {
+  aspect-ratio: auto;
+  height: 72px;
+  margin: 10px 16px 0;
+  background: #fff;
+}
+
+.feature-image--logo .feature-image-frame img {
+  object-fit: contain;
+  object-position: center;
+}
+
+.feature-image--logo figcaption {
+  text-align: center;
+}
+
+/* 360° panorama (2:1): four times the frame width shows ~90°, positioned by JS */
+.feature-image--panorama .feature-image-frame img {
+  position: absolute;
+  width: 400%;
+  height: auto;
+  max-width: none;
+  top: 50%;
+  transform: translateY(-50%);
+  object-fit: fill;
+}
+
+.feature-image figcaption {
+  margin-top: 4px;
+  padding: 0 16px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 11px;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Call / Website buttons at the top of the details */
@@ -434,10 +488,6 @@ html,body{
 
   #feature-panel.visible {
     transform: translateX(0);
-  }
-
-  #feature-panel.expanded {
-    height: auto;
   }
 
   #feature-panel-handle {
