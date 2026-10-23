@@ -1,5 +1,6 @@
 // Generates public/cuisines.json: searchable cuisines, food types and diets with labels in
-// every UI language. Labels come from the iD editor's community translations
+// every UI language. Also public/cuisine-labels.json: every cuisine value iD knows with its
+// label per language ({ de: { italian: 'Italienisch' } }), for showing cuisine=* in details. Labels come from the iD editor's community translations
 // (@openstreetmap/id-tagging-schema); `terms` adds everyday words iD doesn't have
 // ("Grieche", "Döner"). Run with `npm run cuisines` after changing the list below.
 import { writeFileSync } from 'node:fs';
@@ -80,6 +81,7 @@ const capitalize = (s) => s.charAt(0).toLocaleUpperCase() + s.slice(1);
 const tidy = (s) => capitalize(s.replace(/\s+(кухня|кухні|страви|диета|дієта)$/i, ''));
 
 const labels = {};
+const allLabels = {};
 for (const lang of LANGS) {
   const res = await fetch(`${SCHEMA}/${lang}.min.json`);
   if (!res.ok) throw new Error(`${lang}: HTTP ${res.status}`);
@@ -89,6 +91,9 @@ for (const lang of LANGS) {
     const label = LABEL_OVERRIDES[lang]?.[entry.id] ?? options?.[entry.id];
     if (label) (labels[entry.id] ??= {})[lang] = tidy(label);
   }
+  allLabels[lang] = Object.fromEntries(Object.entries(fields.cuisine?.options || {})
+    .filter(([, label]) => typeof label === 'string')
+    .map(([value, label]) => [value, tidy(label)]));
 }
 
 const out = {};
@@ -99,3 +104,5 @@ for (const { id, ...entry } of ENTRIES) {
 writeFileSync('public/cuisines.json', JSON.stringify(out, null, 1) + '\n');
 const missing = ENTRIES.flatMap(e => LANGS.filter(l => !labels[e.id][l]).map(l => `${e.id}:${l}`));
 console.log(`public/cuisines.json: ${ENTRIES.length} entries; labels falling back to English: ${missing.join(', ') || 'none'}`);
+writeFileSync('public/cuisine-labels.json', JSON.stringify(allLabels) + '\n');
+console.log(`public/cuisine-labels.json: ${Object.keys(allLabels.en).length} cuisine values`);

@@ -28,7 +28,7 @@
         />
         <link
             rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.23.0/dist/maplibre-gl.css"
+            href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.14.0/dist/maplibre-gl.css"
         />
         <link
             rel="stylesheet"
@@ -81,52 +81,66 @@
         </header>
         <span id="editOSM-button" style="display: none"></span>
 
-        <div id="geocoder">
-            <div id="geocoder-input-wrapper">
-                <i class="fa fa-search" id="geocoder-search-icon"></i>
-                <input
-                    type="text"
-                    id="geocoder-input"
-                    placeholder="Search places or categories…"
-                    data-i18n-placeholder="search.placeholder"
-                    autocomplete="off"
-                    enterkeyhint="search"
-                />
-                <i class="fa fa-times" id="geocoder-clear-icon"></i>
-            </div>
-            <div id="geocoder-results"></div>
-        </div>
-
         <div id="map"></div>
 
         <div id="feature-panel">
             <div id="feature-panel-handle"></div>
-            <div id="feature-panel-header">
-                <div id="feature-panel-title">
-                    <div id="feature-panel-name"></div>
-                    <div id="feature-panel-type"></div>
+            <!-- Search page: search field, suggestions while typing, then the results list -->
+            <div id="search-page" class="sheet-page">
+                <div id="geocoder">
+                    <div id="geocoder-input-wrapper">
+                        <i class="fa fa-search" id="geocoder-search-icon"></i>
+                        <input
+                            type="text"
+                            id="geocoder-input"
+                            placeholder="Search places or categories…"
+                            data-i18n-placeholder="search.placeholder"
+                            autocomplete="off"
+                            enterkeyhint="search"
+                        />
+                        <button id="geocoder-clear-icon" type="button" tabindex="-1"><i class="fa fa-times-circle"></i></button>
+                    </div>
+                    <button id="geocoder-cancel" type="button" data-i18n="search.cancel">Cancel</button>
                 </div>
-                <div id="feature-panel-actions">
-                    <button id="feature-panel-share" title="Share" data-i18n-title="share.title" style="display: none">
-                        <i class="fa fa-share-alt"></i>
-                        <i class="fa fa-check"></i>
-                    </button>
-                    <button id="feature-panel-close" title="Close" data-i18n-title="panel.close">
-                        <i class="fa fa-times"></i>
-                    </button>
+                <div id="search-body" class="sheet-body">
+                    <div id="geocoder-results"></div>
+                    <div id="search-results">
+                        <div id="search-results-count"></div>
+                        <div id="search-results-list"></div>
+                    </div>
+                </div>
+                <div id="sheet-footer">
+                    <button id="about-link" type="button" data-i18n="info.button">About</button>
                 </div>
             </div>
-            <div id="feature-panel-details"></div>
+            <!-- Place page: one place, dropped pin or the info text -->
+            <div id="place-page" class="sheet-page">
+                <div id="feature-panel-header">
+                    <div id="feature-panel-title">
+                        <div id="feature-panel-name"></div>
+                        <div id="feature-panel-type"></div>
+                    </div>
+                    <div id="feature-panel-actions">
+                        <button id="feature-panel-share" title="Share" data-i18n-title="share.title" style="display: none">
+                            <i class="fa fa-share-alt"></i>
+                            <i class="fa fa-check"></i>
+                        </button>
+                        <button id="feature-panel-close" title="Close" data-i18n-title="panel.close">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="feature-panel-details" class="sheet-body"></div>
+            </div>
         </div>
-        <div id="info-button" class="buttons" title="About" data-i18n-title="info.button"><i class="fa fa-info"></i></div>
         <button id="redo-search-button" data-i18n="search.thisArea">Search this area</button>
 
 
         <script type="importmap">
             {
                 "imports": {
-                    "maplibre-gl": "https://esm.sh/maplibre-gl@5.23.0",
-                    "opening_hours": "https://esm.sh/opening_hours@3.12.0"
+                    "maplibre-gl": "https://cdn.jsdelivr.net/npm/maplibre-gl@6.14.0/dist/maplibre-gl.mjs",
+                    "opening_hours": "https://esm.sh/opening_hours@3.15.0"
                 }
             }
         </script>

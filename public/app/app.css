@@ -25,63 +25,11 @@ html,body{
   z-index: 1;
 }
 
-.buttons {
-    color: white;
-    font-size: 35px;
-    text-align: center;
-    cursor: pointer;
-    z-index: 2;
-		height: 50px;
-		width: 50px;
-		background: black;
-		position: absolute;
-
-}
-
-
-#info-button {
-    top: 191px;
-    left: calc(100% - 50px);
-    z-index: 3;
-}
-
-/* Floating "Search this area" pill, below the search box */
-#redo-search-button {
-    position: absolute;
-    top: calc(64px + var(--top-inset));
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 5;
-    display: none;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 18px;
-    background: #fff;
-    color: #0057ff;
-    font-family: 'Open Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-    cursor: pointer;
-}
-
-#redo-search-button.visible {
-    display: block;
-}
-
-#redo-search-button:disabled {
-    color: #888;
-    cursor: default;
-}
-
-
-
 #editOSM-button{
 	cursor:pointer;
 }
 
-.buttons:hover, #editOSM-button:hover{
+#editOSM-button:hover{
 	color: grey;
 }
 
@@ -108,6 +56,18 @@ html,body{
   #feature-panel {
     height: calc(100% - var(--top-inset) - 12px);
     will-change: transform;
+  }
+
+  /* Sheet background below the sheet: pulled beyond the large detent (rubber band), the
+     sheet lifts off the bottom of the screen and the map would show underneath */
+  #feature-panel::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    background: inherit;
   }
 }
 
@@ -325,6 +285,18 @@ html,body{
   word-break: break-word;
 }
 
+/* Leaf before the diet, wheelchair before the accessibility */
+.feature-detail-icon {
+  margin-right: 6px;
+  width: 1.1em;
+  text-align: center;
+}
+
+.feature-detail-icon--diet { color: #34c759; }
+.feature-detail-icon--wheelchair-yes { color: #007aff; }
+.feature-detail-icon--wheelchair-limited { color: #ff9500; }
+.feature-detail-icon--wheelchair-no { color: #8e8e93; }
+
 .feature-detail-value a {
   color: #0057ff;
   text-decoration: none;
@@ -359,35 +331,6 @@ html,body{
   font-size: 13px;
   font-family: 'Open Sans', sans-serif;
   padding: 8px 0;
-}
-
-.poi-result-item {
-  padding: 10px 0;
-  border-bottom: 1px solid #f5f5f5;
-  cursor: pointer;
-}
-
-.poi-result-item:last-child {
-  border-bottom: none;
-}
-
-.poi-result-item:hover {
-  background: #f9f9f9;
-  margin: 0 -16px;
-  padding: 10px 16px;
-}
-
-.poi-result-name {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 14px;
-  color: #333;
-}
-
-.poi-result-detail {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 12px;
-  color: #888;
-  margin-top: 2px;
 }
 
 /* Opening hours component */
@@ -472,27 +415,282 @@ html,body{
   font-weight: 600;
 }
 
+/* Desktop: a floating card on the left, like Apple Maps on the web, running the full map
+   height */
 @media (min-width: 768px) {
   #feature-panel {
-    top: 0;
-    bottom: 0;
-    left: 0;
+    top: 10px;
+    bottom: 10px;
+    left: 10px;
     right: auto;
-    width: 340px;
-    max-height: none;
-    border-radius: 0;
-    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
-    transform: translateX(-100%);
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  #feature-panel.visible {
-    transform: translateX(0);
+    width: 360px;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    transform: none;
+    overflow: hidden;
   }
 
   #feature-panel-handle {
     display: none;
   }
+
+  #feature-panel:not(.search-editing):not(.has-results) #search-body {
+    display: none;
+  }
+
+  /* Centered over the map next to the card */
+  #redo-search-button {
+    left: calc(380px + (100% - 380px) / 2);
+  }
+}
+
+/* --- Sheet pages ---------------------------------------------------------------------
+   The search page (search field, suggestions, results) and the place page; only one
+   shows at a time */
+.sheet-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#feature-panel:not(.place-open) #place-page,
+#feature-panel.place-open #search-page {
+  display: none;
+}
+
+.sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* The search page is grey and translucent, with white rounded lists on it (iOS style) */
+#feature-panel:not(.place-open) {
+  background: rgba(242, 242, 247, 0.92);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  backdrop-filter: blur(20px) saturate(1.8);
+}
+
+#geocoder {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  flex-shrink: 0;
+}
+
+#geocoder-input-wrapper {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 8px 0 10px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: rgba(118, 118, 128, 0.12);
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.search-editing #geocoder-input-wrapper {
+  background: #fff;
+  border-color: #007aff;
+}
+
+#geocoder-search-icon {
+  color: #8e8e93;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+#geocoder-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  /* 16px+ stops iOS Safari from zooming the page when the input is focused */
+  font-size: 17px;
+  font-family: 'Open Sans', sans-serif;
+  padding: 0 8px;
+  background: transparent;
+  color: #000;
+}
+
+#geocoder-input::placeholder {
+  color: #8e8e93;
+}
+
+#geocoder-clear-icon {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: none;
+  background: none;
+  color: #8e8e93;
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#geocoder-clear-icon:hover {
+  color: #636366;
+}
+
+#geocoder-cancel {
+  display: none;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #007aff;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 17px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.search-editing #geocoder-cancel {
+  display: block;
+}
+
+#search-body {
+  overflow-y: auto;
+  padding: 0 16px 16px;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+/* "About" link pinned to the bottom of the search page */
+#sheet-footer {
+  margin-top: auto;
+  flex-shrink: 0;
+  padding: 8px 16px calc(12px + env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+#about-link {
+  border: none;
+  background: none;
+  padding: 4px 8px;
+  color: #8e8e93;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#about-link:hover {
+  color: #3c3c43;
+}
+
+/* Suggestions while typing, the results list otherwise */
+#geocoder-results,
+.search-editing #search-results {
+  display: none;
+}
+
+.search-editing #geocoder-results {
+  display: block;
+}
+
+#search-results-count {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  color: #6c6c70;
+  padding: 0 4px 8px;
+}
+
+#search-results-count:empty {
+  display: none;
+}
+
+.sheet-section + .sheet-section {
+  margin-top: 20px;
+}
+
+.sheet-section-title {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #000;
+  padding: 0 4px 8px;
+}
+
+.sheet-list {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 0 0 16px;
+  cursor: pointer;
+}
+
+/* Hover only with a mouse: on touch screens it would stick to the tapped row */
+.sheet-row:active,
+.sheet-row.keyboard-focus {
+  background: #f2f2f7;
+}
+
+@media (hover: hover) {
+  .sheet-row:hover {
+    background: #f2f2f7;
+  }
+}
+
+.sheet-row-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* The separator starts at the text, as on iOS */
+.sheet-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 16px 10px 0;
+  border-bottom: 1px solid #e5e5ea;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.sheet-row:last-child .sheet-row-text {
+  border-bottom: none;
+}
+
+.sheet-row-name {
+  font-size: 15px;
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-row-name b {
+  font-weight: 700;
+}
+
+.sheet-row-detail {
+  font-size: 13px;
+  color: #8e8e93;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#search-results-list .feature-detail-loading,
+#search-results-list .feature-detail-empty {
+  padding: 16px 4px;
 }
 
 /* Keep map controls clear of the notch/status bar (viewport-fit=cover) */
@@ -501,161 +699,12 @@ html,body{
   top: var(--top-inset);
 }
 
-/* Geocoder search overlay */
-#geocoder {
-  position: absolute;
-  top: calc(10px + var(--top-inset));
-  left: calc(10px + env(safe-area-inset-left));
-  z-index: 10;
-  width: 320px;
-  max-width: calc(100vw - 70px);
-}
-
-#geocoder-input-wrapper {
-  display: flex;
-  align-items: center;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-  padding: 0 10px;
-  height: 44px;
-}
-
-#geocoder-search-icon {
-  color: #888;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-#geocoder-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  /* 16px+ stops iOS Safari from zooming the page when the input is focused */
-  font-size: 16px;
-  font-family: 'Open Sans', sans-serif;
-  padding: 0 8px;
-  background: transparent;
-  color: #333;
-}
-
-#geocoder-input::placeholder {
-  color: #aaa;
-}
-
-#geocoder-clear-icon {
-  color: #888;
-  font-size: 16px;
-  cursor: pointer;
-  flex-shrink: 0;
-  display: none;
-  padding: 2px;
-}
-
-#geocoder-clear-icon:hover {
-  color: #333;
-}
-
-#geocoder-results {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-  margin-top: 6px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
-  max-height: 70vh;
-  display: none;
-}
-
-.suggestions-section {
-  padding: 6px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.suggestions-section:last-child {
-  border-bottom: none;
-}
-
-.suggestions-section-title {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  color: #aaa;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 4px 14px 2px;
-}
-
-.suggestions-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 14px;
-  cursor: pointer;
-  font-family: 'Open Sans', sans-serif;
-  font-size: 14px;
-  color: #333;
-}
-
-.suggestions-item:hover {
-  background: #f5f5f5;
-}
-
-.suggestions-item--active {
-  background: #f0f4ff;
-  color: #0057ff;
-}
-
-.suggestions-item--active .suggestions-icon {
-  color: #0057ff;
-}
-
-.suggestions-icon {
-  color: #bbb;
-  font-size: 14px;
-  width: 16px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.geocoder-result {
-  padding: 10px 14px;
-  cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.geocoder-result:last-child {
-  border-bottom: none;
-}
-
-.geocoder-result:hover {
-  background: #f5f5f5;
-}
-
-/* Arrow-key highlight in the search dropdown */
-.suggestions-item.keyboard-focus,
-.geocoder-result.keyboard-focus {
-  background: #e8efff;
-}
-
-.geocoder-result-name {
-  font-size: 14px;
-  font-family: 'Open Sans', sans-serif;
-  color: #333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.geocoder-result-detail {
-  font-size: 12px;
-  font-family: 'Open Sans', sans-serif;
-  color: #888;
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Phones: keep the attribution above the peeking sheet (height set by initSheetDrag) */
+@media (max-width: 767px) {
+  .maplibregl-ctrl-bottom-left,
+  .maplibregl-ctrl-bottom-right {
+    bottom: var(--sheet-peek-height, 0px);
+  }
 }
 
 /* Mangrove reviews */
@@ -737,8 +786,12 @@ html,body{
   .feature-detail-label { font-size: 14px; width: 104px; }
   .feature-detail-osm-link { font-size: 14px; }
   .feature-detail-empty { font-size: 15px; }
-  .poi-result-name { font-size: 16px; }
-  .poi-result-detail { font-size: 14px; }
+  .sheet-row-name { font-size: 17px; }
+  .sheet-row-detail { font-size: 14px; }
+  .sheet-row-text { padding: 11px 16px 11px 0; }
+  .sheet-row-icon { width: 34px; height: 34px; font-size: 17px; }
+  .sheet-section-title { font-size: 20px; font-weight: 700; }
+  #search-results-count { font-size: 15px; }
   .oh-status { font-size: 15px; }
   .oh-details summary { font-size: 14px; }
   .oh-table { font-size: 15px; }

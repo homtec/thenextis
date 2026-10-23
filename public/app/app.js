@@ -1,4 +1,4 @@
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import OpeningHours from 'opening_hours';
 import {
   LANG, PREFERRED_LANG, PHOTON_LANG, t, typeLabel,
@@ -71,6 +71,7 @@ var placeQuery = null; // active free-text place search (Enter in the search box
 var selectedCuisine = null; // active cuisine/diet search, a key of cuisines.json
 var poiData = null;
 var cuisineData = null;
+var cuisineLabels = null; // cuisine-labels.json: { lang: { cuisine value: label } }
 var mapLoaded = false;
 // The open POI or dropped pin, kept in the URL hash so links can be shared:
 // 'poi=<osm type>/<osm id>' or 'pin=<lat>/<lng>'
@@ -183,20 +184,20 @@ function loadPOIs(manualRefresh) {
   clearResults();
 
   const tagName = getTagName();
+  const categoryKey = selectedCategory;
   setSelection(null);
-  document.querySelector('#feature-panel-name').textContent = tagName;
-  document.querySelector('#feature-panel-type').textContent = '';
-  document.querySelector('#feature-panel-details').innerHTML =
-    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> ${escapeHtml(t('search.searchingFor', { query: tagName }))}</div>`;
-  document.querySelector('#feature-panel').classList.add('visible');
+  showSearchResults(tagName,
+    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> ${escapeHtml(t('search.searchingFor', { query: tagName }))}</div>`);
 
   fetchOverpass(fullQuery)
     .then((data) => {
+      // Stale if another search was started or the search was cleared meanwhile
+      if (selectedCategory !== categoryKey) return;
 
       var pois = data.elements;
 
       if (pois.length === 0) {
-        document.querySelector('#feature-panel-details').innerHTML =
+        document.querySelector('#search-results-list').innerHTML =
           `<div class="feature-detail-empty">${t('search.noResultsArea')}</div>`;
         return;
       }
@@ -243,22 +244,19 @@ function loadPOIs(manualRefresh) {
         });
       }
 
-      // Render result list in panel
-      document.querySelector('#feature-panel-type').textContent = t('search.results', { count: resultItems.length });
-      const detailsEl = document.querySelector('#feature-panel-details');
-      detailsEl.innerHTML = '';
+      // Render result list in the sheet
+      document.querySelector('#search-results-count').textContent = t('search.results', { count: resultItems.length });
+      const listEl = sheetList(document.querySelector('#search-results-list'));
       for (const { poi, lngLat } of resultItems) {
         const name = poi.tags.name || poi.tags.operator || poi.tags.brand || tagName;
         const street = [poi.tags['addr:housenumber'], poi.tags['addr:street']].filter(Boolean).join(' ');
         const detail = street || poi.tags.description || '';
-        const row = document.createElement('div');
-        row.className = 'poi-result-item';
-        row.innerHTML = `<div class="poi-result-name">${escapeHtml(name)}</div>${detail ? `<div class="poi-result-detail">${escapeHtml(detail)}</div>` : ''}`;
+        const row = sheetRow(ROW_ICONS.poi, escapeHtml(name), escapeHtml(detail));
         row.addEventListener('click', () => {
           flyTo({ center: lngLat, zoom: 18, offset: sheetOffset() });
           openResultPoi(poi, lngLat);
         });
-        detailsEl.appendChild(row);
+        listEl.appendChild(row);
       }
 
       if (myLocation === null) return;
@@ -282,7 +280,8 @@ function loadPOIs(manualRefresh) {
     })
     .catch((error) => {
       console.error('[overpass] all servers failed:', error);
-      document.querySelector('#feature-panel-details').innerHTML =
+      if (selectedCategory !== categoryKey) return;
+      document.querySelector('#search-results-list').innerHTML =
         `<div class="feature-detail-empty">${t('search.failed')}</div>`;
     });
 }
@@ -324,7 +323,7 @@ function openResultPoi(poi, lngLat) {
   document.querySelector('#feature-panel-type').textContent = tagName;
   document.querySelector('#feature-panel-details').innerHTML =
     '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
-  document.querySelector('#feature-panel').classList.add('visible');
+  showPlacePage();
   const place = { name: poiName, lngLat: { lng: lngLat[0], lat: lngLat[1] } };
   fetchOsmTagsByTypeAndId(poi.type, poi.id).then(result => {
     if (result) {
@@ -411,11 +410,8 @@ async function searchPlaces(query, inView) {
     searchResultMarker = null;
   }
 
-  document.querySelector('#feature-panel-name').textContent = query;
-  document.querySelector('#feature-panel-type').textContent = '';
-  document.querySelector('#feature-panel-details').innerHTML =
-    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> ${escapeHtml(t('search.searchingFor', { query }))}</div>`;
-  document.querySelector('#feature-panel').classList.add('visible');
+  showSearchResults(query,
+    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> ${escapeHtml(t('search.searchingFor', { query }))}</div>`);
 
   const center = map.getCenter();
   let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=${PLACE_SEARCH_LIMIT}&lang=${PHOTON_LANG}`;
@@ -440,18 +436,13 @@ async function searchPlaces(query, inView) {
     if (nearby.length) features = nearby;
   }
 
-  const detailsEl = document.querySelector('#feature-panel-details');
   if (!features.length) {
-    detailsEl.innerHTML = `<div class="feature-detail-empty">${t('search.noResults')}</div>`;
-    return;
-  }
-  if (features.length === 1 && !inView) {
-    openPlaceResult(features[0], true);
+    document.querySelector('#search-results-list').innerHTML = `<div class="feature-detail-empty">${t('search.noResults')}</div>`;
     return;
   }
 
-  document.querySelector('#feature-panel-type').textContent = t('search.results', { count: features.length });
-  detailsEl.innerHTML = '';
+  document.querySelector('#search-results-count').textContent = t('search.results', { count: features.length });
+  const listEl = sheetList(document.querySelector('#search-results-list'));
   const bounds = new maplibregl.LngLatBounds();
   for (const feature of features) {
     const lngLat = feature.geometry.coordinates;
@@ -467,15 +458,15 @@ async function searchPlaces(query, inView) {
     poiMarkers.push(marker);
 
     const { name, detail } = photonLabel(feature.properties);
-    const row = document.createElement('div');
-    row.className = 'poi-result-item';
-    row.innerHTML = `<div class="poi-result-name">${escapeHtml(name)}</div>` +
-      (detail ? `<div class="poi-result-detail">${escapeHtml(detail)}</div>` : '');
+    const row = sheetRow(ROW_ICONS.place, escapeHtml(name), escapeHtml(detail));
     row.addEventListener('click', () => openPlaceResult(feature, true));
-    detailsEl.appendChild(row);
+    listEl.appendChild(row);
   }
 
-  if (!inView) {
+  // A single match opens right away; the list stays behind it
+  if (features.length === 1 && !inView) {
+    openPlaceResult(features[0], true);
+  } else if (!inView) {
     // Keep the results clear of the search box and the sheet
     const mobile = window.innerWidth < SHEET_DESKTOP_MIN_WIDTH;
     const height = map.getContainer().clientHeight;
@@ -566,11 +557,8 @@ async function searchCuisine(id, manualRefresh) {
   }
 
   const label = cuisineLabel(id);
-  document.querySelector('#feature-panel-name').textContent = label;
-  document.querySelector('#feature-panel-type').textContent = '';
-  document.querySelector('#feature-panel-details').innerHTML =
-    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> ${escapeHtml(t('search.searchingFor', { query: label }))}</div>`;
-  document.querySelector('#feature-panel').classList.add('visible');
+  showSearchResults(label,
+    `<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i> ${escapeHtml(t('search.searchingFor', { query: label }))}</div>`);
 
   // A box rather than a radius: Overpass answers bbox queries faster. Rounded to ~100 m
   // so repeated searches of the same area hit the cache.
@@ -590,8 +578,8 @@ async function searchCuisine(id, manualRefresh) {
     }
   } catch (e) {
     console.error('[overpass] cuisine search failed:', e);
-    if (requestId === cuisineSearchRequestId) {
-      document.querySelector('#feature-panel-details').innerHTML =
+    if (requestId === cuisineSearchRequestId && selectedCuisine === id) {
+      document.querySelector('#search-results-list').innerHTML =
         `<div class="feature-detail-empty">${t('search.failed')}</div>`;
     }
     return;
@@ -619,28 +607,24 @@ async function searchCuisine(id, manualRefresh) {
     // Open now first, then places without opening hours, then closed ones; nearest first
     .sort((a, b) => statusRank(a.status) - statusRank(b.status) || a.distance - b.distance);
 
-  const detailsEl = document.querySelector('#feature-panel-details');
   if (!results.length) {
-    detailsEl.innerHTML = `<div class="feature-detail-empty">${t('search.noResultsArea')}</div>`;
+    document.querySelector('#search-results-list').innerHTML = `<div class="feature-detail-empty">${t('search.noResultsArea')}</div>`;
     return;
   }
 
-  document.querySelector('#feature-panel-type').textContent = t('search.results', { count: results.length });
-  detailsEl.innerHTML = '';
+  document.querySelector('#search-results-count').textContent = t('search.results', { count: results.length });
+  const listEl = sheetList(document.querySelector('#search-results-list'));
   for (const { poi, lngLat, distance, status } of results) {
     poiMarkers.push(addResultMarker(poi, lngLat));
 
     const name = poi.tags.name || poi.tags.brand || typeLabelFromTags(poi.tags);
     const statusHtml = status ? `<span class="${status.cls}">${escapeHtml(status.text)}</span> · ` : '';
-    const row = document.createElement('div');
-    row.className = 'poi-result-item';
-    row.innerHTML = `<div class="poi-result-name">${escapeHtml(name)}</div>
-      <div class="poi-result-detail">${statusHtml}${escapeHtml(formatDistance(distance))}</div>`;
+    const row = sheetRow(ROW_ICONS.food, escapeHtml(name), statusHtml + escapeHtml(formatDistance(distance)));
     row.addEventListener('click', () => {
       flyTo({ center: lngLat, zoom: 18, offset: sheetOffset() });
       openResultPoi(poi, lngLat);
     });
-    detailsEl.appendChild(row);
+    listEl.appendChild(row);
   }
 
   if (useLocation) {
@@ -678,11 +662,6 @@ function selectCategory(key) {
   selectedCategory = key;
   placeQuery = null;
   selectedCuisine = null;
-  const label = (poiData[key] && categoryLabel(poiData[key])) || key;
-  const input = document.querySelector('#geocoder-input');
-  const clearIcon = document.querySelector('#geocoder-clear-icon');
-  input.value = label;
-  clearIcon.style.display = 'block';
   loadPOIs();
 }
 
@@ -722,7 +701,7 @@ function init() {
 
   loadPOIdataFromFile();
 
-  document.querySelector('#info-button').onclick = function () { showInfo(); };
+  document.querySelector('#about-link').onclick = function () { showInfo(); };
   document.querySelector('#redo-search-button').onclick = function () {
     if (placeQuery) searchPlaces(placeQuery, true);
     else if (selectedCuisine) searchCuisine(selectedCuisine, true);
@@ -734,7 +713,7 @@ function init() {
 
   document.querySelector('#feature-panel-share').addEventListener('click', shareSelection);
   // Before anything can open the sheet (shared links open it right away)
-  initSheetDrag();
+  sheet = initSheetDrag();
   openSharedSelection(params, !url_location);
   window.addEventListener('hashchange', () => {
     // A pasted link in the same tab: reapply its map position and selection
@@ -799,7 +778,7 @@ async function showSharedPoi(osmType, osmId, flyToIt) {
   document.querySelector('#feature-panel-type').textContent = '';
   document.querySelector('#feature-panel-details').innerHTML =
     '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
-  document.querySelector('#feature-panel').classList.add('visible');
+  showPlacePage();
 
   const el = await fetchOsmElementWithCenter(osmType, osmId);
   // Stale if another shared link was opened, or anything else was opened/closed meanwhile
@@ -895,7 +874,7 @@ function showInfo() {
       <span class="feature-detail-value">${t('info.missingPlace')} <a href="#" id="info-edit-osm-link">${t('info.addInOsm')}</a></span>
     </div>
   `;
-  document.querySelector('#feature-panel').classList.add('visible');
+  showPlacePage();
   document.querySelector('#info-edit-osm-link').addEventListener('click', (e) => {
     e.preventDefault();
     editOSM();
@@ -926,6 +905,13 @@ function loadPOIdataFromFile() {
   fetch("cuisines.json")
     .then((response) => response.json())
     .then((data) => { cuisineData = data; });
+  fetch("cuisine-labels.json")
+    .then((response) => response.json())
+    .then((data) => {
+      cuisineLabels = data;
+      // A place opened before the labels arrived (e.g. a shared link) shows raw values
+      for (const el of document.querySelectorAll('[data-cuisine]')) el.textContent = cuisineText(el.dataset.cuisine);
+    });
 }
 
 function escapeHtml(str) {
@@ -980,9 +966,142 @@ function initFeatureClick() {
     }
   });
 
-  document.querySelector('#feature-panel-close').addEventListener('click', hideFeatureDetail);
+  document.querySelector('#feature-panel-close').addEventListener('click', () => hideFeatureDetail());
 
   initLongPress();
+}
+
+// --- Sheet pages ----------------------------------------------------------------------
+// The sheet shows the search page (search field, suggestions while typing, results list)
+// or the place page (a place, dropped pin or the info text) on top of it. Classes on
+// #feature-panel: 'place-open', 'search-editing' (typing, suggestions shown) and
+// 'has-results' (a category, cuisine or place search is active).
+
+// Set by initSheetDrag(): moves the mobile sheet between its detents; no-op on desktop
+var sheet = { goTo() {}, detent: () => null };
+// Label of the active search, shown in the search field while it isn't being edited
+var searchLabel = '';
+
+function showPlacePage() {
+  const panel = document.querySelector('#feature-panel');
+  const wasOpen = panel.classList.contains('place-open');
+  endSearchEditing();
+  panel.classList.add('place-open');
+  // Another place while one is open keeps the sheet where the user left it
+  if (!wasOpen || sheet.detent() === 'peek') sheet.goTo('medium');
+}
+
+// detent defaults to medium over a results list, else peek (just the search field)
+function showSearchPage(detent, velocity) {
+  const panel = document.querySelector('#feature-panel');
+  panel.classList.remove('place-open');
+  sheet.goTo(detent || (panel.classList.contains('has-results') ? 'medium' : 'peek'), velocity);
+}
+
+// Starts a results list on the search page: label goes in the search field, html (the
+// loading message) in the list until the results arrive
+function showSearchResults(label, html) {
+  const panel = document.querySelector('#feature-panel');
+  searchLabel = label;
+  panel.classList.add('has-results');
+  document.querySelector('#search-results-count').textContent = '';
+  document.querySelector('#search-results-list').innerHTML = html;
+  document.querySelector('#search-results-list').scrollTop = 0;
+  if (panel.classList.contains('search-editing')) {
+    endSearchEditing();
+  } else {
+    setSearchInput(label);
+  }
+  showSearchPage('medium');
+}
+
+// Ends the active search: results, markers and the label in the search field
+function clearSearch() {
+  selectedCategory = null;
+  placeQuery = null;
+  selectedCuisine = null;
+  searchLabel = '';
+  clearResults();
+  hideRedoSearchButton();
+  document.querySelector('#feature-panel').classList.remove('has-results');
+  document.querySelector('#search-results-count').textContent = '';
+  document.querySelector('#search-results-list').innerHTML = '';
+  setSearchInput('');
+}
+
+function setSearchInput(value) {
+  document.querySelector('#geocoder-input').value = value;
+  document.querySelector('#geocoder-clear-icon').style.display = value ? 'flex' : 'none';
+}
+
+// Leaves the search field: hides the suggestions and the keyboard and puts the active
+// search's label back
+function endSearchEditing() {
+  const panel = document.querySelector('#feature-panel');
+  if (!panel.classList.contains('search-editing')) return;
+  panel.classList.remove('search-editing');
+  document.querySelector('#geocoder-input').blur();
+  document.querySelector('#geocoder-results').innerHTML = '';
+  setSearchInput(searchLabel);
+}
+
+// Round colored icons of list rows, by kind of row
+const ROW_ICONS = {
+  place: { icon: 'fa-map-marker', color: '#ff3b30' },
+  poi: { icon: 'fa-map-marker', color: '#ff3b30' },
+  food: { icon: 'fa-cutlery', color: '#ff9500' },
+  category: { icon: 'fa-search', color: '#007aff' },
+  recent: { icon: 'fa-clock-o', color: '#8e8e93' },
+};
+
+// Empties container and puts a rounded list card in it, for sheetRow()s
+function sheetList(container) {
+  container.innerHTML = '';
+  const list = document.createElement('div');
+  list.className = 'sheet-list';
+  container.appendChild(list);
+  return list;
+}
+
+// One row of a list in the sheet; nameHtml and detailHtml are already escaped
+function sheetRow({ icon, color }, nameHtml, detailHtml) {
+  const row = document.createElement('div');
+  row.className = 'sheet-row';
+  row.innerHTML = `<span class="sheet-row-icon" style="background: ${color}"><i class="fa ${icon}"></i></span>
+    <span class="sheet-row-text">
+      <span class="sheet-row-name">${nameHtml}</span>
+      ${detailHtml ? `<span class="sheet-row-detail">${detailHtml}</span>` : ''}
+    </span>`;
+  return row;
+}
+
+function normalize(str) {
+  return String(str).toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+}
+
+// Escaped text with the parts that match a word of the query in bold, ignoring case and
+// accents: "berlin herschel" → <b>Herschel</b>straße
+function highlightMatch(text, query) {
+  const chars = [...text];
+  // Normalized text, and for each of its characters the index in chars it came from
+  let norm = '';
+  const origin = [];
+  chars.forEach((c, i) => {
+    for (const n of normalize(c)) { norm += n; origin.push(i); }
+  });
+  const bold = new Array(chars.length).fill(false);
+  for (const word of normalize(query).split(/\s+/).filter(Boolean)) {
+    for (let at = norm.indexOf(word); at !== -1; at = norm.indexOf(word, at + word.length)) {
+      for (let k = at; k < at + word.length; k++) bold[origin[k]] = true;
+    }
+  }
+  let html = '';
+  chars.forEach((c, i) => {
+    if (bold[i] && !bold[i - 1]) html += '<b>';
+    html += escapeHtml(c);
+    if (bold[i] && !bold[i + 1]) html += '</b>';
+  });
+  return html;
 }
 
 const SHEET_DESKTOP_MIN_WIDTH = 768;
@@ -1036,30 +1155,42 @@ const SHEET_DISMISS_DRAG_PX = 40;     // released this far below peek: close
 const SHEET_DISMISS_DISTANCE_PX = 80; // or flicked so it would travel this far below peek
 const SHEET_VELOCITY_WINDOW_MS = 100;
 
-// Mobile bottom sheet with three detents, modelled on Apple Maps: peek (header only),
-// medium (half the screen) and large (almost full screen). The sheet has a fixed height
+// Mobile bottom sheet with three detents, modelled on Apple Maps: peek (search field or
+// place header only), medium (half the screen) and large (almost full screen). It never
+// goes away: at peek it shows the search field. The sheet has a fixed height
 // and is positioned with translateY, so dragging follows the finger 1:1 without relayout.
 // Releasing projects the flick's momentum to pick a detent and springs there, carrying
-// the finger's velocity without overshooting. Below peek the sheet follows the finger
-// freely, so pulling it down closes it. The rest of the app opens and closes the sheet through the
-// 'visible' class, which this watches. Desktop keeps the CSS side panel.
+// the finger's velocity without overshooting. Below peek a place follows the finger
+// freely, so pulling it down closes it; the search page rubber-bands instead. The rest
+// of the app moves the sheet through the returned goTo(). Desktop keeps the CSS side panel.
 function initSheetDrag() {
   const panel = document.querySelector('#feature-panel');
   const details = document.querySelector('#feature-panel-details');
+  const searchBody = document.querySelector('#search-body');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  let y = null;           // current translateY in px; null while hidden on desktop
-  let detent = 'hidden';  // 'hidden' | 'peek' | 'medium' | 'large'
+  // Height of the home indicator area, which stays clear below the peeking content
+  const insetProbe = document.createElement('div');
+  insetProbe.style.cssText = 'position: fixed; visibility: hidden; height: env(safe-area-inset-bottom)';
+  document.body.appendChild(insetProbe);
+
+  let y = null;           // current translateY in px; null on desktop
+  let detent = 'peek';    // 'peek' | 'medium' | 'large'
   let frame = null;
 
+  const placeOpen = () => panel.classList.contains('place-open');
+  const body = () => (placeOpen() ? details : searchBody);
   const viewHeight = () => panel.parentElement.clientHeight;
   const positions = () => {
     const height = panel.offsetHeight;
-    const peekVisible = details.offsetTop + 16;
+    const peekVisible = body().offsetTop + Math.max(16, insetProbe.offsetHeight);
+    const peek = Math.max(0, height - peekVisible);
+    // Keeps the map's attribution above the peeking search field
+    if (!placeOpen()) document.documentElement.style.setProperty('--sheet-peek-height', `${height - peek}px`);
     return {
       large: 0,
       medium: Math.max(0, height - viewHeight() * SHEET_MEDIUM_RATIO),
-      peek: Math.max(0, height - peekVisible),
+      peek,
       hidden: height + 40,
     };
   };
@@ -1068,7 +1199,7 @@ function initSheetDrag() {
     y = value;
     panel.style.transform = `translateY(${value}px)`;
     // Only the large detent shows the whole list, so only there it scrolls by itself
-    details.style.overflowY = detent === 'large' ? 'auto' : 'hidden';
+    for (const el of [details, searchBody]) el.style.overflowY = detent === 'large' ? 'auto' : 'hidden';
   };
 
   const stop = () => {
@@ -1076,11 +1207,10 @@ function initSheetDrag() {
     frame = null;
   };
 
-  function springTo(target, velocity = 0, onDone) {
+  function springTo(target, velocity = 0) {
     stop();
     if (reduceMotion.matches || y === null) {
       apply(target);
-      onDone?.();
       return;
     }
     const k = SHEET_SPRING_STIFFNESS;
@@ -1098,7 +1228,6 @@ function initSheetDrag() {
       if (crossed || (Math.abs(next - target) < 0.5 && Math.abs(v) < 10)) {
         apply(target);
         frame = null;
-        onDone?.();
         return;
       }
       apply(next);
@@ -1109,24 +1238,18 @@ function initSheetDrag() {
 
   function goTo(name, velocity = 0) {
     detent = name;
-    if (name !== 'large') details.scrollTop = 0;
+    if (!isMobileSheet()) return;
+    if (name !== 'large') {
+      details.scrollTop = 0;
+      searchBody.scrollTop = 0;
+    }
     springTo(positions()[name], velocity);
   }
 
-  // Opened/closed by the rest of the app
-  new MutationObserver(() => {
-    if (!isMobileSheet()) return;
-    const visible = panel.classList.contains('visible');
-    if (visible && detent === 'hidden') {
-      if (y === null) apply(positions().hidden);
-      goTo('medium');
-    } else if (!visible && detent !== 'hidden') {
-      goTo('hidden');
-    }
-  }).observe(panel, { attributes: true, attributeFilter: ['class'] });
+  // Slides in from below on load
   if (isMobileSheet()) {
     apply(positions().hidden);
-    if (panel.classList.contains('visible')) goTo('medium');
+    goTo('peek');
   }
 
   // Desktop uses the CSS side panel; switching sizes resets or re-places the sheet
@@ -1135,15 +1258,14 @@ function initSheetDrag() {
     if (!isMobileSheet()) {
       panel.style.transform = '';
       details.style.overflowY = '';
+      searchBody.style.overflowY = '';
       y = null;
-      detent = panel.classList.contains('visible') ? 'medium' : 'hidden';
       return;
     }
-    if (panel.classList.contains('visible') && detent === 'hidden') detent = 'medium';
     apply(positions()[detent]);
   });
 
-  // Rubber band above the large detent (iOS formula)
+  // Rubber band beyond the large detent (and below peek on the search page; iOS formula)
   const rubberBand = (overshoot) => {
     const dim = viewHeight();
     return (1 - 1 / (overshoot * 0.55 / dim + 1)) * dim;
@@ -1174,7 +1296,7 @@ function initSheetDrag() {
   };
 
   panel.addEventListener('touchstart', (e) => {
-    if (!isMobileSheet() || e.touches.length !== 1 || detent === 'hidden') return;
+    if (!isMobileSheet() || e.touches.length !== 1) return;
     stop(); // catch the sheet mid-animation, like iOS
     startY = e.touches[0].clientY;
     startPos = y;
@@ -1189,10 +1311,13 @@ function initSheetDrag() {
     if (mode === null) {
       if (Math.abs(dy) < 4) return;
       // At the large detent the list scrolls, unless it's at the top and pulled down
-      const inList = details.contains(e.target);
-      const canScroll = details.scrollHeight > details.clientHeight;
-      const listScrolls = detent === 'large' && inList && canScroll && (dy < 0 || details.scrollTop > 0);
+      const list = body();
+      const inList = list.contains(e.target);
+      const canScroll = list.scrollHeight > list.clientHeight;
+      const listScrolls = detent === 'large' && inList && canScroll && (dy < 0 || list.scrollTop > 0);
       mode = listScrolls ? 'scroll' : 'sheet';
+      // Scrolling the suggestions puts the keyboard away, like iOS
+      if (document.activeElement?.id === 'geocoder-input') document.activeElement.blur();
       if (mode === 'sheet') {
         startY = fingerY;
         samples = [{ t: e.timeStamp, y: fingerY }];
@@ -1205,10 +1330,11 @@ function initSheetDrag() {
     samples.push({ t: e.timeStamp, y: fingerY });
     samples = samples.filter(sample => e.timeStamp - sample.t <= SHEET_VELOCITY_WINDOW_MS);
 
-    // Resistance only above the top detent; downwards it follows the finger
-    const { large } = positions();
+    // Resistance above the top detent; downwards a place follows the finger
+    const { large, peek } = positions();
     let next = startPos + (fingerY - startY);
     if (next < large) next = large - rubberBand(large - next);
+    if (!placeOpen() && next > peek) next = peek + rubberBand(next - peek);
     scheduleDrag(next);
   }, { passive: false });
 
@@ -1230,25 +1356,28 @@ function initSheetDrag() {
     const r = SHEET_DECELERATION_RATE;
     const projected = y + (velocity / 1000) * r / (1 - r);
     const pos = positions();
-    if (y > pos.peek + SHEET_DISMISS_DRAG_PX || projected > pos.peek + SHEET_DISMISS_DISTANCE_PX) {
-      detent = 'hidden';
-      springTo(pos.hidden, velocity, () => hideFeatureDetail());
+    if (placeOpen() && (y > pos.peek + SHEET_DISMISS_DRAG_PX || projected > pos.peek + SHEET_DISMISS_DISTANCE_PX)) {
+      hideFeatureDetail('peek', velocity);
       return;
     }
     const nearest = ['large', 'medium', 'peek']
       .reduce((best, name) => (Math.abs(pos[name] - projected) < Math.abs(pos[best] - projected) ? name : best));
+    // Leaving the large detent ends typing in the search field
+    if (nearest !== 'large') endSearchEditing();
     goTo(nearest, velocity);
   };
   panel.addEventListener('touchend', onEnd);
   panel.addEventListener('touchcancel', onEnd);
 
-  // A tap on the handle or header of a peeking sheet brings it back up
+  // A tap on the handle or place header of a peeking sheet brings it back up
   for (const el of [panel.querySelector('#feature-panel-handle'), panel.querySelector('#feature-panel-header')]) {
     el.addEventListener('click', (e) => {
       if (!isMobileSheet() || detent !== 'peek' || e.target.closest('button')) return;
       goTo('medium');
     });
   }
+
+  return { goTo, detent: () => detent };
 }
 
 const LONG_PRESS_MS = 500;
@@ -1313,7 +1442,7 @@ function showLocationDetail(lngLat) {
   document.querySelector('#feature-panel-type').textContent = coords;
   document.querySelector('#feature-panel-details').innerHTML =
     '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
-  document.querySelector('#feature-panel').classList.add('visible');
+  showPlacePage();
 
   reverseGeocode(lat, lng).then(props => {
     // Ignore stale responses if another pin was dropped meanwhile
@@ -1388,7 +1517,7 @@ function showFeatureDetail(feature, lngLat) {
   document.querySelector('#feature-panel-type').textContent = type;
   document.querySelector('#feature-panel-details').innerHTML =
     '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
-  document.querySelector('#feature-panel').classList.add('visible');
+  showPlacePage();
 
   const osmRef = osmRefFromFeatureId(feature.id);
 
@@ -1406,12 +1535,15 @@ function showFeatureDetail(feature, lngLat) {
   });
 }
 
-function hideFeatureDetail() {
+// Closes the place page and goes back to the search page (detent: see showSearchPage)
+function hideFeatureDetail(detent, velocity) {
   setSelection(null);
-  document.querySelector('#feature-panel').classList.remove('visible');
   if (searchResultMarker) {
     searchResultMarker.remove();
     searchResultMarker = null;
+  }
+  if (document.querySelector('#feature-panel').classList.contains('place-open')) {
+    showSearchPage(detent, velocity);
   }
 }
 
@@ -1496,7 +1628,7 @@ function showGeocoderFeatureDetail(props, lngLat) {
     [streetDetail, props.city, props.country].filter(Boolean).join(', ') || type;
   document.querySelector('#feature-panel-details').innerHTML =
     '<div class="feature-detail-loading"><i class="fa fa-spinner fa-spin"></i></div>';
-  document.querySelector('#feature-panel').classList.add('visible');
+  showPlacePage();
 
   const resolve = (props.osm_id && props.osm_type)
     ? fetchOsmTagsByTypeAndId(props.osm_type, props.osm_id)
@@ -1690,6 +1822,34 @@ function phoneNumbers(values) {
   return [...numbers.values()];
 }
 
+// cuisine=* for display: "italian;pizza" → "Italienisch, Pizza"
+function cuisineText(tagValue) {
+  return tagValue.split(';').map(v => cuisineValueLabel(v.trim())).join(', ');
+}
+
+// "italian" → "Italienisch"; values iD doesn't know: "coffee_shop" → "Coffee shop"
+function cuisineValueLabel(value) {
+  const label = cuisineLabels?.[PREFERRED_LANG]?.[value] || cuisineLabels?.[LANG]?.[value] || cuisineLabels?.en?.[value];
+  if (label) return label;
+  const words = value.replace(/_/g, ' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+const DIET_VALUES = ['only', 'yes', 'limited'];
+
+// "Vegan only", "Vegetarian options" from diet:vegan / diet:vegetarian; vegetarian is left
+// out for vegan-only places, which are vegetarian anyway
+function dietLabels(tags) {
+  const labels = [];
+  for (const diet of ['vegan', 'vegetarian']) {
+    const value = tags[`diet:${diet}`];
+    if (!DIET_VALUES.includes(value)) continue;
+    labels.push(t(`diet.${diet}.${value}`));
+    if (diet === 'vegan' && value === 'only') break;
+  }
+  return labels;
+}
+
 // OSM websites sometimes omit the scheme ("www.example.com"), which would make a relative link
 function websiteUrl(value) {
   return /^https?:\/\//i.test(value) ? value : `https://${value}`;
@@ -1697,7 +1857,7 @@ function websiteUrl(value) {
 
 function renderOsmTags(tags, osmType, osmId, place) {
   // Skip if the panel was closed while the tags were loading
-  if (!document.querySelector('#feature-panel').classList.contains('visible')) return;
+  if (!document.querySelector('#feature-panel').classList.contains('place-open')) return;
   setSelection(`poi=${osmType}/${osmId}`);
 
   const ROWS = [
@@ -1706,8 +1866,9 @@ function renderOsmTags(tags, osmType, osmId, place) {
     [['website', 'contact:website'], t('label.website'),     'url'],
     ['operator',                     t('label.operator'),    false],
     ['brand',                        t('label.brand'),       false],
-    ['cuisine',                      t('label.cuisine'),     false],
-    ['wheelchair',                   t('label.wheelchair'),  false],
+    ['cuisine',                      t('label.cuisine'),     'cuisine'],
+    [[],                             t('label.diet'),        'diet'],
+    ['wheelchair',                   t('label.wheelchair'),  'wheelchair'],
     ['description',                  t('label.description'), false],
   ];
 
@@ -1756,10 +1917,18 @@ function renderOsmTags(tags, osmType, osmId, place) {
   }
 
   for (const [keys, label, linkType] of ROWS) {
-    const present = [keys].flat().map(k => tags[k]).filter(Boolean);
+    const present = linkType === 'diet' ? dietLabels(tags) : [keys].flat().map(k => tags[k]).filter(Boolean);
     if (!present.length) continue;
     let value;
-    if (linkType === 'url') {
+    if (linkType === 'diet') {
+      value = `<i class="fa fa-leaf feature-detail-icon feature-detail-icon--diet"></i>${present.map(escapeHtml).join(' · ')}`;
+    } else if (linkType === 'cuisine') {
+      value = `<span data-cuisine="${escapeHtml(present[0])}">${escapeHtml(cuisineText(present[0]))}</span>`;
+    } else if (linkType === 'wheelchair') {
+      const access = present[0] === 'designated' ? 'yes' : present[0];
+      const text = ['yes', 'limited', 'no'].includes(access) ? t(`wheelchair.${access}`) : present[0];
+      value = `<i class="fa fa-wheelchair feature-detail-icon feature-detail-icon--wheelchair-${escapeHtml(access)}"></i>${escapeHtml(text)}`;
+    } else if (linkType === 'url') {
       value = `<a href="${escapeHtml(websiteUrl(present[0]))}" target="_blank" rel="nofollow">${escapeHtml(present[0])}</a>`;
     } else if (linkType === 'tel') {
       value = phoneNumbers(present)
@@ -2084,34 +2253,80 @@ function loadReviews(name, lngLat) {
 }
 
 
+// The search field at the top of the sheet. Focusing it starts editing: the sheet goes to
+// its large detent and shows recent searches and categories, or suggestions for the typed
+// text, until a suggestion is picked, Enter is pressed or Cancel is tapped.
 function initGeocoder() {
+  const panel = document.querySelector('#feature-panel');
   const input = document.querySelector('#geocoder-input');
   const clearIcon = document.querySelector('#geocoder-clear-icon');
+  const cancel = document.querySelector('#geocoder-cancel');
   const results = document.querySelector('#geocoder-results');
   let debounceTimer = null;
 
+  const editing = () => panel.classList.contains('search-editing');
+
+  // iOS scrolls the page to bring a focused field above the keyboard. The field sits at
+  // the bottom of the peeking sheet, so the page would shift up and the sheet, on its way
+  // to the top, would end up in the middle of the screen. Focus it without scrolling (a
+  // tap, not a drag of the sheet) and undo any scrolling iOS does anyway.
+  let tapStart = null;
+  input.addEventListener('touchstart', (e) => {
+    tapStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, { passive: true });
+  input.addEventListener('touchend', (e) => {
+    const touch = e.changedTouches[0];
+    const tapped = tapStart && Math.hypot(touch.clientX - tapStart.x, touch.clientY - tapStart.y) < 10;
+    tapStart = null;
+    if (!tapped || editing()) return;
+    e.preventDefault();
+    input.focus({ preventScroll: true });
+  });
+  const undoPageScroll = () => {
+    if (window.scrollY !== 0 || document.documentElement.scrollTop !== 0) window.scrollTo(0, 0);
+  };
+  window.addEventListener('scroll', undoPageScroll);
+  window.visualViewport?.addEventListener('resize', undoPageScroll);
+  window.visualViewport?.addEventListener('scroll', undoPageScroll);
+
   input.addEventListener('focus', () => {
-    if (input.value.trim().length === 0) renderSuggestions();
+    undoPageScroll();
+    if (editing()) return;
+    panel.classList.add('search-editing');
+    sheet.goTo('large');
+    showSuggestionsFor(input.value);
   });
 
-  input.addEventListener('input', () => {
-    clearIcon.style.display = input.value.length > 0 ? 'block' : 'none';
+  function showSuggestionsFor(value) {
     clearTimeout(debounceTimer);
-    if (input.value.trim().length === 0) {
+    const query = value.trim();
+    if (query.length === 0) {
       renderSuggestions();
       return;
     }
-    if (input.value.trim().length < 2) {
+    if (query.length < 2) {
       hideGeocoderResults();
       return;
     }
-    debounceTimer = setTimeout(() => searchPhoton(input.value.trim()), 300);
+    debounceTimer = setTimeout(() => searchPhoton(query), 300);
+  }
+
+  input.addEventListener('input', () => {
+    clearIcon.style.display = input.value.length > 0 ? 'flex' : 'none';
+    showSuggestionsFor(input.value);
   });
+
+  // Back to where the search was before: its results, or the empty search field
+  function stopEditing() {
+    clearTimeout(debounceTimer);
+    endSearchEditing();
+    sheet.goTo(panel.classList.contains('has-results') ? 'medium' : 'peek');
+  }
 
   // Keyboard navigation of the dropdown. The highlight lives in the DOM, so it resets
   // whenever the results are re-rendered.
   function dropdownItems() {
-    return [...results.querySelectorAll('.suggestions-item, .geocoder-result')];
+    return [...results.querySelectorAll('.sheet-row')];
   }
 
   function moveHighlight(step) {
@@ -2128,15 +2343,13 @@ function initGeocoder() {
 
   input.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      if (results.style.display !== 'block') return;
+      if (!editing()) return;
       e.preventDefault(); // keep the caret in place
       moveHighlight(e.key === 'ArrowDown' ? 1 : -1);
       return;
     }
     if (e.key === 'Escape') {
-      clearTimeout(debounceTimer);
-      hideGeocoderResults();
-      input.blur();
+      stopEditing();
       return;
     }
     if (e.key !== 'Enter') return;
@@ -2144,15 +2357,12 @@ function initGeocoder() {
     if (highlighted) {
       e.preventDefault();
       highlighted.click();
-      input.blur();
       return;
     }
     const query = input.value.trim();
     if (query.length < 2) return;
     e.preventDefault();
     clearTimeout(debounceTimer);
-    hideGeocoderResults();
-    input.blur(); // closes the on-screen keyboard
     // An exact category name runs that category search, a cuisine word ("griechisch",
     // "Döner") a cuisine search; anything else searches place names
     const category = matchCategories(query).find(c => normalize(c.label) === normalize(query));
@@ -2166,81 +2376,79 @@ function initGeocoder() {
     } else {
       searchPlaces(query, false);
     }
+    // In case no search started (e.g. zoomed out too far for a category)
+    endSearchEditing();
   });
 
+  // Keep the keyboard up when the clear button is tapped while typing
+  clearIcon.addEventListener('mousedown', (e) => e.preventDefault());
   clearIcon.addEventListener('click', () => {
-    input.value = '';
-    clearIcon.style.display = 'none';
-    renderSuggestions();
-    input.focus();
+    // While typing it only empties the field; otherwise it ends the search
+    if (editing()) {
+      setSearchInput('');
+      renderSuggestions();
+      input.focus();
+      return;
+    }
+    clearSearch();
+    hideFeatureDetail();
+    sheet.goTo('peek');
   });
 
+  cancel.addEventListener('mousedown', (e) => e.preventDefault());
+  cancel.addEventListener('click', stopEditing);
+
+  // A tap on the map ends typing (a map feature also opens its place)
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('#geocoder')) hideGeocoderResults();
+    if (editing() && !e.target.closest('#feature-panel')) stopEditing();
   });
 
   function renderSuggestions() {
     const recents = getRecentSearches();
-    let html = '';
+    results.innerHTML = '';
 
     if (recents.length) {
-      html += '<div class="suggestions-section">';
-      html += `<div class="suggestions-section-title">${t('search.recent')}</div>`;
-      recents.forEach((r, i) => {
-        html += `<div class="suggestions-item suggestions-recent" data-index="${i}">
-          <i class="fa fa-clock-o suggestions-icon"></i>
-          <span class="suggestions-item-name">${escapeHtml(r.name)}</span>
-        </div>`;
+      const list = suggestionSection(t('search.recent'));
+      recents.forEach((r) => {
+        const [name, ...rest] = r.name.split(', ');
+        const row = sheetRow(ROW_ICONS.recent, escapeHtml(name), escapeHtml(rest.join(', ')));
+        row.addEventListener('click', () => {
+          endSearchEditing();
+          if (r.props) {
+            openGeocoderResult(r.props, r.lat, r.lng, r.zoom);
+          } else {
+            // Entries saved before place details were stored: show the spot as a pin
+            flyTo({ center: [r.lng, r.lat], zoom: r.zoom, offset: sheetOffset() });
+            showLocationDetail({ lat: r.lat, lng: r.lng });
+          }
+        });
+        list.appendChild(row);
       });
-      html += '</div>';
     }
 
     if (poiData) {
-      html += '<div class="suggestions-section">';
-      html += `<div class="suggestions-section-title">${t('search.categories')}</div>`;
+      const list = suggestionSection(t('search.categories'));
       const categories = Object.entries(poiData)
         .map(([key, poi]) => ({ key, label: categoryLabel(poi) }))
         .sort((a, b) => a.label.localeCompare(b.label, LANG));
       for (const { key, label } of categories) {
-        const active = key === selectedCategory ? ' suggestions-item--active' : '';
-        html += `<div class="suggestions-item suggestions-category${active}" data-key="${escapeHtml(key)}">
-          <i class="fa fa-map-marker suggestions-icon"></i>
-          <span class="suggestions-item-name">${escapeHtml(label)}</span>
-        </div>`;
+        const row = sheetRow(ROW_ICONS.category, escapeHtml(label));
+        row.addEventListener('click', () => selectCategory(key));
+        list.appendChild(row);
       }
-      html += '</div>';
     }
-
-    if (!html) return;
-    results.innerHTML = html;
-    results.style.display = 'block';
-
-    results.querySelectorAll('.suggestions-recent').forEach(el => {
-      el.addEventListener('click', () => {
-        const r = recents[parseInt(el.dataset.index)];
-        input.value = r.name;
-        clearIcon.style.display = 'block';
-        hideGeocoderResults();
-        if (r.props) {
-          openGeocoderResult(r.props, r.lat, r.lng, r.zoom);
-        } else {
-          // Entries saved before place details were stored: show the spot as a pin
-          flyTo({ center: [r.lng, r.lat], zoom: r.zoom, offset: sheetOffset() });
-          showLocationDetail({ lat: r.lat, lng: r.lng });
-        }
-      });
-    });
-
-    results.querySelectorAll('.suggestions-category').forEach(el => {
-      el.addEventListener('click', () => {
-        hideGeocoderResults();
-        selectCategory(el.dataset.key);
-      });
-    });
   }
 
-  function normalize(str) {
-    return String(str).toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+  // Appends a titled section to the suggestions and returns its list card
+  function suggestionSection(title) {
+    const section = document.createElement('div');
+    section.className = 'sheet-section';
+    section.innerHTML = `<div class="sheet-section-title">${escapeHtml(title)}</div>`;
+    const list = document.createElement('div');
+    list.className = 'sheet-list';
+    section.appendChild(list);
+    results.appendChild(section);
+    return list;
   }
 
   // Categories whose label in any language matches the query
@@ -2287,10 +2495,8 @@ function initGeocoder() {
   }
 
   function openCuisineSearch(id) {
-    input.value = cuisineLabel(id);
-    clearIcon.style.display = 'block';
-    hideGeocoderResults();
     searchCuisine(id, false);
+    endSearchEditing();
   }
 
   function searchPhoton(query) {
@@ -2300,54 +2506,37 @@ function initGeocoder() {
       `&lat=${center.lat}&lon=${center.lng}&zoom=${Math.round(map.getZoom())}&location_bias_scale=${PHOTON_LOCATION_BIAS}`;
     const categories = matchCategories(query);
     const cuisines = matchCuisines(query).slice(0, CUISINE_SUGGESTIONS);
-    if (categories.length || cuisines.length) renderGeocoderResults([], categories, cuisines);
+    if (categories.length || cuisines.length) renderGeocoderResults(query, [], categories, cuisines);
     fetch(url)
       .then((r) => r.json())
       .then((data) => {
-        if (input.value.trim() !== query) return; // stale response
-        renderGeocoderResults(data.features, categories, cuisines);
+        if (!editing() || input.value.trim() !== query) return; // stale response
+        renderGeocoderResults(query, data.features, categories, cuisines);
       })
-      .catch(() => renderGeocoderResults([], categories, cuisines));
+      .catch(() => {
+        if (editing() && input.value.trim() === query) renderGeocoderResults(query, [], categories, cuisines);
+      });
   }
 
-  function renderGeocoderResults(features, categories = [], cuisines = []) {
+  // Suggestions for the typed text, Apple Maps style: one list of rows with round icons,
+  // the matching part of each name in bold
+  function renderGeocoderResults(query, features, categories = [], cuisines = []) {
     results.innerHTML = '';
     if ((!features || features.length === 0) && categories.length === 0 && cuisines.length === 0) {
-      hideGeocoderResults();
       return;
     }
+    const list = sheetList(results);
 
-    if (cuisines.length) {
-      const section = document.createElement('div');
-      section.className = 'suggestions-section';
-      section.innerHTML = `<div class="suggestions-section-title">${t('search.food')}</div>`;
-      for (const { id, label } of cuisines) {
-        const el = document.createElement('div');
-        el.className = 'suggestions-item suggestions-category';
-        el.innerHTML = `<i class="fa fa-cutlery suggestions-icon"></i>
-          <span class="suggestions-item-name">${escapeHtml(label)}</span>`;
-        el.addEventListener('click', () => openCuisineSearch(id));
-        section.appendChild(el);
-      }
-      results.appendChild(section);
+    for (const { id, label } of cuisines) {
+      const row = sheetRow(ROW_ICONS.food, highlightMatch(label, query), escapeHtml(t('search.food')));
+      row.addEventListener('click', () => openCuisineSearch(id));
+      list.appendChild(row);
     }
 
-    if (categories.length) {
-      const section = document.createElement('div');
-      section.className = 'suggestions-section';
-      section.innerHTML = `<div class="suggestions-section-title">${t('search.categories')}</div>`;
-      for (const { key, label } of categories) {
-        const el = document.createElement('div');
-        el.className = 'suggestions-item suggestions-category';
-        el.innerHTML = `<i class="fa fa-map-marker suggestions-icon"></i>
-          <span class="suggestions-item-name">${escapeHtml(label)}</span>`;
-        el.addEventListener('click', () => {
-          hideGeocoderResults();
-          selectCategory(key);
-        });
-        section.appendChild(el);
-      }
-      results.appendChild(section);
+    for (const { key, label } of categories) {
+      const row = sheetRow(ROW_ICONS.category, highlightMatch(label, query), escapeHtml(t('search.categories')));
+      row.addEventListener('click', () => selectCategory(key));
+      list.appendChild(row);
     }
 
     (features || []).forEach((feature) => {
@@ -2356,24 +2545,15 @@ function initGeocoder() {
 
       const { name, detail } = photonLabel(p);
 
-      const item = document.createElement('div');
-      item.className = 'geocoder-result';
-      item.innerHTML = `<div class="geocoder-result-name">${escapeHtml(name)}</div>` +
-        (detail ? `<div class="geocoder-result-detail">${escapeHtml(detail)}</div>` : '');
-
-      item.addEventListener('click', () => {
+      const row = sheetRow(ROW_ICONS.place, highlightMatch(name, query), escapeHtml(detail));
+      row.addEventListener('click', () => {
         const fullName = name + (detail ? ', ' + detail : '');
-        input.value = fullName;
         const zoom = zoomForType(p.type || p.osm_value);
         addRecentSearch({ name: fullName, lat, lng: lon, zoom, props: p });
-        hideGeocoderResults();
         openGeocoderResult(p, lat, lon, zoom);
       });
-
-      results.appendChild(item);
+      list.appendChild(row);
     });
-
-    results.style.display = 'block';
   }
 
   function openGeocoderResult(props, lat, lng, zoom) {
@@ -2388,7 +2568,6 @@ function initGeocoder() {
   }
 
   function hideGeocoderResults() {
-    results.style.display = 'none';
     results.innerHTML = '';
   }
 
