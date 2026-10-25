@@ -263,6 +263,15 @@
       "description": "Shown when searching for: Public Toilet with Eurokey"
     },
     {
+      "key": "changing_table",
+      "value": "yes",
+      "object_types": [
+        "node",
+        "way"
+      ],
+      "description": "Shown when searching for: Baby Changing Table"
+    },
+    {
       "key": "cuisine",
       "value": "african",
       "object_types": [

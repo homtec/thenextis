@@ -97,6 +97,20 @@
     "lang-pt": "Casa de banho acessível com Eurokey",
     "lang-tr": "Eurokey’li engelli tuvaleti"
   },
+  "changing table": {
+    "osm": "changing_table=yes",
+    "lang-de": "Wickeltisch",
+    "lang-en": "Baby Changing Table",
+    "lang-es": "Cambiador de bebés",
+    "lang-fr": "Table à langer",
+    "lang-ru": "Пеленальный столик",
+    "lang-it": "Fasciatoio",
+    "lang-pl": "Przewijak",
+    "lang-uk": "Сповивальний столик",
+    "lang-nl": "Babyverschoontafel",
+    "lang-pt": "Fraldário",
+    "lang-tr": "Bebek bakım masası"
+  },
   "busstop": {
     "osm": "highway=bus_stop ",
     "lang-de": "Bushaltestelle",
